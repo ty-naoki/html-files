@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ボードゲーム集 | Board Games Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F7FA;--surface:#fff;--text:#1a2330;--text-mute:#6b7886;--primary:#003C71;--primary-grad:linear-gradient(135deg,#003C71 0%,#00578C 100%);--accent:#E60012;--border:#cdd5df;--shadow:rgba(0,60,113,0.12);--board-bg:#E8C887;--board-line:#3a2818}
+body.dark{--bg:#0d1421;--surface:#1a2332;--text:#e8eef5;--text-mute:#8b9ab0;--primary:#4d8fce;--primary-grad:linear-gradient(135deg,#1a3a5c 0%,#2a5080 100%);--accent:#ff4760;--border:#2a3848;--shadow:rgba(0,0,0,0.5);--board-bg:#3d3020;--board-line:#1a1208}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+header{background:var(--primary-grad);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px var(--shadow);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+header h1{font-size:17px;font-weight:700}
+header .spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border:none;border-radius:8px;background:var(--surface);color:var(--primary);font-weight:600;cursor:pointer;font-size:13px;transition:all .2s;font-family:inherit;box-shadow:0 2px 4px var(--shadow)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 5px 12px var(--shadow)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);color:#fff}
+.btn.primary:hover{background:#B8000E}
+.btn.ghost{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);box-shadow:none}
+.btn.ghost:hover{background:rgba(255,255,255,.25)}
+.container{max-width:1100px;margin:0 auto;padding:18px}
+.home-title{text-align:center;margin:12px 0 18px}
+.home-title h2{font-size:24px;color:var(--primary);margin-bottom:4px}
+.home-title p{color:var(--text-mute);font-size:13px}
+.stats-panel{background:var(--surface);border-radius:14px;padding:14px 18px;margin-bottom:16px;box-shadow:0 4px 14px var(--shadow);display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-around;animation:slideDown .4s ease}
+.stats-panel .stat{text-align:center;min-width:60px}
+.stats-panel .stat .num{font-size:22px;font-weight:700;color:var(--primary);display:block;line-height:1.2}
+.stats-panel .stat .lbl{font-size:10px;color:var(--text-mute)}
+.game-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.game-card{background:var(--surface);border-radius:16px;padding:20px 14px;text-align:center;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 12px var(--shadow),0 1px 3px var(--shadow);border:2px solid transparent;position:relative;overflow:hidden}
+.game-card:hover{transform:translateY(-6px) scale(1.03);box-shadow:0 14px 30px var(--shadow);border-color:var(--primary)}
+.game-card .icon{font-size:42px;display:block;margin-bottom:6px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));transition:transform .3s}
+.game-card:hover .icon{transform:scale(1.15) rotate(-5deg)}
+.game-card h3{color:var(--primary);font-size:15px;margin-bottom:3px}
+.game-card p{color:var(--text-mute);font-size:11px;margin-bottom:6px}
+.game-card .badge{display:inline-block;font-size:10px;background:var(--bg);color:var(--text);padding:3px 8px;border-radius:10px;font-weight:600}
+.game-card .badge.win{background:rgba(40,167,69,.18);color:#28a745}
+.game-card .badge.lose{background:rgba(220,53,69,.18);color:#dc3545}
+.game-view{display:none}
+.game-view.active{display:block;animation:fadeIn .3s}
+.home-view.hidden{display:none}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:7px;background:var(--surface);padding:10px 14px;border-radius:12px;margin-bottom:10px;box-shadow:0 3px 10px var(--shadow)}
+.toolbar label{font-size:12px;color:var(--text-mute);font-weight:600}
+.toolbar select{padding:6px 10px;border-radius:6px;border:1px solid var(--border);font-family:inherit;font-size:13px;background:var(--surface);color:var(--text)}
+.status{background:var(--surface);padding:10px 16px;border-radius:12px;margin-top:10px;box-shadow:0 3px 10px var(--shadow);font-size:14px;transition:all .3s}
+.status.check{animation:checkFlash .8s ease 2}
+.status .turn-badge{display:inline-block;padding:3px 10px;border-radius:12px;background:var(--primary);color:#fff;font-size:11px;margin-right:8px;font-weight:600}
+.board-wrap{background:var(--surface);padding:14px;border-radius:14px;display:flex;justify-content:center;align-items:center;box-shadow:0 8px 24px var(--shadow)}
+canvas{display:block;max-width:100%;height:auto;cursor:pointer;touch-action:manipulation;border-radius:6px;filter:drop-shadow(0 3px 10px rgba(0,0,0,.15))}
+.hand-row{background:var(--surface);padding:9px 14px;border-radius:10px;margin-top:6px;font-size:13px;box-shadow:0 2px 8px var(--shadow);display:flex;flex-wrap:wrap;align-items:center;gap:6px;color:var(--text)}
+.hand-row strong{color:var(--primary);margin-right:6px}
+.hand-piece{display:inline-block;padding:4px 10px;background:var(--bg);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-weight:600;transition:all .2s;color:var(--text)}
+.hand-piece:hover{background:var(--primary);color:#fff}
+.hand-piece.selected{background:var(--primary);color:#fff}
+.modal-bg{position:fixed;inset:0;background:rgba(0,20,40,.65);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(4px)}
+.modal-bg.show{display:flex;animation:fadeIn .2s}
+.modal{background:var(--surface);max-width:600px;width:100%;max-height:85vh;overflow-y:auto;border-radius:16px;padding:24px 28px;box-shadow:0 20px 60px rgba(0,0,0,.4);color:var(--text);animation:popIn .3s ease}
+.modal h2{color:var(--primary);margin-bottom:12px;font-size:22px}
+.modal h3{color:var(--primary);margin:12px 0 5px;font-size:15px;border-left:4px solid var(--accent);padding-left:8px}
+.modal p,.modal li{line-height:1.7;color:var(--text);font-size:14px}
+.modal ul{margin-left:22px;margin-bottom:6px}
+.modal-close{float:right;background:var(--bg);border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:13px;color:var(--text-mute)}
+.modal-close:hover{background:var(--accent);color:#fff}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:999}
+#camouflage{position:fixed;inset:0;background:#fff;z-index:9999;display:none;flex-direction:column;font-family:'Yu Gothic',Meiryo,sans-serif;color:#000}
+#camouflage.active{display:flex;animation:fadeIn .15s}
+.cf-titlebar{background:#107c41;color:#fff;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:10px}
+.cf-titlebar .dot{width:10px;height:10px;border-radius:50%}
+.cf-ribbon{background:#f3f2f1;border-bottom:1px solid #d2d0ce;padding:4px 12px;display:flex;gap:12px;font-size:12px;color:#323130;flex-wrap:wrap}
+.cf-ribbon span{padding:4px 10px;cursor:default}
+.cf-ribbon span.active{background:#fff;border:1px solid #d2d0ce;border-bottom:1px solid #fff;border-radius:3px 3px 0 0;font-weight:600}
+.cf-formula{background:#fff;border-bottom:1px solid #d2d0ce;padding:5px 12px;font-size:12px;color:#323130;display:flex;align-items:center;gap:8px}
+.cf-formula input{border:1px solid #d2d0ce;padding:3px 6px;font-size:12px;flex:1;font-family:inherit}
+.cf-sheet{flex:1;overflow:auto;background:#fff}
+.cf-sheet table{border-collapse:collapse;width:100%;font-size:12px}
+.cf-sheet th,.cf-sheet td{border:1px solid #d2d0ce;padding:5px 10px;text-align:left;white-space:nowrap}
+.cf-sheet th{background:#f3f2f1;font-weight:600;position:sticky;top:0;color:#323130}
+.cf-sheet td.idx{background:#f3f2f1;text-align:center;color:#605e5c;width:34px;font-weight:600}
+.cf-sheet tr:hover td:not(.idx){background:#f9f9f9}
+.cf-status{background:#107c41;color:#fff;padding:4px 14px;font-size:11px;display:flex;justify-content:space-between}
+.cf-hint{position:fixed;bottom:6px;right:10px;font-size:10px;color:#605e5c;background:rgba(255,255,255,.9);padding:3px 8px;border-radius:3px;z-index:10000}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes checkFlash{0%,100%{background:var(--surface)}50%{background:rgba(230,0,18,.25)}}
+@media(max-width:600px){header h1{font-size:14px}.container{padding:10px}.btn{padding:6px 9px;font-size:12px}.game-card .icon{font-size:36px}}
+</style>
+</head>
+<body>
+<header>
+<span style="font-size:22px">🎲</span>
+<h1>ボードゲーム集</h1>
+<div class="spacer"></div>
+<button class="btn ghost" id="themeBtn" title="ダークモード">🌙</button>
+<button class="btn ghost" id="bossBtn" title="Ctrl+B">💼 作業中</button>
+<button class="btn ghost" id="globalHome">🏠 ホーム</button>
+</header>
+<div class="container">
+<div id="home" class="home-view">
+<div class="home-title"><h2>遊びたいゲームを選んでね</h2><p>CPU対戦・ルール解説・戦績記録・ダーク対応 🎓</p></div>
+<div id="statsPanel" class="stats-panel"></div>
+<div class="game-grid">
+<div class="game-card" data-game="gomoku"><span class="icon">⚫</span><h3>五目並べ</h3><p>15路盤・5連で勝利</p></div>
+<div class="game-card" data-game="othello"><span class="icon">⚫⚪</span><h3>オセロ</h3><p>挟んでひっくり返そう</p></div>
+<div class="game-card" data-game="chess"><span class="icon">♞</span><h3>チェス</h3><p>キングを詰めよ</p></div>
+<div class="game-card" data-game="shogi"><span class="icon">王</span><h3>将棋</h3><p>9×9・持ち駒あり</p></div>
+<div class="game-card" data-game="go"><span class="icon">◯</span><h3>囲碁</h3><p>9路盤・陣地を競う</p></div>
+<div class="game-card" data-game="checkers"><span class="icon">🔴</span><h3>チェッカー</h3><p>斜めジャンプ</p></div>
+</div>
+</div>
+<div id="gameView" class="game-view">
+<div class="toolbar">
+<button class="btn" id="backHome">← ホーム</button>
+<strong id="gameTitle" style="color:var(--primary);font-size:14px">ゲーム</strong>
+<div style="flex:1"></div>
+<label>難易度:</label>
+<select id="difficulty"><option value="1">🟢 初級</option><option value="2" selected>🟡 中級</option><option value="3">🔴 上級</option></select>
+<button class="btn" id="tutorialBtn">🎓 ルール</button>
+<button class="btn" id="passBtn" style="display:none">⏭ パス</button>
+<button class="btn primary" id="resetBtn">🔄 リセット</button>
+</div>
+<div id="handTop" class="hand-row" style="display:none"></div>
+<div class="board-wrap"><canvas id="board" width="600" height="600"></canvas></div>
+<div id="handBottom" class="hand-row" style="display:none"></div>
+<div class="status" id="status"><span class="turn-badge" id="turnBadge">手番</span><span id="statusText">準備中…</span></div>
+</div>
+</div>
+<div class="modal-bg" id="modalBg"><div class="modal"><button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')">✕ 閉じる</button><div id="modalContent"></div></div></div>
+<canvas id="confetti"></canvas>
+<div id="camouflage">
+<div class="cf-titlebar">
+<span class="dot" style="background:#ff5f57"></span><span class="dot" style="background:#febc2e"></span><span class="dot" style="background:#28c840"></span>
+<span style="margin-left:8px">📊 設備点検管理表_2026Q2.xlsx - Excel</span>
+</div>
+<div class="cf-ribbon"><span>ファイル</span><span class="active">ホーム</span><span>挿入</span><span>ページレイアウト</span><span>数式</span><span>データ</span><span>校閲</span><span>表示</span></div>
+<div class="cf-formula"><span style="font-weight:600">D7</span><span>fx</span><input value='=IF(C7="OK","完了","要確認")' readonly></div>
+<div class="cf-sheet"><table>
+<thead><tr><th class="idx"></th><th>A 機器ID</th><th>B 機器名</th><th>C 点検項目</th><th>D 状態</th><th>E 担当者</th><th>F 点検日</th><th>G 次回</th><th>H 備考</th></tr></thead>
+<tbody id="cfBody"></tbody>
+</table></div>
+<div class="cf-status"><span>準備完了</span><span>合計: 25件 | 件数: 25</span></div>
+</div>
+<div class="cf-hint" id="cfHint" style="display:none">ESC または Ctrl+B で復帰</div>
+
+<script>
+(function(){'use strict';
+var canvas,ctx,currentGame=null,difficulty=2;
+function $(id){return document.getElementById(id)}
+
+// ===== SOUND =====
+var audioCtx=null;
+function audio(){if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}return audioCtx}
+function tone(f,d,t,v){var c=audio();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.08;o.connect(g);g.connect(c.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+d);o.stop(c.currentTime+d)}
+var SFX={
+place:function(){tone(660,0.08,'triangle',0.1)},
+capture:function(){tone(220,0.12,'square',0.12);setTimeout(function(){tone(180,0.12,'square',0.08)},80)},
+win:function(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,0.2,'triangle',0.12)},i*120)})},
+lose:function(){tone(220,0.35,'sawtooth',0.1);setTimeout(function(){tone(165,0.45,'sawtooth',0.08)},150)},
+check:function(){tone(880,0.1,'square',0.12);setTimeout(function(){tone(880,0.1,'square',0.12)},150)},
+click:function(){tone(1200,0.04,'sine',0.05)}
+};
+
+// ===== THEME =====
+function applyTheme(){var t=localStorage.getItem('bgh_theme')||'light';document.body.classList.toggle('dark',t==='dark');var b=$('themeBtn');if(b)b.textContent=t==='dark'?'☀️':'🌙'}
+function toggleTheme(){var t=localStorage.getItem('bgh_theme')||'light';localStorage.setItem('bgh_theme',t==='dark'?'light':'dark');applyTheme();SFX.click();if(currentGame&&GAMES[currentGame])GAMES[currentGame].draw()}
+
+// ===== STATS =====
+function getStats(){try{return JSON.parse(localStorage.getItem('bgh_stats')||'{}')}catch(e){return{}}}
+function recordResult(g,r){var s=getStats();if(!s[g])s[g]={w:0,l:0,d:0};if(r==='w')s[g].w++;else if(r==='l')s[g].l++;else s[g].d++;localStorage.setItem('bgh_stats',JSON.stringify(s));updateBadges();if(r==='w'){SFX.win();confetti()}else if(r==='l')SFX.lose()}
+function updateBadges(){var s=getStats();document.querySelectorAll('.game-card').forEach(function(c){var g=c.dataset.game;var st=s[g]||{w:0,l:0,d:0};var ex=c.querySelector('.badge');if(ex)ex.remove();var b=document.createElement('div');b.className='badge'+(st.w>st.l?' win':st.l>st.w?' lose':'');b.textContent=st.w+'勝 '+st.l+'敗'+(st.d?' '+st.d+'分':'');c.appendChild(b)});renderStatsPanel()}
+function renderStatsPanel(){var p=$('statsPanel');if(!p)return;var s=getStats();var w=0,l=0,d=0;Object.keys(s).forEach(function(k){w+=s[k].w;l+=s[k].l;d+=s[k].d});var tot=w+l+d,rate=tot?Math.round(w/tot*100):0;p.innerHTML='<div class="stat"><span class="num">'+w+'</span><span class="lbl">🏆 勝利</span></div><div class="stat"><span class="num">'+l+'</span><span class="lbl">💔 敗北</span></div><div class="stat"><span class="num">'+d+'</span><span class="lbl">🤝 引分</span></div><div class="stat"><span class="num">'+rate+'%</span><span class="lbl">勝率</span></div><div class="stat"><span class="num">'+tot+'</span><span class="lbl">総対局</span></div><button class="btn" id="resetStats">🗑️ リセット</button>';$('resetStats').addEventListener('click',function(){if(confirm('戦績をリセットする？')){localStorage.removeItem('bgh_stats');updateBadges()}})}
+
+// ===== CONFETTI =====
+function confetti(){var cv=$('confetti');cv.width=window.innerWidth;cv.height=window.innerHeight;var cx=cv.getContext('2d');var P=[];var cols=['#E60012','#003C71','#ffd700','#28a745','#ff8c00'];for(var i=0;i<120;i++)P.push({x:Math.random()*cv.width,y:-20,vx:(Math.random()-.5)*5,vy:Math.random()*4+3,c:cols[i%cols.length],s:Math.random()*8+4,r:Math.random()*Math.PI*2,vr:(Math.random()-.5)*.2});var t0=Date.now();function loop(){cx.clearRect(0,0,cv.width,cv.height);P.forEach(function(p){p.x+=p.vx;p.y+=p.vy;p.vy+=.1;p.r+=p.vr;cx.save();cx.translate(p.x,p.y);cx.rotate(p.r);cx.fillStyle=p.c;cx.fillRect(-p.s/2,-p.s/2,p.s,p.s);cx.restore()});if(Date.now()-t0<3500)requestAnimationFrame(loop);else cx.clearRect(0,0,cv.width,cv.height)}loop()}
+
+// ===== CAMOUFLAGE =====
+function buildCF(){var rows=[['M-101','コンプレッサーA','油量確認','OK','吉弘','2026/06/15','2026/07/15',''],['M-102','コンプレッサーB','圧力測定','OK','村上','2026/06/15','2026/07/15',''],['M-103','搬送ロボ#1','可動部潤滑','要確認','岡田','2026/06/16','2026/06/30','異音発生'],['M-104','搬送ロボ#2','エラー履歴','OK','松尾','2026/06/16','2026/07/16',''],['M-105','プレス機A','金型清掃','OK','森田','2026/06/17','2026/07/17',''],['M-106','プレス機B','油圧チェック','要確認','坂田','2026/06/17','2026/06/24','油漏れ微小'],['M-107','溶接ロボ#1','電極消耗','OK','吉弘','2026/06/18','2026/07/18',''],['M-108','溶接ロボ#2','ノズル清掃','OK','村上','2026/06/18','2026/07/18',''],['M-109','塗装ブース','フィルター点検','要交換','岡田','2026/06/19','2026/06/26','次回交換'],['M-110','乾燥炉','温度センサー','OK','松尾','2026/06/19','2026/07/19',''],['M-111','コンベア#1','ベルト張力','OK','森田','2026/06/20','2026/07/20',''],['M-112','コンベア#2','ローラー音','要確認','坂田','2026/06/20','2026/06/27','異音'],['M-113','空調設備','フィルター清掃','OK','吉弘','2026/06/21','2026/07/21',''],['M-114','受変電盤','絶縁抵抗','OK','村上','2026/06/21','2026/12/21',''],['M-115','非常用発電機','試運転','OK','岡田','2026/06/22','2026/07/22',''],['M-116','給水ポンプA','流量確認','OK','松尾','2026/06/22','2026/07/22',''],['M-117','給水ポンプB','圧力計','OK','森田','2026/06/23','2026/07/23',''],['M-118','排水処理','pH測定','OK','坂田','2026/06/23','2026/07/23',''],['M-119','検査装置#1','カメラ清掃','OK','吉弘','2026/06/24','2026/07/24',''],['M-120','検査装置#2','照明確認','OK','村上','2026/06/24','2026/07/24',''],['M-121','梱包機','テープ補充','OK','岡田','2026/06/25','2026/07/02',''],['M-122','フォークリフト','バッテリー','OK','松尾','2026/06/25','2026/07/25',''],['M-123','AGV#1','センサー清掃','OK','森田','2026/06/26','2026/07/26',''],['M-124','AGV#2','バッテリー','要充電','坂田','2026/06/26','2026/06/27','充電中'],['M-125','工具庫','在庫確認','OK','吉弘','2026/06/27','2026/07/27','']];var h='';for(var i=0;i<rows.length;i++){var r=rows[i],st=r[3],col=st==='OK'?'#107c41':st==='要交換'?'#a4262c':'#c19c00';h+='<tr><td class="idx">'+(i+7)+'</td>';for(var j=0;j<r.length;j++){if(j===3)h+='<td style="color:'+col+';font-weight:600">'+r[j]+'</td>';else h+='<td>'+r[j]+'</td>'}h+='</tr>'}$('cfBody').innerHTML=h}
+function toggleBoss(){var cf=$('camouflage'),hint=$('cfHint');if(cf.classList.contains('active')){cf.classList.remove('active');hint.style.display='none'}else{buildCF();cf.classList.add('active');hint.style.display='block';setTimeout(function(){hint.style.display='none'},2500)}}
+
+// ===== CORE =====
+function showHome(){$('home').classList.remove('hidden');$('gameView').classList.remove('active');currentGame=null;updateBadges()}
+function showGame(n){$('home').classList.add('hidden');$('gameView').classList.add('active');currentGame=n;var g=GAMES[n];$('gameTitle').textContent=g.title;$('passBtn').style.display=g.usePass?'':'none';$('handTop').style.display=g.useHand?'':'none';$('handBottom').style.display=g.useHand?'':'none';setupCanvas(g.canvasSize||540);g.reset();g.draw();if(g.renderHands)g.renderHands()}
+function setupCanvas(sz){canvas.width=sz;canvas.height=sz;var max=Math.min(window.innerWidth-50,540);canvas.style.width=max+'px';canvas.style.height=max+'px'}
+function setStatus(t,b){$('statusText').textContent=t;$('turnBadge').textContent=b||'状態'}
+function flashCheck(){var s=$('status');s.classList.remove('check');void s.offsetWidth;s.classList.add('check');SFX.check()}
+function showModal(h){$('modalContent').innerHTML=h;$('modalBg').classList.add('show')}
+function getXY(e){var r=canvas.getBoundingClientRect(),sx=canvas.width/r.width,sy=canvas.height/r.height,t=e.touches?e.touches[0]:e;return{x:(t.clientX-r.left)*sx,y:(t.clientY-r.top)*sy}}
+var GAMES={};
+
+// ===== 五目並べ =====
+GAMES.gomoku={title:'⚫ 五目並べ',canvasSize:540,board:null,gameOver:false,
+reset:function(){this.board=[];for(var i=0;i<15;i++){var r=[];for(var j=0;j<15;j++)r.push(0);this.board.push(r)}this.gameOver=false;setStatus('黒(あなた)の手番だよ','🖤 黒')},
+draw:function(){var N=15,sz=540,cell=sz/N,off=cell/2;ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--board-bg').trim();ctx.fillRect(0,0,sz,sz);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--board-line').trim();ctx.lineWidth=1;for(var i=0;i<N;i++){ctx.beginPath();ctx.moveTo(off,off+i*cell);ctx.lineTo(off+(N-1)*cell,off+i*cell);ctx.stroke();ctx.beginPath();ctx.moveTo(off+i*cell,off);ctx.lineTo(off+i*cell,off+(N-1)*cell);ctx.stroke()}var st=[[3,3],[3,11],[11,3],[11,11],[7,7]];for(var s=0;s<5;s++){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--board-line').trim();ctx.beginPath();ctx.arc(off+st[s][0]*cell,off+st[s][1]*cell,4,0,Math.PI*2);ctx.fill()}for(var y=0;y<15;y++)for(var x=0;x<15;x++)if(this.board[y][x]){var cx=off+x*cell,cy=off+y*cell,rr=cell*.42;ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=4;ctx.shadowOffsetY=2;var g=ctx.createRadialGradient(cx-rr*.3,cy-rr*.3,rr*.1,cx,cy,rr);if(this.board[y][x]===1){g.addColorStop(0,'#555');g.addColorStop(1,'#000')}else{g.addColorStop(0,'#fff');g.addColorStop(1,'#bbb')}ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,rr,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0}},
+onClick:function(px,py){if(this.gameOver)return;var cell=540/15,off=cell/2;var x=Math.round((px-off)/cell),y=Math.round((py-off)/cell);if(x<0||x>=15||y<0||y>=15||this.board[y][x]!==0)return;this.board[y][x]=1;SFX.place();this.draw();if(this.checkWin(1,x,y)){this.gameOver=true;setStatus('🎉 あなたの勝ち！','勝利');recordResult('gomoku','w');return}if(this.isFull()){this.gameOver=true;setStatus('引き分け','終了');recordResult('gomoku','d');return}setStatus('CPU 思考中…','⚪ CPU');var self=this;setTimeout(function(){self.cpu()},60)},
+isFull:function(){for(var y=0;y<15;y++)for(var x=0;x<15;x++)if(this.board[y][x]===0)return false;return true},
+checkWin:function(p,x,y){var d=[[1,0],[0,1],[1,1],[1,-1]];for(var i=0;i<4;i++){var dx=d[i][0],dy=d[i][1],c=1;for(var s=1;s<5;s++){var nx=x+dx*s,ny=y+dy*s;if(nx<0||nx>=15||ny<0||ny>=15||this.board[ny][nx]!==p)break;c++}for(var s=1;s<5;s++){var nx=x-dx*s,ny=y-dy*s;if(nx<0||nx>=15||ny<0||ny>=15||this.board[ny][nx]!==p)break;c++}if(c>=5)return true}return false},
+evalCell:function(x,y,p){var d=[[1,0],[0,1],[1,1],[1,-1]],sc=0;for(var i=0;i<4;i++){var dx=d[i][0],dy=d[i][1],cnt=1,oA=false,oB=false;for(var s=1;s<5;s++){var nx=x+dx*s,ny=y+dy*s;if(nx<0||nx>=15||ny<0||ny>=15)break;if(this.board[ny][nx]===p)cnt++;else{if(this.board[ny][nx]===0)oA=true;break}}for(var s=1;s<5;s++){var nx=x-dx*s,ny=y-dy*s;if(nx<0||nx>=15||ny<0||ny>=15)break;if(this.board[ny][nx]===p)cnt++;else{if(this.board[ny][nx]===0)oB=true;break}}var o=(oA?1:0)+(oB?1:0);if(cnt>=5)sc+=1e6;else if(cnt===4&&o===2)sc+=5e4;else if(cnt===4&&o===1)sc+=5e3;else if(cnt===3&&o===2)sc+=3e3;else if(cnt===3&&o===1)sc+=300;else if(cnt===2&&o===2)sc+=200;else if(cnt===2&&o===1)sc+=20}return sc},
+cpu:function(){var cands=[],seen={};for(var y=0;y<15;y++)for(var x=0;x<15;x++)if(this.board[y][x]){for(var dy=-2;dy<=2;dy++)for(var dx=-2;dx<=2;dx++){var nx=x+dx,ny=y+dy;if(nx<0||nx>=15||ny<0||ny>=15||this.board[ny][nx]!==0)continue;var k=ny*15+nx;if(seen[k])continue;seen[k]=1;cands.push([nx,ny])}}if(!cands.length)cands.push([7,7]);var self=this;var sc=cands.map(function(c){return{x:c[0],y:c[1],s:self.evalCell(c[0],c[1],2)*1.05+self.evalCell(c[0],c[1],1)}});sc.sort(function(a,b){return b.s-a.s});var pick=difficulty===1?sc[Math.floor(Math.random()*Math.min(5,sc.length))]:sc[0];this.board[pick.y][pick.x]=2;SFX.place();this.draw();if(this.checkWin(2,pick.x,pick.y)){this.gameOver=true;setStatus('😢 CPUの勝ち','敗北');recordResult('gomoku','l');return}if(this.isFull()){this.gameOver=true;setStatus('引き分け','終了');recordResult('gomoku','d');return}setStatus('あなたの手番','🖤 黒')},
+tutorial:'<h2>⚫ 五目並べ</h2><h3>目的</h3><p>自分の石を縦・横・斜めに<strong>5つ連続</strong>並べたら勝ち！</p><h3>ルール</h3><ul><li>あなた=黒(先手)、CPU=白</li><li>15路盤の交点に交互に置く</li></ul><h3>コツ</h3><ul><li>両端が空いた3連(活三)を作ろう</li><li>相手の活三・活四は最優先でブロック</li></ul>'};
+
+// ===== オセロ =====
+GAMES.othello={title:'⚫⚪ オセロ',canvasSize:480,board:null,turn:1,gameOver:false,passCount:0,
+reset:function(){this.board=[];for(var i=0;i<8;i++){var r=[];for(var j=0;j<8;j++)r.push(0);this.board.push(r)}this.board[3][3]=2;this.board[3][4]=1;this.board[4][3]=1;this.board[4][4]=2;this.turn=1;this.gameOver=false;this.passCount=0;setStatus('黒(あなた)の手番','🖤 黒')},
+draw:function(){var sz=480,cell=sz/8;ctx.fillStyle='#0a7d3a';ctx.fillRect(0,0,sz,sz);ctx.strokeStyle='#053d1c';ctx.lineWidth=1.5;for(var i=0;i<=8;i++){ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(sz,i*cell);ctx.stroke();ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,sz);ctx.stroke()}var lg=this.legalMoves(1);for(var y=0;y<8;y++)for(var x=0;x<8;x++){var cx=x*cell+cell/2,cy=y*cell+cell/2,rr=cell*.4;if(this.board[y][x]){ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;var g=ctx.createRadialGradient(cx-rr*.3,cy-rr*.3,rr*.1,cx,cy,rr);if(this.board[y][x]===1){g.addColorStop(0,'#555');g.addColorStop(1,'#000')}else{g.addColorStop(0,'#fff');g.addColorStop(1,'#ddd')}ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,rr,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0}else if(this.turn===1){for(var k=0;k<lg.length;k++)if(lg[k][0]===x&&lg[k][1]===y){ctx.fillStyle='rgba(255,255,255,.35)';ctx.beginPath();ctx.arc(cx,cy,7,0,Math.PI*2);ctx.fill();break}}}var b=0,w=0;for(var y=0;y<8;y++)for(var x=0;x<8;x++){if(this.board[y][x]===1)b++;else if(this.board[y][x]===2)w++}ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,sz,22);ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('🖤 '+b+'  vs  ⚪ '+w,8,16)},
+flipsIn:function(b,x,y,p,dx,dy){var o=3-p,fl=[],nx=x+dx,ny=y+dy;while(nx>=0&&nx<8&&ny>=0&&ny<8&&b[ny][nx]===o){fl.push([nx,ny]);nx+=dx;ny+=dy}if(nx>=0&&nx<8&&ny>=0&&ny<8&&b[ny][nx]===p&&fl.length)return fl;return[]},
+allFlips:function(b,x,y,p){if(b[y][x]!==0)return[];var all=[];for(var dy=-1;dy<=1;dy++)for(var dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;var f=this.flipsIn(b,x,y,p,dx,dy);for(var i=0;i<f.length;i++)all.push(f[i])}return all},
+legalMoves:function(p,b){b=b||this.board;var m=[];for(var y=0;y<8;y++)for(var x=0;x<8;x++)if(b[y][x]===0&&this.allFlips(b,x,y,p).length)m.push([x,y]);return m},
+place:function(b,x,y,p){var f=this.allFlips(b,x,y,p);if(!f.length)return null;var nb=b.map(function(r){return r.slice()});nb[y][x]=p;for(var i=0;i<f.length;i++)nb[f[i][1]][f[i][0]]=p;return nb},
+onClick:function(px,py){if(this.gameOver||this.turn!==1)return;var cell=480/8,x=Math.floor(px/cell),y=Math.floor(py/cell);if(x<0||x>=8||y<0||y>=8)return;var nb=this.place(this.board,x,y,1);if(!nb)return;var capped=this.allFlips(this.board,x,y,1).length;this.board=nb;SFX.place();if(capped>2)SFX.capture();this.turn=2;this.passCount=0;this.draw();this.nextTurn()},
+nextTurn:function(){var cur=this.turn,lm=this.legalMoves(cur);if(!lm.length){this.passCount++;if(this.passCount>=2){this.gameOver=true;var b=0,w=0;for(var y=0;y<8;y++)for(var x=0;x<8;x++){if(this.board[y][x]===1)b++;else if(this.board[y][x]===2)w++}var r=b>w?'w':b<w?'l':'d';setStatus('終了 黒'+b+' vs 白'+w+' → '+(r==='w'?'🎉 あなたの勝ち':r==='l'?'😢 CPUの勝ち':'引き分け'),'終了');recordResult('othello',r);return}this.turn=3-cur;setStatus((cur===1?'黒':'白')+'はパス','パス');this.nextTurn();return}if(cur===2){setStatus('CPU 思考中…','⚪ CPU');var self=this;setTimeout(function(){self.cpu()},100)}else setStatus('あなたの手番','🖤 黒')},
+cpu:function(){var depth=difficulty===1?1:difficulty===2?3:5;var lm=this.legalMoves(2);if(!lm.length){this.turn=1;this.nextTurn();return}var best=-Infinity,bm=lm[0];for(var i=0;i<lm.length;i++){var nb=this.place(this.board,lm[i][0],lm[i][1],2);var v=this.minimax(nb,depth-1,-Infinity,Infinity,false);if(v>best){best=v;bm=lm[i]}}var capped=this.allFlips(this.board,bm[0],bm[1],2).length;this.board=this.place(this.board,bm[0],bm[1],2);SFX.place();if(capped>2)SFX.capture();this.turn=1;this.passCount=0;this.draw();this.nextTurn()},
+W:[[120,-20,20,5,5,20,-20,120],[-20,-40,-5,-5,-5,-5,-40,-20],[20,-5,15,3,3,15,-5,20],[5,-5,3,3,3,3,-5,5],[5,-5,3,3,3,3,-5,5],[20,-5,15,3,3,15,-5,20],[-20,-40,-5,-5,-5,-5,-40,-20],[120,-20,20,5,5,20,-20,120]],
+score:function(b){var s=0;for(var y=0;y<8;y++)for(var x=0;x<8;x++){if(b[y][x]===2)s+=this.W[y][x];else if(b[y][x]===1)s-=this.W[y][x]}return s+(this.legalMoves(2,b).length-this.legalMoves(1,b).length)*2},
+minimax:function(b,d,a,be,mx){if(d===0)return this.score(b);var p=mx?2:1,lm=this.legalMoves(p,b);if(!lm.length){if(!this.legalMoves(3-p,b).length)return this.score(b)*10;return this.minimax(b,d-1,a,be,!mx)}if(mx){var v=-Infinity;for(var i=0;i<lm.length;i++){var nb=this.place(b,lm[i][0],lm[i][1],p);v=Math.max(v,this.minimax(nb,d-1,a,be,false));a=Math.max(a,v);if(a>=be)break}return v}else{var v=Infinity;for(var i=0;i<lm.length;i++){var nb=this.place(b,lm[i][0],lm[i][1],p);v=Math.min(v,this.minimax(nb,d-1,a,be,true));be=Math.min(be,v);if(a>=be)break}return v}},
+tutorial:'<h2>⚫⚪ オセロ</h2><h3>目的</h3><p>終局時に自分の石が多い方が勝ち。</p><h3>ルール</h3><ul><li>自分の石で相手の石を挟むように置き裏返す</li><li>挟めない場所には置けない</li><li>両者パスで終了</li></ul><h3>コツ</h3><ul><li>角は最強</li><li>角の隣(X打ち)は危険</li></ul>'};
+
+// ===== チェッカー =====
+GAMES.checkers={title:'🔴 チェッカー',canvasSize:480,board:null,sel:null,turn:'b',gameOver:false,
+reset:function(){this.board=[];for(var i=0;i<8;i++){var r=[];for(var j=0;j<8;j++)r.push(0);this.board.push(r)}for(var y=0;y<3;y++)for(var x=0;x<8;x++)if((x+y)%2===1)this.board[y][x]='w';for(var y=5;y<8;y++)for(var x=0;x<8;x++)if((x+y)%2===1)this.board[y][x]='b';this.sel=null;this.turn='b';this.gameOver=false;setStatus('赤(あなた)の手番','🔴 赤')},
+draw:function(){var sz=480,cell=sz/8;for(var y=0;y<8;y++)for(var x=0;x<8;x++){ctx.fillStyle=(x+y)%2===0?'#F0D9B5':'#B58863';ctx.fillRect(x*cell,y*cell,cell,cell)}if(this.sel){ctx.fillStyle='rgba(255,255,0,.45)';ctx.fillRect(this.sel.x*cell,this.sel.y*cell,cell,cell);var mv=this.movesFor(this.sel.x,this.sel.y);for(var i=0;i<mv.length;i++){ctx.fillStyle='rgba(0,255,0,.4)';ctx.fillRect(mv[i].tx*cell,mv[i].ty*cell,cell,cell)}}for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=this.board[y][x];if(!p)continue;var cx=x*cell+cell/2,cy=y*cell+cell/2,rr=cell*.38,king=p==='B'||p==='W';ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;var g=ctx.createRadialGradient(cx-rr*.3,cy-rr*.3,rr*.1,cx,cy,rr);if(p.toLowerCase()==='b'){g.addColorStop(0,'#e63030');g.addColorStop(1,'#8a0010')}else{g.addColorStop(0,'#ffffff');g.addColorStop(1,'#c0c0c0')}ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,rr,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.strokeStyle='#222';ctx.lineWidth=2;ctx.stroke();if(king){ctx.fillStyle='#ffd700';ctx.font='bold '+(cell*.4)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('♔',cx,cy);ctx.textAlign='start';ctx.textBaseline='alphabetic'}}},
+isB:function(p){return p==='b'||p==='B'},isW:function(p){return p==='w'||p==='W'},isK:function(p){return p==='B'||p==='W'},own:function(p,c){return c==='b'?this.isB(p):this.isW(p)},opp:function(p,c){return c==='b'?this.isW(p):this.isB(p)},
+dirs:function(p){if(this.isK(p))return[[-1,-1],[-1,1],[1,-1],[1,1]];return p==='b'?[[-1,-1],[1,-1]]:[[-1,1],[1,1]]},
+movesFor:function(x,y,b,jo){b=b||this.board;var p=b[y][x];if(!p)return[];var out=[],c=p.toLowerCase(),ds=this.dirs(p);for(var i=0;i<ds.length;i++){var dx=ds[i][0],dy=ds[i][1],nx=x+dx,ny=y+dy;if(nx<0||nx>=8||ny<0||ny>=8)continue;if(b[ny][nx]===0&&!jo)out.push({tx:nx,ty:ny,jump:null});else if(this.opp(b[ny][nx],c)){var jx=x+dx*2,jy=y+dy*2;if(jx>=0&&jx<8&&jy>=0&&jy<8&&b[jy][jx]===0)out.push({tx:jx,ty:jy,jump:{x:nx,y:ny}})}}return out},
+allMoves:function(c,b){b=b||this.board;var jumps=[],simples=[];for(var y=0;y<8;y++)for(var x=0;x<8;x++){if(!b[y][x]||!this.own(b[y][x],c))continue;var mv=this.movesFor(x,y,b);for(var i=0;i<mv.length;i++){var e={fx:x,fy:y,tx:mv[i].tx,ty:mv[i].ty,jump:mv[i].jump};if(mv[i].jump)jumps.push(e);else simples.push(e)}}return jumps.length?jumps:simples},
+applyMove:function(b,m){var nb=b.map(function(r){return r.slice()});var p=nb[m.fy][m.fx];nb[m.fy][m.fx]=0;if(m.jump)nb[m.jump.y][m.jump.x]=0;if(p==='b'&&m.ty===0)p='B';else if(p==='w'&&m.ty===7)p='W';nb[m.ty][m.tx]=p;return nb},
+onClick:function(px,py){if(this.gameOver||this.turn!=='b')return;var cell=480/8,x=Math.floor(px/cell),y=Math.floor(py/cell);if(x<0||x>=8||y<0||y>=8)return;var am=this.allMoves('b'),self=this;if(this.sel){var mv=am.filter(function(m){return m.fx===self.sel.x&&m.fy===self.sel.y});var m=null;for(var i=0;i<mv.length;i++)if(mv[i].tx===x&&mv[i].ty===y){m=mv[i];break}if(m){this.board=this.applyMove(this.board,m);if(m.jump)SFX.capture();else SFX.place();if(m.jump){var more=this.movesFor(x,y,this.board,true).filter(function(mm){return mm.jump});if(more.length){this.sel={x:x,y:y};this.draw();return}}this.sel=null;this.endTurn();return}}if(this.board[y][x]&&this.isB(this.board[y][x])){var ok=false;for(var i=0;i<am.length;i++)if(am[i].fx===x&&am[i].fy===y){ok=true;break}this.sel=ok?{x:x,y:y}:null}else this.sel=null;this.draw()},
+endTurn:function(){this.draw();if(!this.allMoves('w').length){this.gameOver=true;setStatus('🎉 あなたの勝ち！','勝利');recordResult('checkers','w');return}this.turn='w';setStatus('CPU 思考中…','⚪ CPU');var self=this;setTimeout(function(){self.cpu()},100)},
+cpu:function(){var depth=difficulty===1?2:difficulty===2?4:6;var am=this.allMoves('w'),best=-Infinity,bm=am[0];for(var i=0;i<am.length;i++){var nb=this.applyMove(this.board,am[i]);var v=this.mm(nb,depth-1,-Infinity,Infinity,false);if(v>best){best=v;bm=am[i]}}this.board=this.applyMove(this.board,bm);if(bm.jump)SFX.capture();else SFX.place();var cur=bm;while(cur.jump){var more=this.movesFor(cur.tx,cur.ty,this.board,true).filter(function(mm){return mm.jump});if(!more.length)break;var bv=-Infinity,bb=more[0];for(var i=0;i<more.length;i++){var e={fx:cur.tx,fy:cur.ty,tx:more[i].tx,ty:more[i].ty,jump:more[i].jump};var nb=this.applyMove(this.board,e);var v=this.evalB(nb);if(v>bv){bv=v;bb=e}}this.board=this.applyMove(this.board,bb);SFX.capture();cur=bb}this.draw();if(!this.allMoves('b').length){this.gameOver=true;setStatus('😢 CPUの勝ち','敗北');recordResult('checkers','l');return}this.turn='b';setStatus('あなたの手番','🔴 赤')},
+evalB:function(b){var s=0;for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=b[y][x];if(!p)continue;var v=this.isK(p)?3:1.5;if(this.isW(p))s+=v+y*.05;else if(this.isB(p))s-=v+(7-y)*.05}return s},
+mm:function(b,d,a,be,mx){if(d===0)return this.evalB(b);var c=mx?'w':'b',am=this.allMoves(c,b);if(!am.length)return mx?-1000:1000;if(mx){var v=-Infinity;for(var i=0;i<am.length;i++){var nb=this.applyMove(b,am[i]);v=Math.max(v,this.mm(nb,d-1,a,be,false));a=Math.max(a,v);if(a>=be)break}return v}else{var v=Infinity;for(var i=0;i<am.length;i++){var nb=this.applyMove(b,am[i]);v=Math.min(v,this.mm(nb,d-1,a,be,true));be=Math.min(be,v);if(a>=be)break}return v}},
+tutorial:'<h2>🔴 チェッカー</h2><h3>目的</h3><p>相手の駒を全部取るか動けなくしたら勝ち！</p><h3>ルール</h3><ul><li>あなた=赤(下)、CPU=白(上)</li><li>斜め前方に1マス移動</li><li>相手駒の隣に空きがあれば飛び越えて捕獲</li><li><strong>ジャンプ可能なら必須</strong>、連続ジャンプ可</li><li>最終段でキング(♔)化</li></ul>'};
+
+// ===== チェス =====
+(function(){var PV={p:100,n:320,b:330,r:500,q:900,k:20000};
+var PIECE={w:{p:'♙',n:'♘',b:'♗',r:'♖',q:'♕',k:'♔'},b:{p:'♟',n:'♞',b:'♝',r:'♜',q:'♛',k:'♚'}};
+GAMES.chess={title:'♞ チェス',canvasSize:480,board:null,turn:'w',sel:null,gameOver:false,
+reset:function(){var back=['r','n','b','q','k','b','n','r'];this.board=[];for(var i=0;i<8;i++){var r=[];for(var j=0;j<8;j++)r.push(null);this.board.push(r)}for(var x=0;x<8;x++){this.board[0][x]={t:back[x],c:'b'};this.board[1][x]={t:'p',c:'b'};this.board[6][x]={t:'p',c:'w'};this.board[7][x]={t:back[x],c:'w'}}this.turn='w';this.sel=null;this.gameOver=false;setStatus('白(あなた)の手番','♔ 白')},
+draw:function(){var sz=480,cell=sz/8;for(var y=0;y<8;y++)for(var x=0;x<8;x++){ctx.fillStyle=(x+y)%2===0?'#EEEED2':'#769656';ctx.fillRect(x*cell,y*cell,cell,cell)}if(this.sel){ctx.fillStyle='rgba(255,255,0,.45)';ctx.fillRect(this.sel.x*cell,this.sel.y*cell,cell,cell);var lm=this.legalMovesFrom(this.sel.x,this.sel.y);for(var i=0;i<lm.length;i++){ctx.fillStyle='rgba(0,200,0,.55)';ctx.beginPath();ctx.arc(lm[i].tx*cell+cell/2,lm[i].ty*cell+cell/2,cell*.18,0,Math.PI*2);ctx.fill()}}ctx.textAlign='center';ctx.textBaseline='middle';ctx.font=(cell*.7)+'px serif';for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=this.board[y][x];if(!p)continue;ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=4;ctx.shadowOffsetY=2;ctx.fillStyle=p.c==='w'?'#fff':'#222';ctx.fillText(PIECE[p.c][p.t],x*cell+cell/2,y*cell+cell/2+2);ctx.shadowBlur=0;ctx.shadowOffsetY=0}ctx.textAlign='start';ctx.textBaseline='alphabetic'},
+inB:function(x,y){return x>=0&&x<8&&y>=0&&y<8},
+pseudoMoves:function(b,c){var m=[];for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=b[y][x];if(!p||p.c!==c)continue;var mm=this.pmFrom(b,x,y);for(var i=0;i<mm.length;i++)m.push(mm[i])}return m},
+pmFrom:function(b,x,y){var p=b[y][x];if(!p)return[];var m=[],c=p.c,t=p.t,dir=c==='w'?-1:1;if(t==='p'){var ny=y+dir;if(this.inB(x,ny)&&!b[ny][x]){var pr=(c==='w'&&ny===0)||(c==='b'&&ny===7);m.push({fx:x,fy:y,tx:x,ty:ny,prom:pr});if((c==='w'&&y===6)||(c==='b'&&y===1)){var ny2=y+dir*2;if(!b[ny2][x])m.push({fx:x,fy:y,tx:x,ty:ny2,prom:false})}}var dxs=[-1,1];for(var di=0;di<2;di++){var dx=dxs[di],nx=x+dx,nny=y+dir;if(this.inB(nx,nny)&&b[nny][nx]&&b[nny][nx].c!==c){var pr=(c==='w'&&nny===0)||(c==='b'&&nny===7);m.push({fx:x,fy:y,tx:nx,ty:nny,prom:pr})}}}else if(t==='n'){var ms=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];for(var i=0;i<8;i++){var nx=x+ms[i][0],ny=y+ms[i][1];if(this.inB(nx,ny)&&(!b[ny][nx]||b[ny][nx].c!==c))m.push({fx:x,fy:y,tx:nx,ty:ny,prom:false})}}else if(t==='k'){var ms=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];for(var i=0;i<8;i++){var nx=x+ms[i][0],ny=y+ms[i][1];if(this.inB(nx,ny)&&(!b[ny][nx]||b[ny][nx].c!==c))m.push({fx:x,fy:y,tx:nx,ty:ny,prom:false})}}else{var ds=t==='r'?[[1,0],[-1,0],[0,1],[0,-1]]:t==='b'?[[1,1],[1,-1],[-1,1],[-1,-1]]:[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];for(var i=0;i<ds.length;i++){var dx=ds[i][0],dy=ds[i][1],nx=x+dx,ny=y+dy;while(this.inB(nx,ny)){if(!b[ny][nx])m.push({fx:x,fy:y,tx:nx,ty:ny,prom:false});else{if(b[ny][nx].c!==c)m.push({fx:x,fy:y,tx:nx,ty:ny,prom:false});break}nx+=dx;ny+=dy}}}return m},
+kingPos:function(b,c){for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=b[y][x];if(p&&p.t==='k'&&p.c===c)return[x,y]}return null},
+inCheck:function(b,c){var kp=this.kingPos(b,c);if(!kp)return false;var em=this.pseudoMoves(b,c==='w'?'b':'w');for(var i=0;i<em.length;i++)if(em[i].tx===kp[0]&&em[i].ty===kp[1])return true;return false},
+apply:function(b,m){var nb=b.map(function(r){return r.slice()});var p={t:nb[m.fy][m.fx].t,c:nb[m.fy][m.fx].c};nb[m.fy][m.fx]=null;if(m.prom)p.t='q';nb[m.ty][m.tx]=p;return nb},
+legalMoves:function(b,c){var pm=this.pseudoMoves(b,c),self=this;return pm.filter(function(m){return!self.inCheck(self.apply(b,m),c)})},
+legalMovesFrom:function(x,y){if(!this.board[y][x])return[];var c=this.board[y][x].c;return this.legalMoves(this.board,c).filter(function(m){return m.fx===x&&m.fy===y})},
+onClick:function(px,py){if(this.gameOver||this.turn!=='w')return;var cell=480/8,x=Math.floor(px/cell),y=Math.floor(py/cell);if(!this.inB(x,y))return;if(this.sel){var lm=this.legalMovesFrom(this.sel.x,this.sel.y),m=null;for(var i=0;i<lm.length;i++)if(lm[i].tx===x&&lm[i].ty===y){m=lm[i];break}if(m){var cap=this.board[m.ty][m.tx]!==null;this.board=this.apply(this.board,m);if(cap)SFX.capture();else SFX.place();this.sel=null;this.draw();this.endHumanTurn();return}}this.sel=(this.board[y][x]&&this.board[y][x].c==='w')?{x:x,y:y}:null;this.draw()},
+endHumanTurn:function(){if(this.checkEnd('b'))return;this.turn='b';setStatus('CPU 思考中…','♚ 黒');var self=this;setTimeout(function(){self.cpu()},80)},
+checkEnd:function(c){var lm=this.legalMoves(this.board,c);if(!lm.length){this.gameOver=true;if(this.inCheck(this.board,c)){var r=c==='w'?'l':'w';setStatus(c==='w'?'😢 チェックメイト 敗北':'🎉 チェックメイト 勝利','終了');recordResult('chess',r)}else{setStatus('ステイルメイト(引き分け)','終了');recordResult('chess','d')}return true}if(this.inCheck(this.board,c)){setStatus((c==='w'?'白':'黒')+'にチェック！',c==='w'?'♔ 白':'♚ 黒');flashCheck()}return false},
+PST_P:[[0,0,0,0,0,0,0,0],[50,50,50,50,50,50,50,50],[10,10,20,30,30,20,10,10],[5,5,10,25,25,10,5,5],[0,0,0,20,20,0,0,0],[5,-5,-10,0,0,-10,-5,5],[5,10,10,-20,-20,10,10,5],[0,0,0,0,0,0,0,0]],
+PST_N:[[-50,-40,-30,-30,-30,-30,-40,-50],[-40,-20,0,0,0,0,-20,-40],[-30,0,10,15,15,10,0,-30],[-30,5,15,20,20,15,5,-30],[-30,0,15,20,20,15,0,-30],[-30,5,10,15,15,10,5,-30],[-40,-20,0,5,5,0,-20,-40],[-50,-40,-30,-30,-30,-30,-40,-50]],
+score:function(b){var s=0;for(var y=0;y<8;y++)for(var x=0;x<8;x++){var p=b[y][x];if(!p)continue;var v=PV[p.t],ry=p.c==='b'?y:7-y;if(p.t==='p')v+=this.PST_P[ry][x];else if(p.t==='n')v+=this.PST_N[ry][x];s+=p.c==='b'?v:-v}return s},
+cpu:function(){var depth=difficulty===1?2:3;var lm=this.legalMoves(this.board,'b');if(!lm.length){this.checkEnd('b');return}var self=this;lm.sort(function(a,b){return(self.board[b.ty][b.tx]?1:0)-(self.board[a.ty][a.tx]?1:0)});var best=-Infinity,bm=lm[0];for(var i=0;i<lm.length;i++){var nb=this.apply(this.board,lm[i]);var v=this.mm(nb,depth-1,-Infinity,Infinity,false);if(v>best){best=v;bm=lm[i]}}var cap=this.board[bm.ty][bm.tx]!==null;this.board=this.apply(this.board,bm);if(cap)SFX.capture();else SFX.place();this.draw();if(this.checkEnd('w'))return;this.turn='w';setStatus('あなたの手番','♔ 白')},
+mm:function(b,d,a,be,mx){if(d===0)return this.score(b);var c=mx?'b':'w',lm=this.legalMoves(b,c);if(!lm.length){if(this.inCheck(b,c))return mx?-1e6:1e6;return 0}if(mx){var v=-Infinity;for(var i=0;i<lm.length;i++){var nb=this.apply(b,lm[i]);v=Math.max(v,this.mm(nb,d-1,a,be,false));a=Math.max(a,v);if(a>=be)break}return v}else{var v=Infinity;for(var i=0;i<lm.length;i++){var nb=this.apply(b,lm[i]);v=Math.min(v,this.mm(nb,d-1,a,be,true));be=Math.min(be,v);if(a>=be)break}return v}},
+tutorial:'<h2>♞ チェス</h2><h3>目的</h3><p>相手キングをチェックメイトしたら勝ち！</p><h3>駒の動き</h3><ul><li>♙ ポーン:前1マス、斜めで取る、最終段で昇格</li><li>♘ ナイト:L字、飛び越え可</li><li>♗ ビショップ:斜め</li><li>♖ ルーク:縦横</li><li>♕ クイーン:全方向</li><li>♔ キング:8方向1マス</li></ul><h3>注意</h3><p>※キャスリング/アンパッサン省略、昇格はクイーン固定</p>'}})();
+
+// ===== 囲碁 =====
+GAMES.go={title:'◯ 囲碁(9路盤)',canvasSize:540,usePass:true,board:null,turn:1,gameOver:false,prev:null,passCount:0,captured:null,
+reset:function(){this.board=[];for(var i=0;i<9;i++){var r=[];for(var j=0;j<9;j++)r.push(0);this.board.push(r)}this.turn=1;this.gameOver=false;this.prev=null;this.passCount=0;this.captured={1:0,2:0};setStatus('黒(あなた)の手番。パスもOK','● 黒')},
+draw:function(){var N=9,sz=540,cell=sz/N,off=cell/2;ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--board-bg').trim();ctx.fillRect(0,0,sz,sz);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--board-line').trim();ctx.lineWidth=1;for(var i=0;i<N;i++){ctx.beginPath();ctx.moveTo(off,off+i*cell);ctx.lineTo(off+(N-1)*cell,off+i*cell);ctx.stroke();ctx.beginPath();ctx.moveTo(off+i*cell,off);ctx.lineTo(off+i*cell,off+(N-1)*cell);ctx.stroke()}var st=[[2,2],[2,6],[6,2],[6,6],[4,4]];for(var s=0;s<5;s++){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--board-line').trim();ctx.beginPath();ctx.arc(off+st[s][0]*cell,off+st[s][1]*cell,4,0,Math.PI*2);ctx.fill()}for(var y=0;y<9;y++)for(var x=0;x<9;x++)if(this.board[y][x]){var cx=off+x*cell,cy=off+y*cell,rr=cell*.42;ctx.shadowColor='rgba(0,0,0,.5)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;var g=ctx.createRadialGradient(cx-rr*.3,cy-rr*.3,rr*.1,cx,cy,rr);if(this.board[y][x]===1){g.addColorStop(0,'#555');g.addColorStop(1,'#000')}else{g.addColorStop(0,'#fff');g.addColorStop(1,'#bbb')}ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,rr,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.shadowOffsetY=0}ctx.fillStyle='rgba(0,0,0,.65)';ctx.fillRect(0,0,sz,22);ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('取った石 ● '+this.captured[1]+'  ◯ '+this.captured[2],8,16)},
+group:function(b,x,y){var c=b[y][x];if(!c)return null;var st=[[x,y]],seen={},stones=[],lib=0,lseen={};seen[y*9+x]=1;while(st.length){var p=st.pop(),cx=p[0],cy=p[1];stones.push([cx,cy]);var dd=[[1,0],[-1,0],[0,1],[0,-1]];for(var i=0;i<4;i++){var nx=cx+dd[i][0],ny=cy+dd[i][1];if(nx<0||nx>=9||ny<0||ny>=9)continue;var k=ny*9+nx;if(b[ny][nx]===0){if(!lseen[k]){lseen[k]=1;lib++}}else if(b[ny][nx]===c&&!seen[k]){seen[k]=1;st.push([nx,ny])}}}return{stones:stones,lib:lib}},
+tryPlay:function(b,x,y,c){if(b[y][x]!==0)return null;var nb=b.map(function(r){return r.slice()});nb[y][x]=c;var opp=3-c,cap=0,dd=[[1,0],[-1,0],[0,1],[0,-1]];for(var i=0;i<4;i++){var nx=x+dd[i][0],ny=y+dd[i][1];if(nx<0||nx>=9||ny<0||ny>=9)continue;if(nb[ny][nx]===opp){var g=this.group(nb,nx,ny);if(g.lib===0){for(var j=0;j<g.stones.length;j++){nb[g.stones[j][1]][g.stones[j][0]]=0;cap++}}}}var my=this.group(nb,x,y);if(my.lib===0)return null;return{board:nb,captured:cap}},
+boardEq:function(a,b){if(!a||!b)return false;for(var y=0;y<9;y++)for(var x=0;x<9;x++)if(a[y][x]!==b[y][x])return false;return true},
+onClick:function(px,py){if(this.gameOver||this.turn!==1)return;var cell=540/9,off=cell/2,x=Math.round((px-off)/cell),y=Math.round((py-off)/cell);if(x<0||x>=9||y<0||y>=9)return;var res=this.tryPlay(this.board,x,y,1);if(!res||this.boardEq(res.board,this.prev))return;this.prev=this.board;this.board=res.board;this.captured[1]+=res.captured;if(res.captured)SFX.capture();else SFX.place();this.passCount=0;this.draw();this.turn=2;setStatus('CPU 思考中…','◯ 白');var self=this;setTimeout(function(){self.cpu()},100)},
+pass:function(){if(this.gameOver||this.turn!==1)return;this.passCount++;if(this.passCount>=2){this.endGame();return}this.prev=null;this.turn=2;setStatus('CPU 思考中…','◯ 白');var self=this;setTimeout(function(){self.cpu()},100)},
+cpu:function(){var cands=[];for(var y=0;y<9;y++)for(var x=0;x<9;x++){var res=this.tryPlay(this.board,x,y,2);if(!res||this.boardEq(res.board,this.prev))continue;var isEye=true,dd=[[1,0],[-1,0],[0,1],[0,-1]];for(var i=0;i<4;i++){var nx=x+dd[i][0],ny=y+dd[i][1];if(nx<0||nx>=9||ny<0||ny>=9)continue;if(this.board[ny][nx]!==2){isEye=false;break}}if(isEye)continue;var score=res.captured*10;var g=this.group(res.board,x,y);score+=g.lib;for(var i=0;i<4;i++){var nx=x+dd[i][0],ny=y+dd[i][1];if(nx<0||nx>=9||ny<0||ny>=9)continue;if(this.board[ny][nx]===1){var og=this.group(this.board,nx,ny);if(og.lib<=2)score+=3}}score+=Math.random()*(difficulty===1?5:difficulty===2?1.5:0.5);cands.push({x:x,y:y,res:res,score:score})}if(!cands.length){this.passCount++;if(this.passCount>=2){this.endGame();return}this.prev=null;this.turn=1;setStatus('CPUパス。あなたの手番(パスで終局)','● 黒');return}cands.sort(function(a,b){return b.score-a.score});var pick=difficulty===1?cands[Math.floor(Math.random()*Math.min(5,cands.length))]:cands[0];this.prev=this.board;this.board=pick.res.board;this.captured[2]+=pick.res.captured;if(pick.res.captured)SFX.capture();else SFX.place();this.passCount=0;this.draw();this.turn=1;setStatus('あなたの手番(パスもOK)','● 黒')},
+endGame:function(){this.gameOver=true;var b=0,w=0,visited=[];for(var i=0;i<9;i++){var r=[];for(var j=0;j<9;j++)r.push(false);visited.push(r)}for(var y=0;y<9;y++)for(var x=0;x<9;x++){if(this.board[y][x]===1)b++;else if(this.board[y][x]===2)w++;else if(!visited[y][x]){var st=[[x,y]],reg=[],colors={};visited[y][x]=true;while(st.length){var p=st.pop();reg.push(p);var dd=[[1,0],[-1,0],[0,1],[0,-1]];for(var i=0;i<4;i++){var nx=p[0]+dd[i][0],ny=p[1]+dd[i][1];if(nx<0||nx>=9||ny<0||ny>=9)continue;if(this.board[ny][nx]===0){if(!visited[ny][nx]){visited[ny][nx]=true;st.push([nx,ny])}}else colors[this.board[ny][nx]]=1}}var ks=Object.keys(colors);if(ks.length===1){if(ks[0]==='1')b+=reg.length;else w+=reg.length}}}var wt=w+6.5;var r=b>wt?'w':'l';setStatus('終了 黒'+b+' vs 白'+wt.toFixed(1)+' → '+(r==='w'?'🎉 あなたの勝ち':'😢 CPUの勝ち'),'終了');recordResult('go',r)},
+tutorial:'<h2>◯ 囲碁(9路盤・簡易)</h2><h3>目的</h3><p>陣地＋取った石の合計が多い方の勝ち。コミ6.5目。</p><h3>ルール</h3><ul><li>交点に交互に石を置く</li><li>呼吸点ゼロで取れる</li><li>自殺手・コウ禁止</li><li>パス2回で終局</li></ul><h3>コツ</h3><ul><li>2眼を作ると死なない</li><li>隅→辺→中央の順で広げる</li></ul>'};
+
+// ===== 将棋 =====
+(function(){var VAL={p:1,l:3,n:4,s:5,g:6,b:8,r:10,k:1000};
+var KANJI={p:'歩',l:'香',n:'桂',s:'銀',g:'金',b:'角',r:'飛',k:'玉','+p':'と','+l':'杏','+n':'圭','+s':'全','+b':'馬','+r':'龍'};
+function bt(t){return t.charAt(0)==='+'?t.substring(1):t}
+function mvDef(t,c){var fl=function(v){var r=[];for(var i=0;i<v.length;i++)r.push([v[i][0],v[i][1]*(c==='w'?1:-1)]);return r};var gd=fl([[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[0,1]]);if(t==='p')return fl([[0,-1]]);if(t==='l')return[{d:fl([[0,-1]])[0],r:true}];if(t==='n')return fl([[-1,-2],[1,-2]]);if(t==='s')return fl([[-1,-1],[0,-1],[1,-1],[-1,1],[1,1]]);if(t==='g'||t==='+p'||t==='+l'||t==='+n'||t==='+s')return gd;if(t==='k')return[[-1,-1],[0,-1],[1,-1],[-1,0],[1,0],[-1,1],[0,1],[1,1]];if(t==='b')return[{d:[1,1],r:true},{d:[1,-1],r:true},{d:[-1,1],r:true},{d:[-1,-1],r:true}];if(t==='r')return[{d:[1,0],r:true},{d:[-1,0],r:true},{d:[0,1],r:true},{d:[0,-1],r:true}];if(t==='+b')return[{d:[1,1],r:true},{d:[1,-1],r:true},{d:[-1,1],r:true},{d:[-1,-1],r:true},[0,-1],[0,1],[-1,0],[1,0]];if(t==='+r')return[{d:[1,0],r:true},{d:[-1,0],r:true},{d:[0,1],r:true},{d:[0,-1],r:true},[-1,-1],[1,-1],[-1,1],[1,1]];return[]}
+function mustProm(t,toY,c){var b=bt(t);if(c==='w'){if((b==='p'||b==='l')&&toY===0)return true;if(b==='n'&&toY<=1)return true}else{if((b==='p'||b==='l')&&toY===8)return true;if(b==='n'&&toY>=7)return true}return false}
+function canProm(t,fY,tY,c){var b=bt(t);if(['p','l','n','s','b','r'].indexOf(b)<0||t.charAt(0)==='+')return false;if(c==='w')return fY<=2||tY<=2;return fY>=6||tY>=6}
+GAMES.shogi={title:'王 将棋(簡易)',canvasSize:540,useHand:true,board:null,turn:'w',sel:null,handSel:null,hand:null,gameOver:false,
+reset:function(){this.board=[];for(var i=0;i<9;i++){var r=[];for(var j=0;j<9;j++)r.push(null);this.board.push(r)}var bk=['l','n','s','g','k','g','s','n','l'];for(var x=0;x<9;x++)this.board[0][x]={t:bk[x],c:'b'};this.board[1][1]={t:'r',c:'b'};this.board[1][7]={t:'b',c:'b'};for(var x=0;x<9;x++)this.board[2][x]={t:'p',c:'b'};for(var x=0;x<9;x++)this.board[6][x]={t:'p',c:'w'};this.board[7][7]={t:'r',c:'w'};this.board[7][1]={t:'b',c:'w'};for(var x=0;x<9;x++)this.board[8][x]={t:bk[x],c:'w'};this.hand={w:{},b:{}};this.turn='w';this.sel=null;this.handSel=null;this.gameOver=false;setStatus('先手(あなた)の手番','▼ 先手')},
+renderHands:function(){var top=$('handTop'),bot=$('handBottom'),self=this;var fmt=function(c,a){var h='<strong>'+(c==='w'?'▼ 先手':'△ 後手')+'持駒:</strong>';var ks=Object.keys(a).filter(function(x){return a[x]>0});if(!ks.length)h+='（なし）';else for(var i=0;i<ks.length;i++)h+='<span class="hand-piece" data-piece="'+ks[i]+'">'+(KANJI[ks[i]]||ks[i])+'×'+a[ks[i]]+'</span>';return h};top.innerHTML=fmt('b',this.hand.b);bot.innerHTML=fmt('w',this.hand.w);var els=bot.querySelectorAll('.hand-piece');for(var i=0;i<els.length;i++)(function(el){el.addEventListener('click',function(){if(self.turn!=='w'||self.gameOver)return;var all=bot.querySelectorAll('.hand-piece');for(var j=0;j<all.length;j++)all[j].classList.remove('selected');el.classList.add('selected');self.handSel=el.dataset.piece;self.sel=null;self.draw()})})(els[i])},
+draw:function(){var sz=540,cell=sz/9;ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--board-bg').trim();ctx.fillRect(0,0,sz,sz);ctx.strokeStyle=getComputedStyle(document.body).getPropertyValue('--board-line').trim();ctx.lineWidth=1.2;for(var i=0;i<=9;i++){ctx.beginPath();ctx.moveTo(0,i*cell);ctx.lineTo(sz,i*cell);ctx.stroke();ctx.beginPath();ctx.moveTo(i*cell,0);ctx.lineTo(i*cell,sz);ctx.stroke()}if(this.sel){ctx.fillStyle='rgba(255,255,0,.4)';ctx.fillRect(this.sel.x*cell,this.sel.y*cell,cell,cell);var lm=this.legalFromBoard(this.sel.x,this.sel.y);for(var i=0;i<lm.length;i++){ctx.fillStyle='rgba(0,200,0,.35)';ctx.fillRect(lm[i].tx*cell,lm[i].ty*cell,cell,cell)}}if(this.handSel){var lm=this.legalDrops(this.handSel,'w');for(var i=0;i<lm.length;i++){ctx.fillStyle='rgba(0,150,255,.3)';ctx.fillRect(lm[i].tx*cell,lm[i].ty*cell,cell,cell)}}ctx.textAlign='center';ctx.textBaseline='middle';for(var y=0;y<9;y++)for(var x=0;x<9;x++){var p=this.board[y][x];if(!p)continue;ctx.save();ctx.translate(x*cell+cell/2,y*cell+cell/2);if(p.c==='b')ctx.rotate(Math.PI);ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=3;ctx.shadowOffsetY=1;ctx.fillStyle=p.t.charAt(0)==='+'?'#c92020':'#000';ctx.font='bold '+(cell*.5)+'px serif';ctx.fillText(KANJI[p.t]||p.t,0,2);ctx.shadowBlur=0;ctx.shadowOffsetY=0;ctx.restore()}ctx.textAlign='start';ctx.textBaseline='alphabetic'},
+inB:function(x,y){return x>=0&&x<9&&y>=0&&y<9},
+genFrom:function(b,x,y){var p=b[y][x];if(!p)return[];var c=p.c,out=[],def=mvDef(p.t,c);for(var i=0;i<def.length;i++){var d=def[i];if(Array.isArray(d)){var nx=x+d[0],ny=y+d[1];if(!this.inB(nx,ny))continue;if(b[ny][nx]&&b[ny][nx].c===c)continue;out.push({fx:x,fy:y,tx:nx,ty:ny})}else{var dx=d.d[0],dy=d.d[1],nx=x+dx,ny=y+dy;while(this.inB(nx,ny)){if(b[ny][nx]&&b[ny][nx].c===c)break;out.push({fx:x,fy:y,tx:nx,ty:ny});if(b[ny][nx])break;nx+=dx;ny+=dy}}}return out},
+allBoardMoves:function(b,c){var out=[];for(var y=0;y<9;y++)for(var x=0;x<9;x++){var p=b[y][x];if(!p||p.c!==c)continue;var ms=this.genFrom(b,x,y);for(var i=0;i<ms.length;i++){var m=ms[i];if(canProm(p.t,m.fy,m.ty,c)){out.push({fx:m.fx,fy:m.fy,tx:m.tx,ty:m.ty,promote:true});if(!mustProm(p.t,m.ty,c))out.push({fx:m.fx,fy:m.fy,tx:m.tx,ty:m.ty,promote:false})}else out.push({fx:m.fx,fy:m.fy,tx:m.tx,ty:m.ty,promote:false})}}return out},
+legalDrops:function(t,c,b){b=b||this.board;var out=[];for(var y=0;y<9;y++)for(var x=0;x<9;x++){if(b[y][x])continue;if(t==='p'||t==='l'){if(c==='w'&&y===0)continue;if(c==='b'&&y===8)continue}if(t==='n'){if(c==='w'&&y<=1)continue;if(c==='b'&&y>=7)continue}if(t==='p'){var dup=false;for(var yy=0;yy<9;yy++){var q=b[yy][x];if(q&&q.c===c&&q.t==='p'){dup=true;break}}if(dup)continue}out.push({drop:t,tx:x,ty:y})}return out},
+kingPos:function(b,c){for(var y=0;y<9;y++)for(var x=0;x<9;x++){var p=b[y][x];if(p&&p.c===c&&bt(p.t)==='k')return[x,y]}return null},
+inCheck:function(b,c){var kp=this.kingPos(b,c);if(!kp)return false;var em=this.allBoardMoves(b,c==='w'?'b':'w');for(var i=0;i<em.length;i++)if(em[i].tx===kp[0]&&em[i].ty===kp[1])return true;return false},
+applyBM:function(b,m,h){var nb=b.map(function(r){return r.slice()});var p={t:nb[m.fy][m.fx].t,c:nb[m.fy][m.fx].c};var cap=nb[m.ty][m.tx];if(cap){var t2=bt(cap.t);h[p.c][t2]=(h[p.c][t2]||0)+1}if(m.promote)p.t='+'+bt(p.t);nb[m.fy][m.fx]=null;nb[m.ty][m.tx]=p;return nb},
+applyDrop:function(b,m,c,h){var nb=b.map(function(r){return r.slice()});nb[m.ty][m.tx]={t:m.drop,c:c};h[c][m.drop]--;if(h[c][m.drop]<=0)delete h[c][m.drop];return nb},
+legalFromBoard:function(x,y){if(!this.board[y][x])return[];var c=this.board[y][x].c,self=this;var all=this.allBoardMoves(this.board,c).filter(function(m){return m.fx===x&&m.fy===y});return all.filter(function(m){var hc={w:Object.assign({},self.hand.w),b:Object.assign({},self.hand.b)};var nb=self.applyBM(self.board,m,hc);return!self.inCheck(nb,c)})},
+allLegal:function(b,c,h){var out=[],bm=this.allBoardMoves(b,c);for(var i=0;i<bm.length;i++){var hc={w:Object.assign({},h.w),b:Object.assign({},h.b)};var nb=this.applyBM(b,bm[i],hc);if(!this.inCheck(nb,c))out.push({type:'move',m:bm[i]})}var ks=Object.keys(h[c]);for(var j=0;j<ks.length;j++){var t=ks[j];if(h[c][t]>0){var ds=this.legalDrops(t,c,b);for(var k=0;k<ds.length;k++){var hc={w:Object.assign({},h.w),b:Object.assign({},h.b)};var nb=this.applyDrop(b,ds[k],c,hc);if(!this.inCheck(nb,c))out.push({type:'drop',m:ds[k]})}}}return out},
+onClick:function(px,py){if(this.gameOver||this.turn!=='w')return;var cell=540/9,x=Math.floor(px/cell),y=Math.floor(py/cell);if(!this.inB(x,y))return;if(this.handSel){var lm=this.legalDrops(this.handSel,'w'),d=null;for(var i=0;i<lm.length;i++)if(lm[i].tx===x&&lm[i].ty===y){d=lm[i];break}if(d){var hc={w:Object.assign({},this.hand.w),b:Object.assign({},this.hand.b)};var nb=this.applyDrop(this.board,d,'w',hc);if(!this.inCheck(nb,'w')){this.board=nb;this.hand=hc;this.handSel=null;SFX.place();this.endHuman();return}}this.handSel=null;this.draw();this.renderHands();return}if(this.sel){var lm=this.legalFromBoard(this.sel.x,this.sel.y);var ch=lm.filter(function(mm){return mm.tx===x&&mm.ty===y});if(ch.length){var chosen;if(ch.length===2){var pr=confirm('成りますか？');chosen=ch.filter(function(mm){return mm.promote===pr})[0]||ch[0]}else chosen=ch[0];var cap=this.board[chosen.ty][chosen.tx]!==null;var hc={w:Object.assign({},this.hand.w),b:Object.assign({},this.hand.b)};this.board=this.applyBM(this.board,chosen,hc);this.hand=hc;this.sel=null;if(cap)SFX.capture();else SFX.place();this.endHuman();return}}this.sel=(this.board[y][x]&&this.board[y][x].c==='w')?{x:x,y:y}:null;this.handSel=null;this.draw();this.renderHands()},
+endHuman:function(){this.renderHands();this.draw();if(!this.allLegal(this.board,'b',this.hand).length){this.gameOver=true;setStatus('🎉 詰み！あなたの勝ち','勝利');recordResult('shogi','w');return}this.turn='b';setStatus('CPU 思考中…','△ 後手');var self=this;setTimeout(function(){self.cpu()},120)},
+scoreB:function(b,h){var s=0;for(var y=0;y<9;y++)for(var x=0;x<9;x++){var p=b[y][x];if(!p)continue;var v=VAL[bt(p.t)];if(p.t.charAt(0)==='+')v+=1;s+=p.c==='b'?v:-v}var bk=Object.keys(h.b);for(var i=0;i<bk.length;i++)s+=(h.b[bk[i]]||0)*VAL[bk[i]]*0.9;var wk=Object.keys(h.w);for(var i=0;i<wk.length;i++)s-=(h.w[wk[i]]||0)*VAL[wk[i]]*0.9;return s},
+cpu:function(){var lm=this.allLegal(this.board,'b',this.hand);if(!lm.length){this.gameOver=true;setStatus('😢 詰まされた…CPUの勝ち','敗北');recordResult('shogi','l');return}var best=-Infinity,bm=lm[0];for(var i=0;i<lm.length;i++){var e=lm[i],hc={w:Object.assign({},this.hand.w),b:Object.assign({},this.hand.b)};var nb=e.type==='move'?this.applyBM(this.board,e.m,hc):this.applyDrop(this.board,e.m,'b',hc);var val=this.scoreB(nb,hc);if(difficulty>=2){var rep=this.allLegal(nb,'w',hc),lim=difficulty===2?15:30;if(rep.length>lim)rep=rep.slice(0,lim);var mn=Infinity;for(var j=0;j<rep.length;j++){var r=rep[j],hc2={w:Object.assign({},hc.w),b:Object.assign({},hc.b)};var nb2=r.type==='move'?this.applyBM(nb,r.m,hc2):this.applyDrop(nb,r.m,'w',hc2);var v2=this.scoreB(nb2,hc2);if(v2<mn)mn=v2}if(mn!==Infinity)val=mn}if(val>best){best=val;bm=e}}var hc={w:Object.assign({},this.hand.w),b:Object.assign({},this.hand.b)};var cap=bm.type==='move'&&this.board[bm.m.ty][bm.m.tx]!==null;this.board=bm.type==='move'?this.applyBM(this.board,bm.m,hc):this.applyDrop(this.board,bm.m,'b',hc);this.hand=hc;if(cap)SFX.capture();else SFX.place();this.renderHands();this.draw();if(!this.allLegal(this.board,'w',this.hand).length){this.gameOver=true;setStatus('😢 詰まされた…CPUの勝ち','敗北');recordResult('shogi','l');return}this.turn='w';if(this.inCheck(this.board,'w')){setStatus('王手！あなたの手番','▼ 先手');flashCheck()}else setStatus('あなたの手番','▼ 先手')},
+tutorial:'<h2>王 将棋(簡易ルール)</h2><h3>目的</h3><p>相手の玉を詰みにしたら勝ち。</p><h3>駒の動き</h3><ul><li>歩:前1マス</li><li>香:前にまっすぐ何マスでも</li><li>桂:前方2＋左右1(飛び越え可)</li><li>銀:前3＋斜め後ろ2</li><li>金:前3＋横2＋後ろ1</li><li>角:斜め</li><li>飛:縦横</li><li>玉:8方向1マス</li></ul><h3>成り</h3><ul><li>敵陣(3段以内)で成れる</li><li>歩香桂銀→金の動き、角→馬、飛→龍</li></ul><h3>持ち駒</h3><ul><li>取った駒は持ち駒として打てる</li><li>画面下の持ち駒クリック→青マスをクリック</li><li>※二歩チェック済、打ち歩詰めは省略</li></ul>'}})();
+
+// ===== BOOT =====
+window.addEventListener('DOMContentLoaded',function(){
+  canvas=$('board');ctx=canvas.getContext('2d');
+  applyTheme();
+  // 戦績パネル初期化
+  renderStatsPanel();updateBadges();
+  // 難易度
+  $('difficulty').addEventListener('change',function(e){difficulty=parseInt(e.target.value);SFX.click()});
+  difficulty=parseInt($('difficulty').value);
+  // ゲームカード
+  var cs=document.querySelectorAll('.game-card');
+  for(var i=0;i<cs.length;i++)(function(c){
+    c.addEventListener('click',function(){if(GAMES[c.dataset.game]){SFX.click();showGame(c.dataset.game)}});
+  })(cs[i]);
+  // ナビ
+  $('backHome').addEventListener('click',function(){SFX.click();showHome()});
+  $('globalHome').addEventListener('click',function(){SFX.click();showHome()});
+  $('resetBtn').addEventListener('click',function(){SFX.click();if(currentGame){GAMES[currentGame].reset();GAMES[currentGame].draw();if(GAMES[currentGame].renderHands)GAMES[currentGame].renderHands()}});
+  $('tutorialBtn').addEventListener('click',function(){SFX.click();if(currentGame)showModal(GAMES[currentGame].tutorial)});
+  $('passBtn').addEventListener('click',function(){if(currentGame&&GAMES[currentGame].pass){SFX.click();GAMES[currentGame].pass()}});
+  // テーマ・カモフラ
+  $('themeBtn').addEventListener('click',toggleTheme);
+  $('bossBtn').addEventListener('click',toggleBoss);
+  // キャンバスクリック
+  canvas.addEventListener('click',function(e){e.preventDefault();if(!currentGame)return;var xy=getXY(e);GAMES[currentGame].onClick(xy.x,xy.y)});
+  // リサイズ
+  window.addEventListener('resize',function(){if(currentGame){setupCanvas(GAMES[currentGame].canvasSize||540);GAMES[currentGame].draw()}});
+  // ボスキー
+  document.addEventListener('keydown',function(e){
+    if((e.ctrlKey||e.metaKey)&&(e.key==='b'||e.key==='B')){e.preventDefault();toggleBoss()}
+    else if(e.key==='Escape'){var cf=$('camouflage');if(cf.classList.contains('active'))toggleBoss()}
+  });
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GanttFlow Pro - チームガントチャート</title>
+<style>
+:root {
+  /* Default: Dark Pro */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-tertiary: #21262d;
+  --bg-hover: #30363d;
+  --border: #30363d;
+  --text-primary: #e6edf3;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --accent: #58a6ff;
+  --accent-hover: #79b8ff;
+  --accent-bg: rgba(88,166,255,0.1);
+  --success: #3fb950;
+  --warning: #d29922;
+  --danger: #f85149;
+  --bar-default: #58a6ff;
+  --bar-progress: #3fb950;
+  --bar-overdue: #f85149;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --radius: 8px;
+  --gantt-row-even: #161b22;
+  --gantt-row-odd: #1c2128;
+  --today-line: #f85149;
+  --milestone: #d29922;
+}
+
+[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f6f8fa;
+  --bg-tertiary: #eaeef2;
+  --bg-hover: #d0d7de;
+  --border: #d0d7de;
+  --text-primary: #1f2328;
+  --text-secondary: #656d76;
+  --text-muted: #8b949e;
+  --accent: #0969da;
+  --accent-hover: #0550ae;
+  --accent-bg: rgba(9,105,218,0.08);
+  --success: #1a7f37;
+  --warning: #9a6700;
+  --danger: #cf222e;
+  --bar-default: #0969da;
+  --bar-progress: #1a7f37;
+  --bar-overdue: #cf222e;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --gantt-row-even: #ffffff;
+  --gantt-row-odd: #f6f8fa;
+  --today-line: #cf222e;
+  --milestone: #9a6700;
+}
+
+[data-theme="ocean"] {
+  --bg-primary: #0a192f;
+  --bg-secondary: #112240;
+  --bg-tertiary: #1d3557;
+  --bg-hover: #264573;
+  --border: #1d3557;
+  --text-primary: #ccd6f6;
+  --text-secondary: #8892b0;
+  --text-muted: #606a86;
+  --accent: #64ffda;
+  --accent-hover: #8afce8;
+  --accent-bg: rgba(100,255,218,0.08);
+  --success: #64ffda;
+  --warning: #ffd166;
+  --danger: #ff6b6b;
+  --bar-default: #64ffda;
+  --bar-progress: #4ecdc4;
+  --bar-overdue: #ff6b6b;
+  --shadow: 0 2px 12px rgba(0,0,0,0.5);
+  --gantt-row-even: #112240;
+  --gantt-row-odd: #0f1f3a;
+  --today-line: #ff6b6b;
+  --milestone: #ffd166;
+}
+
+[data-theme="sunset"] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #2a2a4a;
+  --bg-hover: #3a3a5c;
+  --border: #2a2a4a;
+  --text-primary: #eee;
+  --text-secondary: #a0a0c0;
+  --text-muted: #7070a0;
+  --accent: #e94560;
+  --accent-hover: #ff6b81;
+  --accent-bg: rgba(233,69,96,0.1);
+  --success: #06d6a0;
+  --warning: #ffd166;
+  --danger: #e94560;
+  --bar-default: #e94560;
+  --bar-progress: #06d6a0;
+  --bar-overdue: #ff6b6b;
+  --shadow: 0 2px 12px rgba(0,0,0,0.5);
+  --gantt-row-even: #16213e;
+  --gantt-row-odd: #1a1a2e;
+  --today-line: #ffd166;
+  --milestone: #ffd166;
+}
+
+[data-theme="forest"] {
+  --bg-primary: #1b2d1b;
+  --bg-secondary: #1f3520;
+  --bg-tertiary: #2a4a2a;
+  --bg-hover: #3a5e3a;
+  --border: #2a4a2a;
+  --text-primary: #d4e8d0;
+  --text-secondary: #8fb88a;
+  --text-muted: #5e8a58;
+  --accent: #7bc67e;
+  --accent-hover: #9dd89f;
+  --accent-bg: rgba(123,198,126,0.1);
+  --success: #7bc67e;
+  --warning: #e8c547;
+  --danger: #d96459;
+  --bar-default: #7bc67e;
+  --bar-progress: #5ea362;
+  --bar-overdue: #d96459;
+  --shadow: 0 2px 12px rgba(0,0,0,0.4);
+  --gantt-row-even: #1f3520;
+  --gantt-row-odd: #1b2d1b;
+  --today-line: #d96459;
+  --milestone: #e8c547;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Segoe UI', -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.app-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  height: 52px;
+  z-index: 100;
+}
+.app-logo { display:flex; align-items:center; gap:10px; }
+.app-logo svg { width:28px; height:28px; }
+.app-logo span { font-size:18px; font-weight:700; color:var(--accent); }
+.header-actions { display:flex; align-items:center; gap:8px; }
+
+.btn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding: 6px 14px; border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-size: 13px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--bg-hover); }
+.btn-primary { background: var(--accent); color:#fff; border-color:var(--accent); }
+.btn-primary:hover { background: var(--accent-hover); }
+.btn-danger { background: var(--danger); color:#fff; border-color:var(--danger); }
+.btn-sm { padding:4px 10px; font-size:12px; }
+
+/* ===== TOOLBAR ===== */
+.toolbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 8px 20px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.toolbar-group { display:flex; align-items:center; gap:8px; }
+.toolbar-group label { font-size:12px; color:var(--text-secondary); }
+select, input[type="text"], input[type="date"], input[type="number"] {
+  padding:5px 10px; border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--bg-tertiary); color:var(--text-primary);
+  font-size:13px; outline:none;
+}
+select:focus, input:focus { border-color:var(--accent); }
+.search-box {
+  position:relative;
+}
+.search-box input { padding-left:30px; width:200px; }
+.search-box svg { position:absolute; left:8px; top:50%; transform:translateY(-50%); width:14px; height:14px; color:var(--text-muted); }
+
+/* ===== MAIN LAYOUT ===== */
+.main-container {
+  display: flex;
+  height: calc(100vh - 104px);
+  overflow: hidden;
+}
+
+/* LEFT PANEL - Task Table */
+.task-panel {
+  width: 480px;
+  min-width: 320px;
+  border-right: 2px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+  position: relative;
+}
+.task-panel-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 10px 12px;
+  border-bottom:1px solid var(--border);
+  background: var(--bg-tertiary);
+  font-size: 13px; font-weight:600;
+}
+.task-table-wrap {
+  flex:1; overflow-y:auto; overflow-x:hidden;
+}
+table.task-table {
+  width:100%; border-collapse:collapse;
+  font-size: 12px;
+}
+.task-table th {
+  position:sticky; top:0; z-index:10;
+  background: var(--bg-tertiary);
+  padding: 8px 6px;
+  text-align:left;
+  font-weight:600;
+  color: var(--text-secondary);
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.task-table td {
+  padding: 4px 6px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.task-table tr:nth-child(even) { background: var(--gantt-row-even); }
+.task-table tr:nth-child(odd) { background: var(--gantt-row-odd); }
+.task-table tr:hover { background: var(--bg-hover); }
+.task-table tr.selected { background: var(--accent-bg) !important; }
+.task-table tr.group-row {
+  background: var(--bg-tertiary) !important;
+  font-weight: 700;
+  cursor: pointer;
+}
+.task-table tr.group-row td { padding: 6px; }
+.group-toggle { cursor:pointer; user-select:none; margin-right:4px; display:inline-block; transition:transform 0.2s; }
+.group-toggle.collapsed { transform: rotate(-90deg); }
+
+.task-name-cell {
+  display:flex; align-items:center; gap:4px;
+  max-width: 140px;
+}
+.task-name-cell input {
+  border:none; background:transparent; color:var(--text-primary);
+  font-size:12px; width:100%; padding:2px 4px; border-radius:3px;
+}
+.task-name-cell input:focus { background:var(--bg-primary); outline:1px solid var(--accent); }
+
+.indent-1 { padding-left: 24px !important; }
+
+/* Assignee badge */
+.assignee-badge {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:24px; height:24px; border-radius:50%;
+  font-size:10px; font-weight:700; color:#fff;
+  flex-shrink:0;
+}
+/* Priority dot */
+.priority-dot {
+  width:8px; height:8px; border-radius:50%; display:inline-block;
+}
+.priority-high { background:var(--danger); }
+.priority-medium { background:var(--warning); }
+.priority-low { background:var(--success); }
+
+/* Progress bar in table */
+.progress-mini {
+  width:50px; height:6px; background:var(--bg-primary);
+  border-radius:3px; overflow:hidden; display:inline-block; vertical-align:middle;
+}
+.progress-mini-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+
+/* ===== RESIZE HANDLE ===== */
+.resize-handle {
+  width: 4px; cursor:col-resize;
+  background: transparent;
+  position: absolute; right:0; top:0; bottom:0;
+  z-index: 20;
+}
+.resize-handle:hover { background: var(--accent); }
+
+/* ===== RIGHT PANEL - Gantt Chart ===== */
+.gantt-panel {
+  flex:1; display:flex; flex-direction:column; overflow:hidden;
+}
+.gantt-header-wrap {
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  border-bottom: 2px solid var(--border);
+  flex-shrink:0;
+}
+.gantt-header {
+  display:flex; min-width: max-content;
+}
+.gantt-month-group {
+  text-align:center; border-right:1px solid var(--border);
+}
+.gantt-month-label {
+  padding:4px 0; font-size:11px; font-weight:700;
+  color:var(--text-secondary);
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+}
+.gantt-days {
+  display:flex;
+}
+.gantt-day {
+  width:28px; text-align:center;
+  font-size:9px; color:var(--text-muted);
+  padding:3px 0;
+  flex-shrink:0;
+}
+.gantt-day.weekend { color:var(--danger); opacity:0.6; }
+.gantt-day.today { color:var(--accent); font-weight:700; }
+
+.gantt-body-wrap {
+  flex:1; overflow:auto; position:relative;
+}
+.gantt-body {
+  min-width: max-content; position:relative;
+}
+.gantt-row {
+  height: 31px;
+  display:flex; align-items:center;
+  position:relative;
+  border-bottom:1px solid var(--border);
+}
+.gantt-row:nth-child(even) { background: var(--gantt-row-even); }
+.gantt-row:nth-child(odd) { background: var(--gantt-row-odd); }
+.gantt-row.group-row { background: var(--bg-tertiary) !important; height:33px; }
+
+/* Grid lines */
+.gantt-grid-line {
+  position:absolute; top:0; bottom:0;
+  width:1px; background:var(--border); opacity:0.3;
+  pointer-events:none;
+}
+.gantt-grid-line.weekend { background:var(--danger); opacity:0.06; width:28px; }
+
+/* Today line */
+.today-line {
+  position:absolute; top:0; bottom:0;
+  width:2px; background:var(--today-line);
+  z-index:5; pointer-events:none;
+}
+.today-line::before {
+  content:'今日'; position:absolute; top:-18px; left:-12px;
+  font-size:9px; color:var(--today-line); font-weight:700;
+}
+
+/* Gantt bars */
+.gantt-bar {
+  position:absolute; height:18px; top:50%; transform:translateY(-50%);
+  border-radius:4px; cursor:pointer;
+  transition: opacity 0.15s;
+  z-index:3;
+  display:flex; align-items:center;
+  overflow:hidden;
+  min-width: 6px;
+}
+.gantt-bar:hover { opacity:0.85; filter:brightness(1.1); }
+.gantt-bar-fill {
+  height:100%; border-radius:4px 0 0 4px;
+  background: rgba(255,255,255,0.25);
+  transition: width 0.3s;
+}
+.gantt-bar-label {
+  position:absolute; left:6px; top:50%; transform:translateY(-50%);
+  font-size:9px; font-weight:600; color:#fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  white-space:nowrap; pointer-events:none;
+}
+/* Milestone diamond */
+.gantt-milestone {
+  position:absolute; width:14px; height:14px;
+  top:50%; transform:translateY(-50%) rotate(45deg);
+  background:var(--milestone);
+  border-radius:2px; z-index:4; cursor:pointer;
+}
+
+/* Dependency arrows */
+.dependency-line {
+  position:absolute; z-index:2; pointer-events:none;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display:none; position:fixed; top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.6); z-index:1000;
+  justify-content:center; align-items:center;
+}
+.modal-overlay.active { display:flex; }
+.modal {
+  background:var(--bg-secondary);
+  border:1px solid var(--border);
+  border-radius:12px;
+  width:520px; max-height:85vh;
+  overflow-y:auto;
+  box-shadow: var(--shadow);
+}
+.modal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px;
+  border-bottom:1px solid var(--border);
+}
+.modal-header h3 { font-size:16px; }
+.modal-close { background:none; border:none; color:var(--text-secondary); cursor:pointer; font-size:20px; }
+.modal-body { padding:20px; }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:12px; color:var(--text-secondary); margin-bottom:4px; font-weight:600; }
+.form-group input, .form-group select, .form-group textarea {
+  width:100%; padding:8px 12px; border-radius:var(--radius);
+  border:1px solid var(--border); background:var(--bg-tertiary);
+  color:var(--text-primary); font-size:13px;
+}
+.form-group textarea { resize:vertical; min-height:60px; font-family:inherit; }
+.form-row { display:flex; gap:12px; }
+.form-row .form-group { flex:1; }
+.modal-footer {
+  display:flex; justify-content:flex-end; gap:8px;
+  padding:16px 20px;
+  border-top:1px solid var(--border);
+}
+
+/* Color picker for task */
+.color-options { display:flex; gap:6px; flex-wrap:wrap; }
+.color-opt {
+  width:28px; height:28px; border-radius:50%; cursor:pointer;
+  border:2px solid transparent; transition:all 0.15s;
+}
+.color-opt:hover, .color-opt.selected { border-color:var(--text-primary); transform:scale(1.15); }
+
+/* ===== THEME SWITCHER ===== */
+.theme-switcher { display:flex; gap:4px; }
+.theme-dot {
+  width:20px; height:20px; border-radius:50%; cursor:pointer;
+  border:2px solid var(--border); transition:all 0.15s;
+}
+.theme-dot:hover { transform:scale(1.2); }
+.theme-dot.active { border-color:var(--text-primary); box-shadow:0 0 0 2px var(--accent); }
+
+/* ===== STATS BAR ===== */
+.stats-bar {
+  display:flex; gap:16px; align-items:center;
+  padding: 6px 20px;
+  background:var(--bg-secondary);
+  border-top:1px solid var(--border);
+  font-size:11px; color:var(--text-secondary);
+}
+.stat-item { display:flex; align-items:center; gap:4px; }
+.stat-dot { width:8px; height:8px; border-radius:50%; }
+
+/* ===== CONTEXT MENU ===== */
+.context-menu {
+  display:none; position:fixed;
+  background:var(--bg-secondary); border:1px solid var(--border);
+  border-radius:var(--radius); box-shadow:var(--shadow);
+  z-index:2000; min-width:180px; padding:4px 0;
+}
+.context-menu.active { display:block; }
+.context-item {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 14px; font-size:13px; cursor:pointer;
+  color:var(--text-primary);
+}
+.context-item:hover { background:var(--bg-hover); }
+.context-item.danger { color:var(--danger); }
+.context-sep { height:1px; background:var(--border); margin:4px 0; }
+
+/* ===== TOOLTIP ===== */
+.tooltip {
+  display:none; position:fixed;
+  background:var(--bg-tertiary); border:1px solid var(--border);
+  border-radius:var(--radius); padding:10px 14px;
+  box-shadow:var(--shadow); z-index:1500;
+  font-size:12px; max-width:280px;
+  pointer-events:none;
+}
+.tooltip.active { display:block; }
+.tooltip-title { font-weight:700; margin-bottom:4px; }
+.tooltip-row { display:flex; justify-content:space-between; gap:12px; color:var(--text-secondary); margin-top:2px; }
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width:8px; height:8px; }
+::-webkit-scrollbar-track { background:var(--bg-primary); }
+::-webkit-scrollbar-thumb { background:var(--bg-hover); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:var(--text-muted); }
+
+/* ===== NOTIFICATION ===== */
+.notification {
+  position:fixed; bottom:20px; right:20px;
+  background:var(--bg-tertiary); border:1px solid var(--border);
+  border-radius:var(--radius); padding:12px 20px;
+  box-shadow:var(--shadow); z-index:3000;
+  font-size:13px; display:flex; align-items:center; gap:8px;
+  transform:translateY(100px); opacity:0;
+  transition: all 0.3s ease;
+}
+.notification.show { transform:translateY(0); opacity:1; }
+.notification.success { border-left:3px solid var(--success); }
+.notification.error { border-left:3px solid var(--danger); }
+
+/* ===== EXPORT MODAL ===== */
+.export-options { display:flex; gap:12px; flex-wrap:wrap; }
+.export-card {
+  flex:1; min-width:120px; padding:16px; text-align:center;
+  border:1px solid var(--border); border-radius:var(--radius);
+  cursor:pointer; transition:all 0.15s;
+}
+.export-card:hover { border-color:var(--accent); background:var(--accent-bg); }
+.export-card svg { width:32px; height:32px; margin-bottom:8px; color:var(--accent); }
+.export-card span { display:block; font-size:12px; font-weight:600; }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- HEADER -->
+<header class="app-header">
+  <div class="app-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--accent)">
+      <rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/>
+      <line x1="9" y1="4" x2="9" y2="20"/><rect x="11" y="13" width="6" height="2" rx="1" fill="currentColor"/>
+    </svg>
+    <span>GanttFlow Pro</span>
+  </div>
+  <div class="header-actions">
+    <div class="theme-switcher">
+      <div class="theme-dot active" style="background:#0d1117" data-theme="dark" title="ダーク"></div>
+      <div class="theme-dot" style="background:#ffffff;border-color:#ccc" data-theme="light" title="ライト"></div>
+      <div class="theme-dot" style="background:#0a192f" data-theme="ocean" title="オーシャン"></div>
+      <div class="theme-dot" style="background:#1a1a2e" data-theme="sunset" title="サンセット"></div>
+      <div class="theme-dot" style="background:#1b2d1b" data-theme="forest" title="フォレスト"></div>
+    </div>
+    <button class="btn btn-sm" onclick="undoAction()" title="元に戻す">↩ 戻す</button>
+    <button class="btn btn-sm" onclick="redoAction()" title="やり直し">↪ やり直し</button>
+    <button class="btn btn-sm" onclick="showExportModal()">📥 エクスポート</button>
+    <button class="btn btn-sm" onclick="showImportModal()">📤 インポート</button>
+    <button class="btn btn-sm btn-primary" onclick="saveProject()">💾 保存</button>
+  </div>
+</header>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <div class="toolbar-group">
+    <button class="btn btn-primary btn-sm" onclick="openAddTaskModal()">＋ タスク追加</button>
+    <button class="btn btn-sm" onclick="openAddGroupModal()">📁 大項目追加</button>
+    <button class="btn btn-sm" onclick="expandAll()">▼ 全展開</button>
+    <button class="btn btn-sm" onclick="collapseAll()">▶ 全折畳</button>
+  </div>
+  <div class="toolbar-group">
+    <label>表示:</label>
+    <select id="viewMode" onchange="changeViewMode()">
+      <option value="day">日</option>
+      <option value="week">週</option>
+      <option value="month" selected>月</option>
+      <option value="year">年</option>
+    </select>
+    <label>期間:</label>
+    <input type="date" id="startDate" onchange="renderGantt()">
+    <span>〜</span>
+    <input type="date" id="endDate" onchange="renderGantt()">
+    <label>フィルタ:</label>
+    <select id="filterAssignee" onchange="renderAll()">
+      <option value="">全員</option>
+    </select>
+    <select id="filterStatus" onchange="renderAll()">
+      <option value="">全ステータス</option>
+      <option value="未着手">未着手</option>
+      <option value="進行中">進行中</option>
+      <option value="完了">完了</option>
+      <option value="遅延">遅延</option>
+    </select>
+  </div>
+  <div class="toolbar-group">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+      <input type="text" id="searchInput" placeholder="タスク検索..." oninput="renderAll()">
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-container">
+  <!-- Task Panel -->
+  <div class="task-panel" id="taskPanel">
+    <div class="task-panel-header">
+      <span>📋 タスク一覧</span>
+      <span id="taskCount">0 タスク</span>
+    </div>
+    <div class="task-table-wrap" id="taskTableWrap">
+      <table class="task-table">
+        <thead>
+          <tr>
+            <th style="width:30px"></th>
+            <th style="width:150px">タスク名</th>
+            <th style="width:60px">担当</th>
+            <th style="width:50px">優先</th>
+            <th style="width:55px">進捗</th>
+            <th style="width:65px">状態</th>
+            <th style="width:70px">期限</th>
+          </tr>
+        </thead>
+        <tbody id="taskTableBody"></tbody>
+      </table>
+    </div>
+    <div class="resize-handle" id="resizeHandle"></div>
+  </div>
+
+  <!-- Gantt Panel -->
+  <div class="gantt-panel">
+    <div class="gantt-header-wrap" id="ganttHeaderWrap">
+      <div class="gantt-header" id="ganttHeader"></div>
+    </div>
+    <div class="gantt-body-wrap" id="ganttBodyWrap">
+      <div class="gantt-body" id="ganttBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stat-item"><div class="stat-dot" style="background:var(--text-muted)"></div><span id="statTotal">0 タスク</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--success)"></div><span id="statDone">完了: 0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--accent)"></div><span id="statProgress">進行中: 0</span></div>
+  <div class="stat-item"><div class="stat-dot" style="background:var(--danger)"></div><span id="statOverdue">遅延: 0</span></div>
+  <div class="stat-item">📊 <span id="statPercent">全体進捗: 0%</span></div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="context-menu" id="contextMenu">
+  <div class="context-item" onclick="editSelectedTask()">✏️ 編集</div>
+  <div class="context-item" onclick="duplicateTask()">📋 複製</div>
+  <div class="context-item" onclick="openAddTaskModal(contextGroupId)">➕ サブタスク追加</div>
+  <div class="context-sep"></div>
+  <div class="context-item" onclick="moveTaskUp()">⬆ 上に移動</div>
+  <div class="context-item" onclick="moveTaskDown()">⬇ 下に移動</div>
+  <div class="context-sep"></div>
+  <div class="context-item danger" onclick="deleteSelectedTask()">🗑 削除</div>
+</div>
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notification"></div>
+
+<!-- ADD/EDIT TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="taskModalTitle">タスク追加</h3>
+      <button class="modal-close" onclick="closeModal('taskModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editTaskId">
+      <div class="form-group">
+        <label>大項目（グループ）</label>
+        <select id="taskGroup"></select>
+      </div>
+      <div class="form-group">
+        <label>タスク名 *</label>
+        <input type="text" id="taskName" placeholder="タスク名を入力">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>開始日 *</label>
+          <input type="date" id="taskStart">
+        </div>
+        <div class="form-group">
+          <label>終了日 *</label>
+          <input type="date" id="taskEnd">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>担当者</label>
+          <select id="taskAssignee"></select>
+        </div>
+        <div class="form-group">
+          <label>優先度</label>
+          <select id="taskPriority">
+            <option value="low">低</option>
+            <option value="medium" selected>中</option>
+            <option value="high">高</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>進捗 (%)</label>
+          <input type="number" id="taskProgress" min="0" max="100" value="0">
+        </div>
+        <div class="form-group">
+          <label>ステータス</label>
+          <select id="taskStatus">
+            <option value="未着手">未着手</option>
+            <option value="進行中">進行中</option>
+            <option value="完了">完了</option>
+            <option value="遅延">遅延</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>マイルストーン</label>
+        <select id="taskMilestone">
+          <option value="false">いいえ</option>
+          <option value="true">はい</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>バーの色</label>
+        <div class="color-options" id="colorOptions"></div>
+      </div>
+      <div class="form-group">
+        <label>メモ</label>
+        <textarea id="taskNotes" placeholder="メモを入力..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('taskModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveTask()">💾 保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD GROUP MODAL -->
+<div class="modal-overlay" id="groupModal">
+  <div class="modal" style="width:380px">
+    <div class="modal-header">
+      <h3>大項目追加</h3>
+      <button class="modal-close" onclick="closeModal('groupModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>大項目名 *</label>
+        <input type="text" id="groupName" placeholder="例: 設計フェーズ">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('groupModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="saveGroup()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- ASSIGNEE MANAGEMENT MODAL -->
+<div class="modal-overlay" id="assigneeModal">
+  <div class="modal" style="width:400px">
+    <div class="modal-header">
+      <h3>👥 担当者管理</h3>
+      <button class="modal-close" onclick="closeModal('assigneeModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text" id="newAssigneeName" placeholder="名前" style="flex:1">
+        <button class="btn btn-primary btn-sm" onclick="addAssignee()">追加</button>
+      </div>
+      <div id="assigneeList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal-overlay" id="exportModal">
+  <div class="modal" style="width:440px">
+    <div class="modal-header">
+      <h3>📥 エクスポート</h3>
+      <button class="modal-close" onclick="closeModal('exportModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="export-options">
+        <div class="export-card" onclick="exportJSON()">
+          <div style="font-size:28px">📄</div>
+          <span>JSON</span>
+        </div>
+        <div class="export-card" onclick="exportCSV()">
+          <div style="font-size:28px">📊</div>
+          <span>CSV</span>
+        </div>
+        <div class="export-card" onclick="exportMarkdown()">
+          <div style="font-size:28px">📝</div>
+          <span>Markdown</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- IMPORT MODAL -->
+<div class="modal-overlay" id="importModal">
+  <div class="modal" style="width:440px">
+    <div class="modal-header">
+      <h3>📤 インポート</h3>
+      <button class="modal-close" onclick="closeModal('importModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>JSONファイルを選択</label>
+        <input type="file" id="importFile" accept=".json" style="padding:8px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('importModal')">キャンセル</button>
+      <button class="btn btn-primary" onclick="importData()">インポート</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA MODEL ====================
+let projectData = {
+  name: "GanttFlow Pro プロジェクト",
+  groups: [],
+  tasks: [],
+  assignees: [],
+  nextId: 1,
+  nextGroupId: 1
+};
+
+const COLORS = [
+  '#58a6ff','#3fb950','#d29922','#f85149','#bc8cff',
+  '#f778ba','#79c0ff','#56d4dd','#db6d28','#7ee787',
+  '#ff9bce','#a5d6ff','#ffa657','#d2a8ff','#6cb6ff'
+];
+const ASSIGNEE_COLORS = [
+  '#e94560','#0969da','#1a7f37','#9a6700','#8250df',
+  '#bf3989','#0550ae','#116329','#7d4e00','#6639ba'
+];
+
+let selectedTaskId = null;
+let contextGroupId = null;
+let collapsedGroups = new Set();
+let undoStack = [];
+let redoStack = [];
+let DAY_WIDTH = 28;
+
+// ==================== INIT ====================
+function init() {
+  const saved = localStorage.getItem('ganttflow_data');
+  if (saved) {
+    try { projectData = JSON.parse(saved); } catch(e) {}
+  }
+  if (projectData.groups.length === 0) {
+    loadSampleData();
+  }
+  const today = new Date();
+  const start = new Date(today.getFullYear(), today.getMonth(), 1);
+  const end = new Date(today.getFullYear(), today.getMonth() + 3, 0);
+  document.getElementById('startDate').value = fmt(start);
+  document.getElementById('endDate').value = fmt(end);
+
+  setupThemeSwitcher();
+  setupResizeHandle();
+  setupSyncScroll();
+  updateAssigneeFilter();
+  renderAll();
+
+  const savedTheme = localStorage.getItem('ganttflow_theme') || 'dark';
+  document.body.setAttribute('data-theme', savedTheme);
+  document.querySelectorAll('.theme-dot').forEach(d => {
+    d.classList.toggle('active', d.dataset.theme === savedTheme);
+  });
+
+  document.addEventListener('click', () => {
+    document.getElementById('contextMenu').classList.remove('active');
+  });
+  document.addEventListener('keydown', handleKeyboard);
+}
+
+function loadSampleData() {
+  projectData.assignees = [
+    {id:1, name:'田中', color:'#e94560'},
+    {id:2, name:'佐藤', color:'#0969da'},
+    {id:3, name:'鈴木', color:'#1a7f37'},
+    {id:4, name:'高橋', color:'#9a6700'}
+  ];
+  const today = new Date();
+  const d = (offset) => {
+    const dt = new Date(today);
+    dt.setDate(dt.getDate() + offset);
+    return fmt(dt);
+  };
+  projectData.groups = [
+    {id:1, name:'📐 設計フェーズ'},
+    {id:2, name:'💻 開発フェーズ'},
+    {id:3, name:'🧪 テストフェーズ'}
+  ];
+  projectData.tasks = [
+    {id:1, groupId:1, name:'要件定義', start:d(-10), end:d(-1), assigneeId:1, priority:'high', progress:100, status:'完了', color:'#58a6ff', milestone:false, notes:''},
+    {id:2, groupId:1, name:'基本設計', start:d(-3), end:d(5), assigneeId:2, priority:'high', progress:70, status:'進行中', color:'#3fb950', milestone:false, notes:''},
+    {id:3, groupId:1, name:'設計レビュー', start:d(5), end:d(5), assigneeId:1, priority:'medium', progress:0, status:'未着手', color:'#d29922', milestone:true, notes:'マイルストーン'},
+    {id:4, groupId:2, name:'フロントエンド開発', start:d(6), end:d(20), assigneeId:3, priority:'high', progress:0, status:'未着手', color:'#bc8cff', milestone:false, notes:''},
+    {id:5, groupId:2, name:'バックエンド開発', start:d(6), end:d(25), assigneeId:4, priority:'high', progress:0, status:'未着手', color:'#f778ba', milestone:false, notes:''},
+    {id:6, groupId:2, name:'API連携', start:d(15), end:d(22), assigneeId:2, priority:'medium', progress:0, status:'未着手', color:'#79c0ff', milestone:false, notes:''},
+    {id:7, groupId:3, name:'単体テスト', start:d(21), end:d(30), assigneeId:3, priority:'medium', progress:0, status:'未着手', color:'#56d4dd', milestone:false, notes:''},
+    {id:8, groupId:3, name:'結合テスト', start:d(28), end:d(38), assigneeId:1, priority:'high', progress:0, status:'未着手', color:'#db6d28', milestone:false, notes:''},
+    {id:9, groupId:3, name:'リリース', start:d(40), end:d(40), assigneeId:2, priority:'high', progress:0, status:'未着手', color:'#f85149', milestone:true, notes:''}
+  ];
+  projectData.nextId = 10;
+  projectData.nextGroupId = 4;
+}
+
+// ==================== HELPERS ====================
+function fmt(date) {
+  return date.toISOString().split('T')[0];
+}
+function parseDate(s) {
+  const [y,m,d] = s.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+function daysBetween(a, b) {
+  return Math.round((parseDate(b) - parseDate(a)) / 86400000);
+}
+function isWeekend(date) {
+  const dow = date.getDay();
+  return dow === 0 || dow === 6;
+}
+function cloneData() {
+  return JSON.parse(JSON.stringify(projectData));
+}
+function pushUndo() {
+  undoStack.push(cloneData());
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack = [];
+}
+function undoAction() {
+  if (undoStack.length === 0) return;
+  redoStack.push(cloneData());
+  projectData = undoStack.pop();
+  renderAll();
+  notify('↩ 元に戻しました', 'success');
+}
+function redoAction() {
+  if (redoStack.length === 0) return;
+  undoStack.push(cloneData());
+  projectData = redoStack.pop();
+  renderAll();
+  notify('↪ やり直しました', 'success');
+}
+
+function handleKeyboard(e) {
+  if (e.ctrlKey && e.key === 'z') { e.preventDefault(); undoAction(); }
+  if (e.ctrlKey && e.key === 'y') { e.preventDefault(); redoAction(); }
+  if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveProject(); }
+  if (e.key === 'Delete' && selectedTaskId) { deleteSelectedTask(); }
+}
+
+function notify(msg, type='success') {
+  const el = document.getElementById('notification');
+  el.textContent = msg;
+  el.className = 'notification ' + type + ' show';
+  setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+// ==================== FILTERING ====================
+function getFilteredTasks() {
+  let tasks = [...projectData.tasks];
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const assignee = document.getElementById('filterAssignee').value;
+  const status = document.getElementById('filterStatus').value;
+  if (search) tasks = tasks.filter(t => t.name.toLowerCase().includes(search));
+  if (assignee) tasks = tasks.filter(t => t.assigneeId == assignee);
+  if (status) tasks = tasks.filter(t => t.status === status);
+  return tasks;
+}
+
+function getVisibleRows() {
+  const tasks = getFilteredTasks();
+  const rows = [];
+  const groupIds = [...new Set(projectData.groups.map(g => g.id))];
+  groupIds.forEach(gid => {
+    const group = projectData.groups.find(g => g.id === gid);
+    if (!group) return;
+    const groupTasks = tasks.filter(t => t.groupId === gid);
+    if (groupTasks.length === 0 && tasks.length !== projectData.tasks.length) return;
+    rows.push({ type:'group', group });
+    if (!collapsedGroups.has(gid)) {
+      groupTasks.forEach(t => rows.push({ type:'task', task:t }));
+    }
+  });
+  return rows;
+}
+
+// ==================== RENDER ALL ====================
+function renderAll() {
+  renderTaskTable();
+  renderGantt();
+  updateStats();
+  updateAssigneeFilter();
+}
+
+// ==================== TASK TABLE ====================
+function renderTaskTable() {
+  const rows = getVisibleRows();
+  const tbody = document.getElementById('taskTableBody');
+  let html = '';
+  rows.forEach(row => {
+    if (row.type === 'group') {
+      const g = row.group;
+      const collapsed = collapsedGroups.has(g.id);
+      const taskCount = projectData.tasks.filter(t => t.groupId === g.id).length;
+      const avgProgress = taskCount > 0
+        ? Math.round(projectData.tasks.filter(t => t.groupId === g.id).reduce((s,t) => s + t.progress, 0) / taskCount)
+        : 0;
+      html += `<tr class="group-row" onclick="toggleGroup(${g.id})" oncontextmenu="showGroupContext(event,${g.id})">
+        <td><span class="group-toggle ${collapsed?'collapsed':''}">▼</span></td>
+        <td colspan="4" style="font-size:13px">${g.name} <span style="color:var(--text-muted);font-size:11px;font-weight:400">(${taskCount}件 / ${avgProgress}%)</span></td>
+        <td colspan="2">
+          <div class="progress-mini" style="width:80px">
+            <div class="progress-mini-fill" style="width:${avgProgress}%;background:var(--success)"></div>
+          </div>
+        </td>
+      </tr>`;
+    } else {
+      const t = row.task;
+      const a = projectData.assignees.find(a => a.id === t.assigneeId);
+      const sel = t.id === selectedTaskId ? 'selected' : '';
+      const pClass = t.priority === 'high' ? 'priority-high' : t.priority === 'medium' ? 'priority-medium' : 'priority-low';
+      const pColor = t.progress >= 100 ? 'var(--success)' : t.status === '遅延' ? 'var(--danger)' : 'var(--accent)';
+      const statusEmoji = t.status === '完了' ? '✅' : t.status === '進行中' ? '🔄' : t.status === '遅延' ? '⚠️' : '⬜';
+      html += `<tr class="${sel}" onclick="selectTask(${t.id})" ondblclick="editTask(${t.id})" oncontextmenu="showTaskContext(event,${t.id})">
+        <td style="text-align:center"><input type="checkbox" ${t.progress>=100?'checked':''} onchange="toggleComplete(${t.id},this.checked)" onclick="event.stopPropagation()"></td>
+        <td><div class="task-name-cell indent-1">${t.milestone?'◆ ':''}<span style="cursor:pointer" title="${t.notes||''}">${t.name}</span></div></td>
+        <td>${a ? `<span class="assignee-badge" style="background:${a.color}" title="${a.name}">${a.name.charAt(0)}</span>` : '-'}</td>
+        <td><span class="priority-dot ${pClass}" title="${t.priority}"></span></td>
+        <td>
+          <div class="progress-mini"><div class="progress-mini-fill" style="width:${t.progress}%;background:${pColor}"></div></div>
+          <span style="font-size:10px;color:var(--text-muted);margin-left:2px">${t.progress}%</span>
+        </td>
+        <td style="font-size:11px">${statusEmoji} ${t.status}</td>
+        <td style="font-size:10px;color:var(--text-muted)">${t.end}</td>
+      </tr>`;
+    }
+  });
+  tbody.innerHTML = html;
+  document.getElementById('taskCount').textContent = `${projectData.tasks.length} タスク`;
+}
+
+// ==================== GANTT CHART ====================
+function renderGantt() {
+  const startStr = document.getElementById('startDate').value;
+  const endStr = document.getElementById('endDate').value;
+  if (!startStr || !endStr) return;
+
+  const viewMode = document.getElementById('viewMode').value;
+  const startDate = parseDate(startStr);
+  const endDate = parseDate(endStr);
+  const totalDays = daysBetween(startStr, endStr) + 1;
+
+  if (viewMode === 'year') DAY_WIDTH = 4;
+  else if (viewMode === 'month') DAY_WIDTH = 28;
+  else if (viewMode === 'week') DAY_WIDTH = 40;
+  else DAY_WIDTH = 56;
+
+  renderGanttHeader(startDate, totalDays, viewMode);
+  renderGanttBody(startDate, totalDays, viewMode);
+}
+
+function renderGanttHeader(startDate, totalDays, viewMode) {
+  const header = document.getElementById('ganttHeader');
+  let html = '';
+
+  if (viewMode === 'year') {
+    // Group by month
+    let d = new Date(startDate);
+    while (d <= new Date(startDate.getTime() + (totalDays-1)*86400000)) {
+      const year = d.getFullYear();
+      const month = d.getMonth();
+      const daysInMonth = new Date(year, month+1, 0).getDate();
+      const firstOfMonth = new Date(year, month, 1);
+      const startDay = Math.max(0, Math.round((firstOfMonth - startDate)/86400000));
+      const endOfMonth = new Date(year, month+1, 0);
+      const lastDay = Math.min(totalDays-1, Math.round((endOfMonth - startDate)/86400000));
+      const count = lastDay - startDay + 1;
+      const w = count * DAY_WIDTH;
+      html += `<div class="gantt-month-group" style="width:${w}px">
+        <div class="gantt-month-label">${year}/${month+1}月</div>
+        <div class="gantt-days"><div class="gantt-day" style="width:${w}px">${count}日</div></div>
+      </div>`;
+      d = new Date(year, month+1, 1);
+    }
+  } else {
+    let d = new Date(startDate);
+    let currentMonth = -1;
+    let monthDays = [];
+    let months = [];
+
+    for (let i = 0; i < totalDays; i++) {
+      const dd = new Date(startDate.getTime() + i * 86400000);
+      const m = dd.getMonth();
+      const y = dd.getFullYear();
+      const key = y*100+m;
+      if (key !== currentMonth) {
+        if (monthDays.length > 0) months.push({label: monthLabel, days: [...monthDays]});
+        currentMonth = key;
+        monthLabel = `${y}年 ${m+1}月`;
+        monthDays = [];
+      }
+      monthDays.push(dd);
+    }
+    if (monthDays.length > 0) months.push({label: monthLabel, days: [...monthDays]});
+
+    months.forEach(m => {
+      const w = m.days.length * DAY_WIDTH;
+      let daysHtml = '';
+      m.days.forEach(dd => {
+        const today = new Date();
+        const isToday = dd.toDateString() === today.toDateString();
+        const we = isWeekend(dd) ? 'weekend' : '';
+        const td = isToday ? 'today' : '';
+        if (viewMode === 'month') {
+          daysHtml += `<div class="gantt-day ${we} ${td}" style="width:${DAY_WIDTH}px">${dd.getDate()}</div>`;
+        } else if (viewMode === 'week') {
+          daysHtml += `<div class="gantt-day ${we} ${td}" style="width:${DAY_WIDTH}px">${dd.getDate()}${['日','月','火','水','木','金','土'][dd.getDay()]}</div>`;
+        } else {
+          daysHtml += `<div class="gantt-day ${we} ${td}" style="width:${DAY_WIDTH}px">${dd.getDate()}(${['日','月','火','水','木','金','土'][dd.getDay()]})</div>`;
+        }
+      });
+      html += `<div class="gantt-month-group" style="width:${w}px">
+        <div class="gantt-month-label">${m.label}</div>
+        <div class="gantt-days">${daysHtml}</div>
+      </div>`;
+    });
+  }
+  header.innerHTML = html;
+}
+
+function renderGanttBody(startDate, totalDays, viewMode) {
+  const body = document.getElementById('ganttBody');
+  const rows = getVisibleRows();
+  const totalWidth = totalDays * DAY_WIDTH;
+  body.style.width = totalWidth + 'px';
+  body.style.height = rows.length * 31 + 'px';
+
+  let html = '';
+
+  // Grid lines & weekend shading
+  for (let i = 0; i < totalDays; i++) {
+    const dd = new Date(startDate.getTime() + i * 86400000);
+    if (isWeekend(dd)) {
+      html += `<div class="gantt-grid-line weekend" style="left:${i*DAY_WIDTH}px"></div>`;
+    }
+    if (dd.getDate() === 1) {
+      html += `<div class="gantt-grid-line" style="left:${i*DAY_WIDTH}px;opacity:0.5"></div>`;
+    }
+  }
+
+  // Today line
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayOffset = Math.round((today - startDate) / 86400000);
+  if (todayOffset >= 0 && todayOffset < totalDays) {
+    html += `<div class="today-line" style="left:${todayOffset * DAY_WIDTH + DAY_WIDTH/2}px"></div>`;
+  }
+
+  // Rows
+  rows.forEach((row, idx) => {
+    const y = idx * 31;
+    const bgClass = row.type === 'group' ? 'group-row' : '';
+    html += `<div class="gantt-row ${bgClass}" style="top:${y}px;width:${totalWidth}px;position:absolute">`;
+
+    if (row.type === 'task') {
+      const t = row.task;
+      const tStart = parseDate(t.start);
+      const tEnd = parseDate(t.end);
+      const offsetDays = Math.round((tStart - startDate) / 86400000);
+      const duration = Math.round((tEnd - tStart) / 86400000) + 1;
+      const left = offsetDays * DAY_WIDTH;
+      const width = duration * DAY_WIDTH;
+
+      if (t.milestone) {
+        html += `<div class="gantt-milestone" style="left:${left + DAY_WIDTH/2 - 7}px"
+          onmouseenter="showTooltip(event,${t.id})" onmouseleave="hideTooltip()"
+          onclick="editTask(${t.id})"></div>`;
+      } else {
+        const barColor = t.color || 'var(--bar-default)';
+        const isOverdue = t.status === '遅延' || (t.progress < 100 && tEnd < today);
+        const finalColor = isOverdue ? 'var(--bar-overdue)' : barColor;
+        html += `<div class="gantt-bar" style="left:${left}px;width:${Math.max(width,6)}px;background:${finalColor}"
+          onmouseenter="showTooltip(event,${t.id})" onmouseleave="hideTooltip()"
+          onclick="editTask(${t.id})" draggable="false">
+          <div class="gantt-bar-fill" style="width:${t.progress}%"></div>
+          ${width > 60 ? `<span class="gantt-bar-label">${t.name}</span>` : ''}
+        </div>`;
+      }
+    } else {
+      // Group summary bar
+      const g = row.group;
+      const groupTasks = projectData.tasks.filter(t => t.groupId === g.id);
+      if (groupTasks.length > 0) {
+        const minStart = groupTasks.reduce((m, t) => t.start < m ? t.start : m, groupTasks[0].start);
+        const maxEnd = groupTasks.reduce((m, t) => t.end > m ? t.end : m, groupTasks[0].end);
+        const offsetDays = Math.round((parseDate(minStart) - startDate) / 86400000);
+        const duration = daysBetween(minStart, maxEnd) + 1;
+        const left = offsetDays * DAY_WIDTH;
+        const width = duration * DAY_WIDTH;
+        html += `<div style="position:absolute;left:${left}px;width:${Math.max(width,6)}px;height:6px;top:50%;transform:translateY(-50%);background:var(--text-muted);border-radius:3px;opacity:0.4"></div>`;
+      }
+    }
+    html += '</div>';
+  });
+
+  body.innerHTML = html;
+}
+
+// ==================== SCROLL SYNC ====================
+function setupSyncScroll() {
+  const ganttBody = document.getElementById('ganttBodyWrap');
+  const ganttHeader = document.getElementById('ganttHeaderWrap');
+  const taskTable = document.getElementById('taskTableWrap');
+
+  ganttBody.addEventListener('scroll', () => {
+    ganttHeader.scrollLeft = ganttBody.scrollLeft;
+    taskTable.scrollTop = ganttBody.scrollTop;
+  });
+  taskTable.addEventListener('scroll', () => {
+    ganttBody.scrollTop = taskTable.scrollTop;
+  });
+}
+
+// ==================== RESIZE HANDLE ====================
+function setupResizeHandle() {
+  const handle = document.getElementById('resizeHandle');
+  const panel = document.getElementById('taskPanel');
+  let startX, startW;
+  handle.addEventListener('mousedown', e => {
+    startX = e.clientX;
+    startW = panel.offsetWidth;
+    document.addEventListener('mousemove', onResize);
+    document.addEventListener('mouseup', () => {
+      document.removeEventListener('mousemove', onResize);
+    }, {once:true});
+  });
+  function onResize(e) {
+    const w = startW + (e.clientX - startX);
+    if (w > 200 && w < 800) panel.style.width = w + 'px';
+  }
+}
+
+// ==================== THEME ====================
+function setupThemeSwitcher() {
+  document.querySelectorAll('.theme-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const theme = dot.dataset.theme;
+      document.body.setAttribute('data-theme', theme);
+      document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+      dot.classList.add('active');
+      localStorage.setItem('ganttflow_theme', theme);
+      notify('🎨 テーマを変更しました');
+    });
+  });
+}
+
+// ==================== VIEW MODE ====================
+function changeViewMode() {
+  const mode = document.getElementById('viewMode').value;
+  const today = new Date();
+  let start, end;
+  if (mode === 'day') {
+    start = new Date(today); start.setDate(start.getDate() - 3);
+    end = new Date(today); end.setDate(end.getDate() + 14);
+  } else if (mode === 'week') {
+    start = new Date(today); start.setDate(start.getDate() - 7);
+    end = new Date(today); end.setDate(end.getDate() + 35);
+  } else if (mode === 'month') {
+    start = new Date(today.getFullYear(), today.getMonth(), 1);
+    end = new Date(today.getFullYear(), today.getMonth() + 3, 0);
+  } else {
+    start = new Date(today.getFullYear(), 0, 1);
+    end = new Date(today.getFullYear(), 11, 31);
+  }
+  document.getElementById('startDate').value = fmt(start);
+  document.getElementById('endDate').value = fmt(end);
+  renderGantt();
+}
+
+// ==================== GROUP TOGGLE ====================
+function toggleGroup(gid) {
+  if (collapsedGroups.has(gid)) collapsedGroups.delete(gid);
+  else collapsedGroups.add(gid);
+  renderAll();
+}
+function expandAll() { collapsedGroups.clear(); renderAll(); }
+function collapseAll() {
+  projectData.groups.forEach(g => collapsedGroups.add(g.id));
+  renderAll();
+}
+
+// ==================== TASK OPERATIONS ====================
+function selectTask(id) {
+  selectedTaskId = id;
+  renderTaskTable();
+}
+function toggleComplete(id, checked) {
+  pushUndo();
+  const t = projectData.tasks.find(t => t.id === id);
+  if (t) {
+    t.progress = checked ? 100 : 0;
+    t.status = checked ? '完了' : '未着手';
+  }
+  renderAll();
+}
+
+function openAddTaskModal(groupId) {
+  document.getElementById('editTaskId').value = '';
+  document.getElementById('taskModalTitle').textContent = 'タスク追加';
+  document.getElementById('taskName').value = '';
+  const today = fmt(new Date());
+  const next = new Date(); next.setDate(next.getDate()+7);
+  document.getElementById('taskStart').value = today;
+  document.getElementById('taskEnd').value = fmt(next);
+  document.getElementById('taskProgress').value = 0;
+  document.getElementById('taskStatus').value = '未着手';
+  document.getElementById('taskPriority').value = 'medium';
+  document.getElementById('taskMilestone').value = 'false';
+  document.getElementById('taskNotes').value = '';
+  populateGroupSelect(groupId);
+  populateAssigneeSelect();
+  populateColorOptions();
+  document.getElementById('taskModal').classList.add('active');
+}
+function editTask(id) {
+  const t = projectData.tasks.find(t => t.id === id);
+  if (!t) return;
+  selectedTaskId = id;
+  document.getElementById('editTaskId').value = id;
+  document.getElementById('taskModalTitle').textContent = 'タスク編集';
+  document.getElementById('taskName').value = t.name;
+  document.getElementById('taskStart').value = t.start;
+  document.getElementById('taskEnd').value = t.end;
+  document.getElementById('taskProgress').value = t.progress;
+  document.getElementById('taskStatus').value = t.status;
+  document.getElementById('taskPriority').value = t.priority;
+  document.getElementById('taskMilestone').value = t.milestone ? 'true' : 'false';
+  document.getElementById('taskNotes').value = t.notes || '';
+  populateGroupSelect(t.groupId);
+  populateAssigneeSelect(t.assigneeId);
+  populateColorOptions(t.color);
+  document.getElementById('taskModal').classList.add('active');
+}
+function editSelectedTask() { if (selectedTaskId) editTask(selectedTaskId); }
+
+function saveTask() {
+  const name = document.getElementById('taskName').value.trim();
+  if (!name) { notify('タスク名を入力してね','error'); return; }
+  pushUndo();
+  const editId = document.getElementById('editTaskId').value;
+  const data = {
+    groupId: parseInt(document.getElementById('taskGroup').value),
+    name,
+    start: document.getElementById('taskStart').value,
+    end: document.getElementById('taskEnd').value,
+    assigneeId: parseInt(document.getElementById('taskAssignee').value) || null,
+    priority: document.getElementById('taskPriority').value,
+    progress: parseInt(document.getElementById('taskProgress').value) || 0,
+    status: document.getElementById('taskStatus').value,
+    milestone: document.getElementById('taskMilestone').value === 'true',
+    color: document.querySelector('.color-opt.selected')?.dataset.color || '#58a6ff',
+    notes: document.getElementById('taskNotes').value
+  };
+
+  if (editId) {
+    const t = projectData.tasks.find(t => t.id == editId);
+    if (t) Object.assign(t, data);
+    notify('✏️ タスクを更新したよ');
+  } else {
+    data.id = projectData.nextId++;
+    projectData.tasks.push(data);
+    notify('✅ タスクを追加したよ');
+  }
+  closeModal('taskModal');
+  renderAll();
+}
+
+function duplicateTask() {
+  if (!selectedTaskId) return;
+  pushUndo();
+  const t = projectData.tasks.find(t => t.id === selectedTaskId);
+  if (!t) return;
+  const newTask = {...t, id: projectData.nextId++, name: t.name + ' (コピー)', progress:0, status:'未着手'};
+  projectData.tasks.push(newTask);
+  renderAll();
+  notify('📋 タスクを複製したよ');
+}
+
+function deleteSelectedTask() {
+  if (!selectedTaskId) return;
+  pushUndo();
+  projectData.tasks = projectData.tasks.filter(t => t.id !== selectedTaskId);
+  selectedTaskId = null;
+  renderAll();
+  notify('🗑 タスクを削除したよ');
+}
+
+function moveTaskUp() {
+  if (!selectedTaskId) return;
+  pushUndo();
+  const idx = projectData.tasks.findIndex(t => t.id === selectedTaskId);
+  if (idx > 0) {
+    [projectData.tasks[idx-1], projectData.tasks[idx]] = [projectData.tasks[idx], projectData.tasks[idx-1]];
+    renderAll();
+  }
+}
+function moveTaskDown() {
+  if (!selectedTaskId) return;
+  pushUndo();
+  const idx = projectData.tasks.findIndex(t => t.id === selectedTaskId);
+  if (idx < projectData.tasks.length - 1) {
+    [projectData.tasks[idx], projectData.tasks[idx+1]] = [projectData.tasks[idx+1], projectData.tasks[idx]];
+    renderAll();
+  }
+}
+
+// ==================== GROUP OPERATIONS ====================
+function openAddGroupModal() {
+  document.getElementById('groupName').value = '';
+  document.getElementById('groupModal').classList.add('active');
+}
+function saveGroup() {
+  const name = document.getElementById('groupName').value.trim();
+  if (!name) { notify('大項目名を入力してね','error'); return; }
+  pushUndo();
+  projectData.groups.push({ id: projectData.nextGroupId++, name });
+  closeModal('groupModal');
+  renderAll();
+  notify('📁 大項目を追加したよ');
+}
+
+function showGroupContext(e, gid) {
+  e.preventDefault();
+  e.stopPropagation();
+  contextGroupId = gid;
+  const menu = document.getElementById('contextMenu');
+  menu.innerHTML = `
+    <div class="context-item" onclick="renameGroup(${gid})">✏️ 名前変更</div>
+    <div class="context-item" onclick="openAddTaskModal(${gid})">➕ タスク追加</div>
+    <div class="context-sep"></div>
+    <div class="context-item danger" onclick="deleteGroup(${gid})">🗑 大項目削除</div>
+  `;
+  menu.style.left = e.clientX + 'px';
+  menu.style.top = e.clientY + 'px';
+  menu.classList.add('active');
+}
+function renameGroup(gid) {
+  const g = projectData.groups.find(g => g.id === gid);
+  if (!g) return;
+  const name = prompt('新しい大項目名:', g.name);
+  if (name && name.trim()) {
+    pushUndo();
+    g.name = name.trim();
+    renderAll();
+  }
+}
+function deleteGroup(gid) {
+  if (!confirm('この大項目と所属タスクを全て削除する？')) return;
+  pushUndo();
+  projectData.groups = projectData.groups.filter(g => g.id !== gid);
+  projectData.tasks = projectData.tasks.filter(t => t.groupId !== gid);
+  renderAll();
+  notify('🗑 大項目を削除したよ');
+}
+
+// ==================== CONTEXT MENU ====================
+function showTaskContext(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  selectedTaskId = id;
+  contextGroupId = projectData.tasks.find(t => t.id === id)?.groupId;
+  const menu = document.getElementById('contextMenu');
+  menu.innerHTML = `
+    <div class="context-item" onclick="editTask(${id})">✏️ 編集</div>
+    <div class="context-item" onclick="duplicateTask()">📋 複製</div>
+    <div class="context-item" onclick="openAddTaskModal(${contextGroupId})">➕ サブタスク追加</div>
+    <div class="context-sep"></div>
+    <div class="context-item" onclick="moveTaskUp()">⬆ 上に移動</div>
+    <div class="context-item" onclick="moveTaskDown()">⬇ 下に移動</div>
+    <div class="context-sep"></div>
+    <div class="context-item danger" onclick="deleteSelectedTask()">🗑 削除</div>
+  `;
+  menu.style.left = e.clientX + 'px';
+  menu.style.top = e.clientY + 'px';
+  menu.classList.add('active');
+  renderTaskTable();
+}
+
+// ==================== TOOLTIP ====================
+function showTooltip(e, id) {
+  const t = projectData.tasks.find(t => t.id === id);
+  if (!t) return;
+  const a = projectData.assignees.find(a => a.id === t.assigneeId);
+  const tip = document.getElementById('tooltip');
+  const duration = daysBetween(t.start, t.end) + 1;
+  tip.innerHTML = `
+    <div class="tooltip-title">${t.milestone?'◆ ':''}${t.name}</div>
+    <div class="tooltip-row"><span>担当:</span><span>${a?a.name:'-'}</span></div>
+    <div class="tooltip-row"><span>期間:</span><span>${t.start} 〜 ${t.end} (${duration}日)</span></div>
+    <div class="tooltip-row"><span>進捗:</span><span>${t.progress}%</span></div>
+    <div class="tooltip-row"><span>状態:</span><span>${t.status}</span></div>
+    ${t.notes ? `<div style="margin-top:6px;color:var(--text-muted);font-size:11px">📝 ${t.notes}</div>` : ''}
+  `;
+  tip.style.left = (e.clientX + 12) + 'px';
+  tip.style.top = (e.clientY + 12) + 'px';
+  tip.classList.add('active');
+}
+function hideTooltip() {
+  document.getElementById('tooltip').classList.remove('active');
+}
+
+// ==================== MODAL HELPERS ====================
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+function populateGroupSelect(selectedId) {
+  const sel = document.getElementById('taskGroup');
+  sel.innerHTML = projectData.groups.map(g =>
+    `<option value="${g.id}" ${g.id==selectedId?'selected':''}>${g.name}</option>`
+  ).join('');
+}
+function populateAssigneeSelect(selectedId) {
+  const sel = document.getElementById('taskAssignee');
+  sel.innerHTML = '<option value="">未割当</option>' +
+    projectData.assignees.map(a =>
+      `<option value="${a.id}" ${a.id==selectedId?'selected':''}>${a.name}</option>`
+    ).join('') +
+    '<option value="__manage__">👥 担当者管理...</option>';
+  sel.onchange = function() {
+    if (this.value === '__manage__') {
+      this.value = selectedId || '';
+      showAssigneeManager();
+    }
+  };
+}
+function populateColorOptions(selectedColor) {
+  const container = document.getElementById('colorOptions');
+  container.innerHTML = COLORS.map(c =>
+    `<div class="color-opt ${c===selectedColor?'selected':''}" style="background:${c}" data-color="${c}" onclick="selectColor(this)"></div>`
+  ).join('');
+}
+function selectColor(el) {
+  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// ==================== ASSIGNEE MANAGEMENT ====================
+function showAssigneeManager() {
+  renderAssigneeList();
+  document.getElementById('assigneeModal').classList.add('active');
+}
+function renderAssigneeList() {
+  const list = document.getElementById('assigneeList');
+  list.innerHTML = projectData.assignees.map(a => `
+    <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)">
+      <span class="assignee-badge" style="background:${a.color}">${a.name.charAt(0)}</span>
+      <span style="flex:1">${a.name}</span>
+      <input type="color" value="${a.color}" onchange="updateAssigneeColor(${a.id},this.value)" style="width:30px;height:24px;border:none;cursor:pointer">
+      <button class="btn btn-sm" onclick="removeAssignee(${a.id})" style="color:var(--danger)">✕</button>
+    </div>
+  `).join('');
+}
+function addAssignee() {
+  const name = document.getElementById('newAssigneeName').value.trim();
+  if (!name) return;
+  pushUndo();
+  const color = ASSIGNEE_COLORS[projectData.assignees.length % ASSIGNEE_COLORS.length];
+  projectData.assignees.push({ id: Date.now(), name, color });
+  document.getElementById('newAssigneeName').value = '';
+  renderAssigneeList();
+  updateAssigneeFilter();
+  notify('👤 担当者を追加したよ');
+}
+function removeAssignee(id) {
+  pushUndo();
+  projectData.assignees = projectData.assignees.filter(a => a.id !== id);
+  projectData.tasks.forEach(t => { if (t.assigneeId === id) t.assigneeId = null; });
+  renderAssigneeList();
+  renderAll();
+}
+function updateAssigneeColor(id, color) {
+  const a = projectData.assignees.find(a => a.id === id);
+  if (a) a.color = color;
+  renderAssigneeList();
+  renderAll();
+}
+function updateAssigneeFilter() {
+  const sel = document.getElementById('filterAssignee');
+  const val = sel.value;
+  sel.innerHTML = '<option value="">全員</option>' +
+    projectData.assignees.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+  sel.value = val;
+}
+
+// ==================== STATS ====================
+function updateStats() {
+  const tasks = projectData.tasks;
+  const total = tasks.length;
+  const done = tasks.filter(t => t.status === '完了').length;
+  const progress = tasks.filter(t => t.status === '進行中').length;
+  const overdue = tasks.filter(t => t.status === '遅延' || (t.progress < 100 && parseDate(t.end) < new Date())).length;
+  const avgProgress = total > 0 ? Math.round(tasks.reduce((s,t) => s + t.progress, 0) / total) : 0;
+
+  document.getElementById('statTotal').textContent = `${total} タスク`;
+  document.getElementById('statDone').textContent = `完了: ${done}`;
+  document.getElementById('statProgress').textContent = `進行中: ${progress}`;
+  document.getElementById('statOverdue').textContent = `遅延: ${overdue}`;
+  document.getElementById('statPercent').textContent = `全体進捗: ${avgProgress}%`;
+}
+
+// ==================== SAVE / LOAD ====================
+function saveProject() {
+  localStorage.setItem('ganttflow_data', JSON.stringify(projectData));
+  notify('💾 プロジェクトを保存したよ');
+}
+
+// ==================== EXPORT ====================
+function showExportModal() {
+  document.getElementById('exportModal').classList.add('active');
+}
+function showImportModal() {
+  document.getElementById('importModal').classList.add('active');
+}
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(projectData, null, 2)], {type:'application/json'});
+  downloadBlob(blob, 'ganttflow_project.json');
+  closeModal('exportModal');
+  notify('📥 JSONエクスポート完了');
+}
+function exportCSV() {
+  let csv = '\uFEFF大項目,タスク名,担当者,開始日,終了日,優先度,進捗,ステータス,マイルストーン,メモ\n';
+  projectData.tasks.forEach(t => {
+    const g = projectData.groups.find(g => g.id === t.groupId);
+    const a = projectData.assignees.find(a => a.id === t.assigneeId);
+    csv += `"${g?g.name:''}","${t.name}","${a?a.name:''}","${t.start}","${t.end}","${t.priority}","${t.progress}","${t.status}","${t.milestone}","${t.notes||''}"\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  downloadBlob(blob, 'ganttflow_project.csv');
+  closeModal('exportModal');
+  notify('📥 CSVエクスポート完了');
+}
+function exportMarkdown() {
+  let md = `# ${projectData.name}\n\n`;
+  projectData.groups.forEach(g => {
+    md += `## ${g.name}\n\n`;
+    md += `| タスク | 担当 | 期間 | 進捗 | 状態 |\n|---|---|---|---|---|\n`;
+    projectData.tasks.filter(t => t.groupId === g.id).forEach(t => {
+      const a = projectData.assignees.find(a => a.id === t.assigneeId);
+      md += `| ${t.name} | ${a?a.name:'-'} | ${t.start}〜${t.end} | ${t.progress}% | ${t.status} |\n`;
+    });
+    md += '\n';
+  });
+  const blob = new Blob([md], {type:'text/markdown;charset=utf-8'});
+  downloadBlob(blob, 'ganttflow_project.md');
+  closeModal('exportModal');
+  notify('📥 Markdownエクスポート完了');
+}
+function downloadBlob(blob, name) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = name; a.click();
+  URL.revokeObjectURL(url);
+}
+function importData() {
+  const file = document.getElementById('importFile').files[0];
+  if (!file) { notify('ファイルを選択してね','error'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      pushUndo();
+      projectData = JSON.parse(e.target.result);
+      renderAll();
+      closeModal('importModal');
+      notify('📤 インポート完了！');
+    } catch(err) {
+      notify('JSONの読み込みに失敗したよ','error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==================== INIT ====================
+init();
+</script>
+</body>
+</html>

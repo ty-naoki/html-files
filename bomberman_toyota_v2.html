@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>TB-BOMBER v2｜トヨタ車体カーバトル</title>
+<style>
+  :root{
+    --bg1:#0b1020; --bg2:#1a2240;
+    --wall:#54607a; --soft:#c89a5b; --soft2:#a37736;
+    --floor:#3b4a7a; --floor2:#465a93;
+    --gold:#ffcb3a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:'Noto Sans JP','Roboto',sans-serif;
+    background:linear-gradient(135deg,var(--bg1),var(--bg2));color:#fff;overflow:hidden;user-select:none}
+  #app{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px}
+  h1{margin:0;font-size:22px;letter-spacing:.1em}
+  h1 span{color:var(--gold)}
+  #hud{display:flex;gap:10px;font-size:13px;background:rgba(0,0,0,.35);
+    padding:8px 14px;border-radius:10px;backdrop-filter:blur(6px);flex-wrap:wrap;justify-content:center}
+  #hud .pill{padding:4px 10px;border-radius:20px;background:#1f2a4c}
+  #stage{
+    position:relative;width:720px;height:560px;
+    background:#0a0f24;border-radius:16px;overflow:hidden;
+    box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 0 0 2px #1c2750;
+    perspective:900px;
+  }
+  #board{
+    position:absolute;left:50%;top:50%;
+    transform:translate(-50%,-55%) rotateX(48deg);
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .cell{position:absolute;display:flex;align-items:center;justify-content:center;
+    will-change:transform,left,top}
+  .floor{background:linear-gradient(135deg,var(--floor),var(--floor2));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+  .wall{background:linear-gradient(180deg,#6c7a99,#3a445e);
+    box-shadow:inset 0 0 0 2px #222b44, 0 8px 0 #1c2444;transform:translateZ(14px)}
+  .soft{background:linear-gradient(180deg,var(--soft),var(--soft2));
+    box-shadow:inset 0 0 0 2px #6b4a1a,0 6px 0 #6b4a1a;transform:translateZ(10px);
+    border-radius:4px}
+  .soft::after{content:"📦";font-size:18px}
+  .item{font-size:22px;animation:bob 1.2s ease-in-out infinite alternate;filter:drop-shadow(0 2px 2px #000);pointer-events:none}
+  @keyframes bob{from{transform:translateZ(6px)}to{transform:translateZ(14px)}}
+  .bomb{font-size:24px;animation:pulse .35s ease-in-out infinite alternate;
+    filter:drop-shadow(0 3px 3px #000);transform:translateZ(8px);pointer-events:none}
+  @keyframes pulse{from{transform:translateZ(8px) scale(.9)}to{transform:translateZ(18px) scale(1.1)}}
+  .fire{background:radial-gradient(circle,#fff7a8 0%,#ffb347 40%,#ff3b3b 70%,transparent 80%);
+    border-radius:6px;animation:flash .35s ease-out forwards;transform:translateZ(12px);pointer-events:none}
+  @keyframes flash{from{opacity:1}to{opacity:.2}}
+  .car{font-size:26px;
+    filter:drop-shadow(0 4px 4px rgba(0,0,0,.6));
+    display:flex;flex-direction:column;align-items:center;line-height:1;pointer-events:none;
+    transform:translateZ(14px)}
+  .car .name{font-size:9px;background:#000a;padding:1px 5px;border-radius:6px;margin-top:2px}
+  .car.p1 .name{background:#1b6dff}
+  .car.cpu .name{background:#b91d1d}
+  .dead{filter:grayscale(1) opacity(.35)}
+  #panel{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+  button,select{font-family:inherit;background:#1f2a4c;color:#fff;border:1px solid #34457a;
+    padding:8px 14px;border-radius:10px;cursor:pointer;font-size:13px;transition:.2s}
+  button:hover{background:#2c3a6a;transform:translateY(-1px)}
+  button.primary{background:linear-gradient(135deg,#3a7bff,#1f4ec9);border:none}
+  #toast{position:absolute;inset:auto 0 30px 0;text-align:center;font-size:28px;
+    font-weight:700;text-shadow:0 4px 10px #000;pointer-events:none;opacity:0;
+    transition:opacity .3s}
+  #toast.show{opacity:1}
+  #legend{font-size:11px;color:#9fb0d8;text-align:center;line-height:1.6}
+  kbd{background:#0b1228;padding:2px 6px;border-radius:4px;border:1px solid #2a3560;font-size:11px}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>🚗 TB-BOMBER v2 <span>～トヨタ車体カーバトル～</span></h1>
+  <div id="hud">
+    <div class="pill">残機 <b id="hp">3</b></div>
+    <div class="pill">🔥火力 <b id="pw">1</b></div>
+    <div class="pill">💣爆弾 <b id="bm">1</b></div>
+    <div class="pill">👟速度 <b id="sp">1.00</b></div>
+    <div class="pill">🛡️盾 <b id="sh">0</b></div>
+    <div class="pill">👻すり抜け <b id="gh">0</b></div>
+    <div class="pill">敵 <b id="enemy">3</b></div>
+    <div class="pill">FPS <b id="fps">0</b></div>
+  </div>
+  <div id="stage">
+    <div id="board"></div>
+    <div id="toast"></div>
+  </div>
+  <div id="panel">
+    <label>難易度：
+      <select id="diff">
+        <option value="easy">かんたん</option>
+        <option value="normal" selected>ふつう</option>
+        <option value="hard">むずかしい</option>
+        <option value="oni">鬼</option>
+      </select>
+    </label>
+    <label>敵の数：
+      <select id="enemies">
+        <option>1</option><option>2</option><option selected>3</option><option>4</option>
+      </select>
+    </label>
+    <label>あなたの車：
+      <select id="pchar">
+        <option value="hiace">🚐 ハイエース</option>
+        <option value="alphard">🚙 アルファード</option>
+        <option value="cruiser">🚓 ランドクルーザー</option>
+        <option value="coaster">🚌 コースター</option>
+        <option value="century">🏎️ センチュリー</option>
+      </select>
+    </label>
+    <button class="primary" id="start">▶ スタート</button>
+    <button id="reset">🔄 リセット</button>
+  </div>
+  <div id="legend">
+    操作：<kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> 移動 ／ <kbd>Space</kbd> 爆弾設置 ／ <kbd>P</kbd> ポーズ<br>
+    アイテム：🔥火力UP ／ 💣爆弾数UP ／ 👟速度UP ／ 🛡️盾 ／ 👻爆弾すり抜け
+  </div>
+</div>
+
+<script>
+/* ===== 設定 ===== */
+const COLS=15, ROWS=11, TILE=40;
+const CHARS = {
+  hiace:  {icon:'🚐', name:'ハイエース',    spd:1.0,  pw:1, bm:1},
+  alphard:{icon:'🚙', name:'アルファード',  spd:.95, pw:2, bm:1},
+  cruiser:{icon:'🚓', name:'ランクル',      spd:.85, pw:1, bm:2},
+  coaster:{icon:'🚌', name:'コースター',    spd:.9,  pw:1, bm:2},
+  century:{icon:'🏎️', name:'センチュリー',  spd:1.15, pw:1, bm:1},
+};
+const CPU_LIST = ['alphard','cruiser','coaster','century'];
+const DIFF = {
+  easy:  {react:600, smart:.3,  bombProb:.05},
+  normal:{react:380, smart:.55, bombProb:.12},
+  hard:  {react:240, smart:.75, bombProb:.20},
+  oni:   {react:130, smart:.92, bombProb:.32},
+};
+const ITEM_TYPES = [
+  {icon:'🔥', type:'pw'},
+  {icon:'💣', type:'bm'},
+  {icon:'👟', type:'sp'},
+  {icon:'🛡️', type:'sh'},
+  {icon:'👻', type:'gh'},
+];
+
+/* ===== 状態 ===== */
+let grid;
+let bombs=[], fires=[], items=[], players=[];
+let running=false, paused=false, tick=0, diff='normal';
+const board=document.getElementById('board');
+const toast=document.getElementById('toast');
+
+/* ===== DOM プール（再利用してチラつき防止＆滑らかさUP） ===== */
+const cellNodes=[];   // 固定セル（床・壁・破壊可）
+const bombNodes=new Map();
+const fireNodes=new Map();
+const itemNodes=new Map();
+const playerNodes=[];
+
+/* ===== 初期化 ===== */
+function buildMap(){
+  grid = Array.from({length:ROWS},(_,r)=>Array.from({length:COLS},(_,c)=>{
+    if(r===0||c===0||r===ROWS-1||c===COLS-1) return 1;
+    if(r%2===0 && c%2===0) return 1;
+    return 0;
+  }));
+  const safe = (r,c)=>{
+    const corners=[[1,1],[1,COLS-2],[ROWS-2,1],[ROWS-2,COLS-2]];
+    return corners.some(([sr,sc])=>Math.abs(sr-r)+Math.abs(sc-c)<=2);
+  };
+  // ソフトブロック密度UP: 0.55 → 0.68
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+    if(grid[r][c]===0 && !safe(r,c) && Math.random()<0.68) grid[r][c]=2;
+  }
+}
+
+function scatterInitialItems(){
+  // マップ上にランダムアイテムを直接配置（床セルの上）
+  items=[];
+  const candidates=[];
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+    if(grid[r][c]===0){
+      // コーナー初期位置から少し離す
+      const corners=[[1,1],[1,COLS-2],[ROWS-2,1],[ROWS-2,COLS-2]];
+      if(corners.some(([sr,sc])=>Math.abs(sr-r)+Math.abs(sc-c)<=1)) continue;
+      candidates.push([r,c]);
+    }
+  }
+  // シャッフル
+  for(let i=candidates.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [candidates[i],candidates[j]]=[candidates[j],candidates[i]];
+  }
+  const N=Math.min(14, candidates.length);
+  for(let i=0;i<N;i++){
+    const [r,c]=candidates[i];
+    const t=ITEM_TYPES[Math.floor(Math.random()*ITEM_TYPES.length)];
+    items.push({r,c,...t,id:'init_'+i+'_'+Math.random()});
+  }
+}
+
+function setupPlayers(){
+  players=[];
+  const pchar = document.getElementById('pchar').value;
+  const enemyN = +document.getElementById('enemies').value;
+  const corners=[[1,1],[1,COLS-2],[ROWS-2,1],[ROWS-2,COLS-2]];
+  const p = makePlayer(pchar,1,1,true);
+  p.hp=3;
+  players.push(p);
+  for(let i=0;i<enemyN;i++){
+    const [r,c]=corners[i+1];
+    const ch=CPU_LIST[i%CPU_LIST.length];
+    players.push(makePlayer(ch,r,c,false));
+  }
+}
+function makePlayer(charKey,r,c,isP){
+  const d=CHARS[charKey];
+  return{
+    char:charKey, icon:d.icon, name:d.name,
+    r,c, px:c*TILE, py:r*TILE,
+    pw:d.pw, bm:d.bm, spd:d.spd, sh:0, gh:0,
+    alive:true, hp:1, isP,
+    target:null, decision:0,
+    moving:false
+  };
+}
+
+/* ===== 初回 DOM 構築 ===== */
+function initBoardDOM(){
+  board.innerHTML='';
+  cellNodes.length=0;
+  bombNodes.clear(); fireNodes.clear(); itemNodes.clear();
+  playerNodes.length=0;
+  board.style.width=COLS*TILE+'px';
+  board.style.height=ROWS*TILE+'px';
+  // 固定セル
+  for(let r=0;r<ROWS;r++){
+    cellNodes.push([]);
+    for(let c=0;c<COLS;c++){
+      const d=document.createElement('div');
+      d.style.left=c*TILE+'px'; d.style.top=r*TILE+'px';
+      d.style.width=TILE+'px'; d.style.height=TILE+'px';
+      board.appendChild(d);
+      cellNodes[r].push(d);
+    }
+  }
+  refreshCellClasses();
+  // プレイヤー
+  players.forEach(p=>{
+    const d=document.createElement('div');
+    d.className='cell car '+(p.isP?'p1':'cpu');
+    d.style.width=TILE+'px'; d.style.height=TILE+'px';
+    d.innerHTML=`<div>${p.icon}</div><div class="name">${p.name}</div>`;
+    board.appendChild(d);
+    playerNodes.push(d);
+  });
+}
+function refreshCellClasses(){
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const v=grid[r][c];
+    cellNodes[r][c].className='cell '+(v===1?'wall':v===2?'soft':'floor');
+  }
+}
+
+/* ===== 毎フレーム描画（位置だけ更新） ===== */
+function render(){
+  // アイテム
+  const aliveItemIds=new Set();
+  items.forEach(it=>{
+    if(!it.id) it.id='it_'+Math.random();
+    aliveItemIds.add(it.id);
+    let n=itemNodes.get(it.id);
+    if(!n){
+      n=document.createElement('div');
+      n.className='cell item';
+      n.style.width=TILE+'px'; n.style.height=TILE+'px';
+      n.textContent=it.icon;
+      board.appendChild(n);
+      itemNodes.set(it.id,n);
+    }
+    n.style.left=it.c*TILE+'px'; n.style.top=it.r*TILE+'px';
+  });
+  itemNodes.forEach((n,id)=>{if(!aliveItemIds.has(id)){n.remove(); itemNodes.delete(id);}});
+
+  // 爆弾
+  const aliveBombIds=new Set();
+  bombs.forEach(b=>{
+    if(!b.id) b.id='bb_'+Math.random();
+    aliveBombIds.add(b.id);
+    let n=bombNodes.get(b.id);
+    if(!n){
+      n=document.createElement('div');
+      n.className='cell bomb';
+      n.style.width=TILE+'px'; n.style.height=TILE+'px';
+      n.textContent='💣';
+      board.appendChild(n);
+      bombNodes.set(b.id,n);
+    }
+    n.style.left=b.c*TILE+'px'; n.style.top=b.r*TILE+'px';
+  });
+  bombNodes.forEach((n,id)=>{if(!aliveBombIds.has(id)){n.remove(); bombNodes.delete(id);}});
+
+  // 炎
+  const aliveFireIds=new Set();
+  fires.forEach(f=>{
+    if(!f.id) f.id='fr_'+Math.random();
+    aliveFireIds.add(f.id);
+    let n=fireNodes.get(f.id);
+    if(!n){
+      n=document.createElement('div');
+      n.className='cell fire';
+      n.style.width=TILE+'px'; n.style.height=TILE+'px';
+      board.appendChild(n);
+      fireNodes.set(f.id,n);
+    }
+    n.style.left=f.c*TILE+'px'; n.style.top=f.r*TILE+'px';
+  });
+  fireNodes.forEach((n,id)=>{if(!aliveFireIds.has(id)){n.remove(); fireNodes.delete(id);}});
+
+  // プレイヤー
+  players.forEach((p,i)=>{
+    const n=playerNodes[i];
+    n.style.left=p.px+'px'; n.style.top=p.py+'px';
+    n.classList.toggle('dead',!p.alive);
+  });
+
+  // HUD
+  const me=players[0];
+  if(me){
+    hp.textContent=me.hp; pw.textContent=me.pw;
+    bm.textContent=me.bm; sp.textContent=me.spd.toFixed(2);
+    sh.textContent=me.sh; gh.textContent=me.gh;
+  }
+  enemy.textContent=players.filter(p=>!p.isP&&p.alive).length;
+}
+
+/* ===== ロジック ===== */
+function placeBomb(p){
+  if(!p.alive) return;
+  const active=bombs.filter(b=>b.owner===p).length;
+  if(active>=p.bm) return;
+  if(bombs.some(b=>b.r===p.r&&b.c===p.c)) return;
+  bombs.push({r:p.r,c:p.c,owner:p,timer:90,power:p.pw});
+}
+function explode(b){
+  const range=b.power;
+  const cells=[{r:b.r,c:b.c}];
+  const dirs=[[0,1],[0,-1],[1,0],[-1,0]];
+  for(const [dr,dc] of dirs){
+    for(let i=1;i<=range;i++){
+      const nr=b.r+dr*i, nc=b.c+dc*i;
+      if(grid[nr]?.[nc]===1) break;
+      cells.push({r:nr,c:nc});
+      if(grid[nr][nc]===2){
+        grid[nr][nc]=0;
+        cellNodes[nr][nc].className='cell floor';
+        // ソフトブロック破壊時のドロップ率UP: 0.35 → 0.6
+        if(Math.random()<.6){
+          const t=ITEM_TYPES[Math.floor(Math.random()*ITEM_TYPES.length)];
+          items.push({r:nr,c:nc,...t,id:'drop_'+Math.random()});
+        }
+        break;
+      }
+    }
+  }
+  cells.forEach(c=>fires.push({...c,t:18}));
+  bombs.filter(o=>o!==b && cells.some(c=>c.r===o.r&&c.c===o.c)).forEach(o=>o.timer=1);
+  players.forEach(p=>{
+    if(!p.alive) return;
+    if(cells.some(c=>c.r===p.r&&c.c===p.c)) damage(p);
+  });
+  items=items.filter(it=>!cells.some(c=>c.r===it.r&&c.c===it.c));
+}
+function damage(p){
+  if(p.sh>0){p.sh--; if(p.isP) flash('🛡️ ガード!'); return;}
+  if(p.isP){
+    p.hp--;
+    if(p.hp<=0){p.alive=false; gameOver(false);}
+    else{
+      p.r=1;p.c=1;p.px=TILE;p.py=TILE;
+      flash('💥 やられた！残り'+p.hp);
+    }
+  }else{
+    p.alive=false;
+  }
+}
+function pickItem(p){
+  const it=items.find(i=>i.r===p.r&&i.c===p.c);
+  if(!it) return;
+  if(it.type==='pw') p.pw++;
+  else if(it.type==='bm') p.bm++;
+  else if(it.type==='sp') p.spd=Math.min(1.8,p.spd+0.15);
+  else if(it.type==='sh') p.sh++;
+  else if(it.type==='gh') p.gh++;
+  items=items.filter(x=>x!==it);
+  if(p.isP) flash(it.icon+' GET!');
+}
+
+/* ===== 移動 ===== */
+const input={u:0,d:0,l:0,r:0,bomb:false};
+function canEnter(p,r,c){
+  if(grid[r]?.[c]!==0) return false;
+  if(p.gh<=0 && bombs.some(b=>b.r===r&&b.c===c)) return false;
+  return true;
+}
+function tryMove(p,dr,dc){
+  if(!p.alive) return false;
+  const nr=p.r+dr, nc=p.c+dc;
+  if(!canEnter(p,nr,nc)) return false;
+  p.r=nr;p.c=nc; return true;
+}
+function smoothMove(p,dt){
+  const targetX=p.c*TILE, targetY=p.r*TILE;
+  // スピードUP（2.2→3.8）でなめらかに見せる
+  const v=3.8*p.spd*dt;
+  if(p.px<targetX) p.px=Math.min(p.px+v,targetX);
+  else if(p.px>targetX) p.px=Math.max(p.px-v,targetX);
+  if(p.py<targetY) p.py=Math.min(p.py+v,targetY);
+  else if(p.py>targetY) p.py=Math.max(p.py-v,targetY);
+}
+function aligned(p){
+  return Math.abs(p.px-p.c*TILE)<0.5 && Math.abs(p.py-p.r*TILE)<0.5;
+}
+
+/* ===== CPU AI ===== */
+function bfs(sr,sc,passBomb=false){
+  const dist=Array.from({length:ROWS},()=>Array(COLS).fill(-1));
+  const prev=Array.from({length:ROWS},()=>Array(COLS).fill(null));
+  const q=[[sr,sc]]; dist[sr][sc]=0;
+  let head=0;
+  while(head<q.length){
+    const [r,c]=q[head++];
+    for(const [dr,dc] of [[0,1],[0,-1],[1,0],[-1,0]]){
+      const nr=r+dr,nc=c+dc;
+      if(grid[nr]?.[nc]!==0) continue;
+      if(!passBomb && bombs.some(b=>b.r===nr&&b.c===nc)) continue;
+      if(dist[nr][nc]!==-1) continue;
+      dist[nr][nc]=dist[r][c]+1;
+      prev[nr][nc]=[r,c];
+      q.push([nr,nc]);
+    }
+  }
+  return {dist,prev};
+}
+function dangerMap(){
+  const dmg=Array.from({length:ROWS},()=>Array(COLS).fill(false));
+  bombs.forEach(b=>{
+    dmg[b.r][b.c]=true;
+    for(const [dr,dc] of [[0,1],[0,-1],[1,0],[-1,0]]){
+      for(let i=1;i<=b.power;i++){
+        const nr=b.r+dr*i,nc=b.c+dc*i;
+        if(grid[nr]?.[nc]===1) break;
+        dmg[nr][nc]=true;
+        if(grid[nr][nc]===2) break;
+      }
+    }
+  });
+  fires.forEach(f=>dmg[f.r][f.c]=true);
+  return dmg;
+}
+function aiThink(p){
+  const cfg=DIFF[diff];
+  if(tick<p.decision) return;
+  p.decision=tick+Math.floor(cfg.react/16);
+  const danger=dangerMap();
+  if(danger[p.r][p.c]){
+    const {dist,prev}=bfs(p.r,p.c);
+    let best=null,bd=1e9;
+    for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++){
+      if(dist[r][c]>0 && !danger[r][c] && dist[r][c]<bd){bd=dist[r][c];best=[r,c];}
+    }
+    if(best){
+      let cur=best;
+      while(prev[cur[0]][cur[1]] && !(prev[cur[0]][cur[1]][0]===p.r && prev[cur[0]][cur[1]][1]===p.c)){
+        cur=prev[cur[0]][cur[1]];
+      }
+      p.target=cur; return;
+    }
+  }
+  if(Math.random()<cfg.smart){
+    const me=players[0];
+    if(me.alive){
+      const {dist,prev}=bfs(p.r,p.c);
+      if(dist[me.r][me.c]>0 && dist[me.r][me.c]<=3 && Math.random()<cfg.bombProb*2){
+        placeBomb(p); return;
+      }
+      // 近くにアイテムがあれば取りに行く
+      let nearestItem=null,nid=1e9;
+      items.forEach(it=>{
+        if(dist[it.r][it.c]>0 && dist[it.r][it.c]<nid){nid=dist[it.r][it.c]; nearestItem=[it.r,it.c];}
+      });
+      const adjSoft=[[0,1],[0,-1],[1,0],[-1,0]].some(([dr,dc])=>grid[p.r+dr]?.[p.c+dc]===2);
+      if(adjSoft && Math.random()<cfg.bombProb){placeBomb(p); return;}
+      let target;
+      if(nearestItem && nid<=5 && Math.random()<.6) target=nearestItem;
+      else target=[me.r,me.c];
+      if(dist[target[0]][target[1]]<=0){
+        const empties=[];
+        for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++) if(dist[r][c]>0) empties.push([r,c]);
+        if(empties.length) target=empties[Math.floor(Math.random()*empties.length)];
+      }
+      let cur=target;
+      while(prev[cur[0]]?.[cur[1]] && !(prev[cur[0]][cur[1]][0]===p.r && prev[cur[0]][cur[1]][1]===p.c)){
+        cur=prev[cur[0]][cur[1]];
+      }
+      p.target=cur;
+    }
+  }else{
+    const dirs=[[0,1],[0,-1],[1,0],[-1,0]].filter(([dr,dc])=>grid[p.r+dr]?.[p.c+dc]===0 && !bombs.some(b=>b.r===p.r+dr&&b.c===p.c+dc));
+    if(dirs.length){const [dr,dc]=dirs[Math.floor(Math.random()*dirs.length)]; p.target=[p.r+dr,p.c+dc];}
+  }
+}
+function aiMove(p){
+  if(!p.target) return;
+  if(!aligned(p)) return;
+  const [tr,tc]=p.target;
+  if(p.r===tr && p.c===tc){p.target=null; return;}
+  const dr=Math.sign(tr-p.r), dc=Math.sign(tc-p.c);
+  if(dr) tryMove(p,dr,0);
+  else if(dc) tryMove(p,0,dc);
+}
+
+/* ===== メインループ（固定タイムステップ風） ===== */
+let last=performance.now();
+let fpsAcc=0, fpsCount=0, fpsTimer=0;
+function loop(t){
+  const dt=Math.min(50,t-last);
+  last=t;
+  if(running && !paused){
+    tick++;
+    // 入力
+    const me=players[0];
+    if(me && aligned(me) && me.alive){
+      if(input.u) tryMove(me,-1,0);
+      else if(input.d) tryMove(me,1,0);
+      else if(input.l) tryMove(me,0,-1);
+      else if(input.r) tryMove(me,0,1);
+      if(input.bomb){placeBomb(me); input.bomb=false;}
+    }
+    players.forEach(p=>{if(!p.isP && p.alive){aiThink(p); aiMove(p);}});
+    players.forEach(p=>smoothMove(p,dt/16));
+    players.forEach(p=>{if(p.alive && aligned(p)) pickItem(p);});
+    bombs.forEach(b=>b.timer--);
+    bombs.filter(b=>b.timer<=0).forEach(b=>explode(b));
+    bombs=bombs.filter(b=>b.timer>0);
+    fires.forEach(f=>f.t--);
+    fires.forEach(f=>{
+      players.forEach(p=>{
+        if(p.alive && p.r===f.r && p.c===f.c && f.t>5) damage(p);
+      });
+    });
+    fires=fires.filter(f=>f.t>0);
+    if(players[0].alive && players.filter(p=>!p.isP&&p.alive).length===0){gameOver(true);}
+  }
+  render();
+  // FPS
+  fpsAcc+=dt; fpsCount++; fpsTimer+=dt;
+  if(fpsTimer>500){
+    document.getElementById('fps').textContent=Math.round(1000/(fpsAcc/fpsCount));
+    fpsAcc=0; fpsCount=0; fpsTimer=0;
+  }
+  requestAnimationFrame(loop);
+}
+
+/* ===== 補助 ===== */
+function flash(msg){
+  toast.textContent=msg;
+  toast.classList.add('show');
+  clearTimeout(flash._t);
+  flash._t=setTimeout(()=>toast.classList.remove('show'),900);
+}
+function gameOver(win){
+  running=false;
+  flash(win?'🏆 WINNER! トヨタ車体の勝利！':'💀 GAME OVER');
+}
+
+/* ===== 入力 ===== */
+window.addEventListener('keydown',e=>{
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','Space'].includes(e.key)) e.preventDefault();
+  if(e.repeat) return;
+  if(e.key==='ArrowUp') input.u=1;
+  if(e.key==='ArrowDown') input.d=1;
+  if(e.key==='ArrowLeft') input.l=1;
+  if(e.key==='ArrowRight') input.r=1;
+  if(e.key===' ') input.bomb=true;
+  if(e.key==='p'||e.key==='P'){paused=!paused; flash(paused?'⏸ PAUSE':'▶ RESUME');}
+},{passive:false});
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowUp') input.u=0;
+  if(e.key==='ArrowDown') input.d=0;
+  if(e.key==='ArrowLeft') input.l=0;
+  if(e.key==='ArrowRight') input.r=0;
+});
+
+/* ===== UI ===== */
+function newGame(){
+  diff=document.getElementById('diff').value;
+  buildMap();
+  setupPlayers();
+  scatterInitialItems();
+  bombs=[]; fires=[];
+  initBoardDOM();
+  running=true; paused=false; tick=0;
+  flash('🚥 START!');
+}
+function resetOnly(){
+  running=false;
+  buildMap();
+  setupPlayers();
+  scatterInitialItems();
+  bombs=[]; fires=[];
+  initBoardDOM();
+}
+document.getElementById('start').onclick=newGame;
+document.getElementById('reset').onclick=resetOnly;
+
+/* ===== 起動 ===== */
+buildMap(); setupPlayers(); scatterInitialItems(); initBoardDOM();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

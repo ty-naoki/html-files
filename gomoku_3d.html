@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D 五目並べ | Gomoku 3D</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:'Noto Sans JP','Hiragino Sans','Yu Gothic',sans-serif;
+  background:radial-gradient(ellipse at top,#1a2540 0%,#0a1020 100%);
+  color:#e8eef5;min-height:100vh;overflow-x:hidden;
+}
+header{
+  background:linear-gradient(135deg,#003C71 0%,#00578C 100%);
+  color:#fff;padding:14px 22px;display:flex;align-items:center;gap:12px;
+  box-shadow:0 4px 20px rgba(0,0,0,0.5);position:sticky;top:0;z-index:100;
+}
+header h1{font-size:18px;font-weight:700;letter-spacing:0.5px}
+header .spacer{flex:1}
+.btn{
+  display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border:none;
+  border-radius:8px;background:rgba(255,255,255,0.15);color:#fff;font-weight:600;
+  cursor:pointer;font-size:13px;transition:all 0.2s;font-family:inherit;
+  border:1px solid rgba(255,255,255,0.2);backdrop-filter:blur(4px);
+}
+.btn:hover{background:rgba(255,255,255,0.25);transform:translateY(-2px)}
+.btn.primary{background:linear-gradient(135deg,#E60012,#B8000E);border-color:transparent}
+.btn.primary:hover{box-shadow:0 6px 16px rgba(230,0,18,0.5)}
+.container{max-width:900px;margin:0 auto;padding:20px;perspective:1500px}
+.toolbar{
+  background:rgba(255,255,255,0.08);padding:12px 16px;border-radius:12px;
+  margin-bottom:18px;display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+  border:1px solid rgba(255,255,255,0.1);backdrop-filter:blur(10px);
+}
+.toolbar label{font-size:12px;color:#a8b8d0;font-weight:600}
+.toolbar select{
+  padding:7px 12px;border-radius:6px;border:1px solid rgba(255,255,255,0.2);
+  font-family:inherit;font-size:13px;background:rgba(0,0,0,0.3);color:#fff;
+}
+.scene{
+  perspective:1400px;perspective-origin:50% 30%;
+  display:flex;justify-content:center;align-items:center;padding:30px 0;
+}
+.board-3d{
+  transform-style:preserve-3d;
+  transform:rotateX(22deg) rotateZ(0deg);
+  transition:transform 0.6s cubic-bezier(.4,0,.2,1);
+  position:relative;
+}
+.board-3d:hover{transform:rotateX(18deg) rotateZ(0deg)}
+.board-frame{
+  background:
+    linear-gradient(135deg,#5a3818 0%,#3a2410 100%);
+  padding:30px;border-radius:14px;
+  box-shadow:
+    0 30px 60px rgba(0,0,0,0.7),
+    0 50px 100px rgba(0,0,0,0.5),
+    inset 0 2px 4px rgba(255,220,180,0.3),
+    inset 0 -8px 16px rgba(0,0,0,0.4);
+  position:relative;
+}
+.board-frame::before{
+  content:'';position:absolute;inset:8px;border-radius:8px;
+  border:1px solid rgba(255,220,180,0.15);pointer-events:none;
+}
+canvas{
+  display:block;border-radius:4px;
+  box-shadow:inset 0 0 30px rgba(0,0,0,0.3);
+  cursor:pointer;touch-action:manipulation;
+}
+.status{
+  background:rgba(255,255,255,0.08);padding:14px 18px;border-radius:12px;
+  margin-top:16px;font-size:15px;border:1px solid rgba(255,255,255,0.1);
+  backdrop-filter:blur(10px);text-align:center;
+  transition:all 0.3s;
+}
+.status.win{background:linear-gradient(135deg,rgba(40,167,69,0.3),rgba(40,167,69,0.1));border-color:rgba(40,167,69,0.5)}
+.status.lose{background:linear-gradient(135deg,rgba(220,53,69,0.3),rgba(220,53,69,0.1));border-color:rgba(220,53,69,0.5)}
+.status .badge{
+  display:inline-block;padding:3px 12px;border-radius:12px;background:#003C71;
+  color:#fff;font-size:11px;margin-right:10px;font-weight:600;
+}
+.status .last-move{
+  display:inline-block;margin-left:10px;padding:3px 10px;
+  background:rgba(230,0,18,0.2);border:1px solid rgba(230,0,18,0.5);
+  border-radius:10px;font-size:12px;color:#ffb0b8;
+}
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,10,30,0.7);display:none;
+  align-items:center;justify-content:center;z-index:1000;padding:20px;backdrop-filter:blur(6px);
+}
+.modal-bg.show{display:flex;animation:fadeIn 0.2s}
+.modal{
+  background:linear-gradient(135deg,#1a2540,#0a1530);max-width:500px;width:100%;
+  border-radius:16px;padding:24px 28px;border:1px solid rgba(255,255,255,0.15);
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);color:#e8eef5;
+}
+.modal h2{color:#4d8fce;margin-bottom:14px;font-size:22px}
+.modal h3{color:#4d8fce;margin:14px 0 6px;font-size:15px;border-left:3px solid #E60012;padding-left:8px}
+.modal p,.modal li{line-height:1.7;font-size:14px}
+.modal ul{margin-left:22px}
+.modal-close{
+  float:right;background:rgba(255,255,255,0.1);border:none;padding:6px 12px;
+  border-radius:6px;cursor:pointer;font-size:13px;color:#a8b8d0;
+}
+.modal-close:hover{background:#E60012;color:#fff}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:999}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes ringPulse{
+  0%{transform:scale(1);opacity:0.9}
+  100%{transform:scale(2.2);opacity:0}
+}
+@media(max-width:600px){
+  header h1{font-size:15px}
+  .container{padding:10px}
+  .board-frame{padding:18px}
+  .board-3d{transform:rotateX(15deg)}
+}
+</style>
+</head>
+<body>
+<header>
+  <span style="font-size:22px">⚫</span>
+  <h1>3D 五目並べ - Gomoku 3D</h1>
+  <div class="spacer"></div>
+  <button class="btn" id="tutBtn">🎓 ルール</button>
+  <button class="btn primary" id="resetBtn">🔄 リセット</button>
+</header>
+<div class="container">
+  <div class="toolbar">
+    <label>難易度:</label>
+    <select id="difficulty">
+      <option value="1">🟢 初級 (やさしい)</option>
+      <option value="2" selected>🟡 中級 (バランス)</option>
+      <option value="3">🔴 上級 (手強い)</option>
+    </select>
+    <div style="flex:1"></div>
+    <label style="font-size:11px;color:#8b9ab0">🎲 毎回違う展開になるよ</label>
+  </div>
+  <div class="scene">
+    <div class="board-3d">
+      <div class="board-frame">
+        <canvas id="board" width="600" height="600"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="status" id="status">
+    <span class="badge" id="badge">🖤 あなたの手番</span>
+    <span id="statusText">交点をクリックして石を置こう</span>
+    <span class="last-move" id="lastMove" style="display:none"></span>
+  </div>
+</div>
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('modalBg').classList.remove('show')">✕ 閉じる</button>
+    <h2>⚫ 五目並べ ルール</h2>
+    <h3>目的</h3>
+    <p>縦・横・斜めいずれかで <strong>5つ連続</strong> に石を並べたら勝ち！</p>
+    <h3>遊び方</h3>
+    <ul>
+      <li>あなた=黒（先手）、CPU=白</li>
+      <li>盤面の交点をクリックして石を置く</li>
+      <li>CPUが最後に置いた石は <span style="color:#ff6b78;font-weight:600">赤マーカー</span> で表示されるよ</li>
+    </ul>
+    <h3>CPUの特徴</h3>
+    <ul>
+      <li>🎲 毎回ランダム性があるから同じ展開にならないよ</li>
+      <li>難易度を上げるとより最善手を選びやすくなる</li>
+      <li>初手はランダムな場所から始まる</li>
+    </ul>
+    <h3>勝つコツ</h3>
+    <ul>
+      <li>両端が空いた3連(活三)を作ろう</li>
+      <li>相手の3連・4連は最優先でブロック</li>
+      <li>三三や四三で複数方向に脅威を作るのが強い</li>
+    </ul>
+  </div>
+</div>
+<canvas id="confetti"></canvas>
+<script>
+(function(){'use strict';
+var N=15, CELL=600/N, OFF=CELL/2;
+var canvas=document.getElementById('board'), ctx=canvas.getContext('2d');
+var board=[], gameOver=false, difficulty=2, moveCount=0;
+var lastCpuMove=null;
+var pulseStart=0;
+var audioCtx=null;
+
+function audio(){if(!audioCtx)try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}return audioCtx}
+function tone(f,d,t,v){var c=audio();if(!c)return;var o=c.createOscillator(),g=c.createGain();o.type=t||'sine';o.frequency.value=f;g.gain.value=v||0.08;o.connect(g);g.connect(c.destination);o.start();g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+d);o.stop(c.currentTime+d)}
+function sfxPlace(){tone(660,0.08,'triangle',0.1)}
+function sfxCpu(){tone(440,0.1,'sine',0.1);setTimeout(function(){tone(330,0.12,'sine',0.08)},60)}
+function sfxWin(){[523,659,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,0.2,'triangle',0.12)},i*120)})}
+function sfxLose(){tone(220,0.4,'sawtooth',0.1);setTimeout(function(){tone(165,0.5,'sawtooth',0.08)},150)}
+
+function reset(){
+  board=[];
+  for(var i=0;i<N;i++){var r=[];for(var j=0;j<N;j++)r.push(0);board.push(r)}
+  gameOver=false; moveCount=0; lastCpuMove=null;
+  document.getElementById('status').className='status';
+  document.getElementById('badge').textContent='🖤 あなたの手番';
+  document.getElementById('statusText').textContent='交点をクリックして石を置こう';
+  document.getElementById('lastMove').style.display='none';
+  draw();
+}
+
+function drawStone(cx,cy,r,color){
+  // shadow
+  ctx.save();
+  ctx.shadowColor='rgba(0,0,0,0.6)';
+  ctx.shadowBlur=8;
+  ctx.shadowOffsetX=2;
+  ctx.shadowOffsetY=4;
+  // base sphere
+  var g=ctx.createRadialGradient(cx-r*0.35,cy-r*0.4,r*0.1,cx,cy,r*1.1);
+  if(color===1){
+    g.addColorStop(0,'#7a7a7a');
+    g.addColorStop(0.3,'#3a3a3a');
+    g.addColorStop(0.7,'#101010');
+    g.addColorStop(1,'#000');
+  }else{
+    g.addColorStop(0,'#ffffff');
+    g.addColorStop(0.4,'#f0f0f0');
+    g.addColorStop(0.8,'#c8c8c8');
+    g.addColorStop(1,'#a0a0a0');
+  }
+  ctx.fillStyle=g;
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+  // highlight
+  var hg=ctx.createRadialGradient(cx-r*0.4,cy-r*0.45,0,cx-r*0.4,cy-r*0.45,r*0.7);
+  hg.addColorStop(0,color===1?'rgba(180,180,200,0.6)':'rgba(255,255,255,0.95)');
+  hg.addColorStop(1,'rgba(255,255,255,0)');
+  ctx.fillStyle=hg;
+  ctx.beginPath();
+  ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawBoard(){
+  // wood gradient base
+  var bg=ctx.createLinearGradient(0,0,600,600);
+  bg.addColorStop(0,'#f0d090');
+  bg.addColorStop(0.5,'#e8c887');
+  bg.addColorStop(1,'#d8b070');
+  ctx.fillStyle=bg;
+  ctx.fillRect(0,0,600,600);
+  
+  // wood grain (subtle vertical streaks)
+  ctx.save();
+  ctx.globalAlpha=0.08;
+  for(var i=0;i<20;i++){
+    var x=Math.random()*600;
+    var w=Math.random()*40+10;
+    var gg=ctx.createLinearGradient(x,0,x+w,0);
+    gg.addColorStop(0,'rgba(0,0,0,0)');
+    gg.addColorStop(0.5,'rgba(80,40,10,0.5)');
+    gg.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=gg;
+    ctx.fillRect(x,0,w,600);
+  }
+  ctx.restore();
+  
+  // ambient light (top-left lighter, bottom-right darker)
+  var light=ctx.createRadialGradient(150,150,0,300,300,600);
+  light.addColorStop(0,'rgba(255,250,220,0.25)');
+  light.addColorStop(1,'rgba(0,0,0,0.25)');
+  ctx.fillStyle=light;
+  ctx.fillRect(0,0,600,600);
+  
+  // grid lines
+  ctx.strokeStyle='rgba(40,25,10,0.85)';
+  ctx.lineWidth=1.2;
+  for(var i=0;i<N;i++){
+    ctx.beginPath();
+    ctx.moveTo(OFF,OFF+i*CELL);
+    ctx.lineTo(OFF+(N-1)*CELL,OFF+i*CELL);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(OFF+i*CELL,OFF);
+    ctx.lineTo(OFF+i*CELL,OFF+(N-1)*CELL);
+    ctx.stroke();
+  }
+  // star points
+  var stars=[[3,3],[3,11],[11,3],[11,11],[7,7]];
+  for(var s=0;s<5;s++){
+    ctx.fillStyle='rgba(40,25,10,0.9)';
+    ctx.beginPath();
+    ctx.arc(OFF+stars[s][0]*CELL,OFF+stars[s][1]*CELL,4,0,Math.PI*2);
+    ctx.fill();
+  }
+}
+
+function draw(){
+  drawBoard();
+  // stones
+  for(var y=0;y<N;y++){
+    for(var x=0;x<N;x++){
+      if(board[y][x]){
+        drawStone(OFF+x*CELL, OFF+y*CELL, CELL*0.42, board[y][x]);
+      }
+    }
+  }
+  // CPU last move marker
+  if(lastCpuMove){
+    var cx=OFF+lastCpuMove.x*CELL, cy=OFF+lastCpuMove.y*CELL;
+    var r=CELL*0.42;
+    // red dot on top
+    ctx.save();
+    ctx.fillStyle='#ff2030';
+    ctx.shadowColor='#ff2030';
+    ctx.shadowBlur=12;
+    ctx.beginPath();
+    ctx.arc(cx,cy-r*0.5,4,0,Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+    // pulsing ring
+    var t=(Date.now()-pulseStart)/800;
+    var phase=t%1;
+    var rr=r+phase*r*1.0;
+    var alpha=Math.max(0,1-phase);
+    ctx.save();
+    ctx.strokeStyle='rgba(255,40,60,'+alpha+')';
+    ctx.lineWidth=3;
+    ctx.beginPath();
+    ctx.arc(cx,cy,rr,0,Math.PI*2);
+    ctx.stroke();
+    // inner static ring
+    ctx.strokeStyle='rgba(255,80,100,0.9)';
+    ctx.lineWidth=2.5;
+    ctx.beginPath();
+    ctx.arc(cx,cy,r+3,0,Math.PI*2);
+    ctx.stroke();
+    ctx.restore();
+    if(t<5) requestAnimationFrame(draw);
+  }
+}
+
+function isFull(){
+  for(var y=0;y<N;y++)for(var x=0;x<N;x++)if(board[y][x]===0)return false;
+  return true;
+}
+
+function checkWin(p,x,y){
+  var d=[[1,0],[0,1],[1,1],[1,-1]];
+  for(var i=0;i<4;i++){
+    var dx=d[i][0],dy=d[i][1],c=1;
+    for(var s=1;s<5;s++){
+      var nx=x+dx*s,ny=y+dy*s;
+      if(nx<0||nx>=N||ny<0||ny>=N||board[ny][nx]!==p)break;
+      c++;
+    }
+    for(var s=1;s<5;s++){
+      var nx=x-dx*s,ny=y-dy*s;
+      if(nx<0||nx>=N||ny<0||ny>=N||board[ny][nx]!==p)break;
+      c++;
+    }
+    if(c>=5)return true;
+  }
+  return false;
+}
+
+function evalCell(x,y,p){
+  var d=[[1,0],[0,1],[1,1],[1,-1]], sc=0;
+  for(var i=0;i<4;i++){
+    var dx=d[i][0],dy=d[i][1],cnt=1,oA=false,oB=false;
+    for(var s=1;s<5;s++){
+      var nx=x+dx*s,ny=y+dy*s;
+      if(nx<0||nx>=N||ny<0||ny>=N)break;
+      if(board[ny][nx]===p)cnt++;
+      else{if(board[ny][nx]===0)oA=true;break}
+    }
+    for(var s=1;s<5;s++){
+      var nx=x-dx*s,ny=y-dy*s;
+      if(nx<0||nx>=N||ny<0||ny>=N)break;
+      if(board[ny][nx]===p)cnt++;
+      else{if(board[ny][nx]===0)oB=true;break}
+    }
+    var o=(oA?1:0)+(oB?1:0);
+    if(cnt>=5)sc+=1e6;
+    else if(cnt===4&&o===2)sc+=5e4;
+    else if(cnt===4&&o===1)sc+=5e3;
+    else if(cnt===3&&o===2)sc+=3e3;
+    else if(cnt===3&&o===1)sc+=300;
+    else if(cnt===2&&o===2)sc+=200;
+    else if(cnt===2&&o===1)sc+=20;
+  }
+  return sc;
+}
+
+function cpuMove(){
+  // First CPU move: random near-center spot
+  if(moveCount<=1){
+    var spots=[];
+    for(var dy=-3;dy<=3;dy++)for(var dx=-3;dx<=3;dx++){
+      var x=7+dx, y=7+dy;
+      if(x>=0&&x<N&&y>=0&&y<N&&board[y][x]===0)spots.push([x,y]);
+    }
+    var p=spots[Math.floor(Math.random()*spots.length)];
+    place(p[0],p[1],2);
+    return;
+  }
+  
+  // Gather candidates near existing stones
+  var cands=[], seen={};
+  for(var y=0;y<N;y++)for(var x=0;x<N;x++)if(board[y][x]){
+    for(var dy=-2;dy<=2;dy++)for(var dx=-2;dx<=2;dx++){
+      var nx=x+dx, ny=y+dy;
+      if(nx<0||nx>=N||ny<0||ny>=N||board[ny][nx]!==0)continue;
+      var k=ny*N+nx;
+      if(seen[k])continue;
+      seen[k]=1;
+      cands.push([nx,ny]);
+    }
+  }
+  if(!cands.length){place(7,7,2);return}
+  
+  // Score with attack/defense and add random noise
+  var scored=cands.map(function(c){
+    var att=evalCell(c[0],c[1],2);
+    var def=evalCell(c[0],c[1],1);
+    var base=att*1.05+def;
+    // Random noise: ±5% of score plus small absolute jitter
+    var noise=base*0.05*(Math.random()*2-1) + Math.random()*30;
+    return {x:c[0], y:c[1], s:base+noise, base:base};
+  });
+  scored.sort(function(a,b){return b.s-a.s});
+  
+  // If there's a winning move (5+), take it deterministically
+  if(scored[0].base>=1e6){
+    place(scored[0].x, scored[0].y, 2);
+    return;
+  }
+  // If opponent has open four threat that blocking handles, also prioritize
+  // (handled implicitly by defense weighting)
+  
+  // Difficulty-based weighted random pick
+  var topN, weights;
+  if(difficulty===1){
+    topN=Math.min(8, scored.length);
+    weights=[5,4,3,3,2,2,1,1];
+  }else if(difficulty===2){
+    topN=Math.min(4, scored.length);
+    weights=[8,4,2,1];
+  }else{
+    topN=Math.min(3, scored.length);
+    weights=[15,4,1];
+  }
+  
+  var totalW=0;
+  for(var i=0;i<topN;i++)totalW+=weights[i];
+  var r=Math.random()*totalW, acc=0, pick=scored[0];
+  for(var i=0;i<topN;i++){
+    acc+=weights[i];
+    if(r<=acc){pick=scored[i];break}
+  }
+  
+  place(pick.x, pick.y, 2);
+}
+
+function place(x,y,p){
+  board[y][x]=p;
+  if(p===2){
+    lastCpuMove={x:x,y:y};
+    pulseStart=Date.now();
+    sfxCpu();
+    // status
+    var col=String.fromCharCode(65+x); // A-O
+    var row=N-y;
+    document.getElementById('lastMove').style.display='inline-block';
+    document.getElementById('lastMove').textContent='🤖 CPU: '+col+row+' に着手';
+  }else{
+    sfxPlace();
+  }
+  draw();
+  
+  // Check win
+  if(checkWin(p,x,y)){
+    gameOver=true;
+    var s=document.getElementById('status');
+    if(p===1){
+      s.className='status win';
+      document.getElementById('badge').textContent='🎉 勝利！';
+      document.getElementById('statusText').textContent='5つ並んだ！お見事！';
+      sfxWin(); confetti();
+    }else{
+      s.className='status lose';
+      document.getElementById('badge').textContent='😢 敗北';
+      document.getElementById('statusText').textContent='CPUに5つ並べられちゃった…リベンジしよう！';
+      sfxLose();
+    }
+    return;
+  }
+  if(isFull()){
+    gameOver=true;
+    document.getElementById('badge').textContent='🤝 引き分け';
+    document.getElementById('statusText').textContent='盤面が埋まりました';
+    return;
+  }
+  
+  if(p===1){
+    // Human just played, CPU's turn
+    moveCount++;
+    document.getElementById('badge').textContent='⚪ CPU 思考中…';
+    document.getElementById('statusText').textContent='ちょっと待ってね';
+    setTimeout(function(){
+      cpuMove();
+      if(!gameOver){
+        moveCount++;
+        document.getElementById('badge').textContent='🖤 あなたの手番';
+        document.getElementById('statusText').textContent='次の一手を考えよう';
+      }
+    }, 250+Math.random()*200);
+  }
+}
+
+function getXY(ev){
+  var r=canvas.getBoundingClientRect();
+  var sx=canvas.width/r.width, sy=canvas.height/r.height;
+  var t=ev.touches?ev.touches[0]:ev;
+  return {x:(t.clientX-r.left)*sx, y:(t.clientY-r.top)*sy};
+}
+
+canvas.addEventListener('click', function(e){
+  if(gameOver) return;
+  var xy=getXY(e);
+  var x=Math.round((xy.x-OFF)/CELL);
+  var y=Math.round((xy.y-OFF)/CELL);
+  if(x<0||x>=N||y<0||y>=N) return;
+  if(board[y][x]!==0) return;
+  // hide last cpu marker on human move
+  lastCpuMove=null;
+  place(x,y,1);
+});
+
+document.getElementById('resetBtn').addEventListener('click', reset);
+document.getElementById('tutBtn').addEventListener('click', function(){
+  document.getElementById('modalBg').classList.add('show');
+});
+document.getElementById('difficulty').addEventListener('change', function(e){
+  difficulty=parseInt(e.target.value);
+});
+
+// Confetti
+function confetti(){
+  var cv=document.getElementById('confetti');
+  cv.width=window.innerWidth; cv.height=window.innerHeight;
+  var cx=cv.getContext('2d');
+  var P=[];
+  var cols=['#E60012','#003C71','#ffd700','#28a745','#ff8c00','#4d8fce'];
+  for(var i=0;i<150;i++)P.push({
+    x:Math.random()*cv.width, y:-20,
+    vx:(Math.random()-0.5)*6, vy:Math.random()*4+3,
+    c:cols[i%cols.length],
+    s:Math.random()*8+4,
+    r:Math.random()*Math.PI*2,
+    vr:(Math.random()-0.5)*0.3
+  });
+  var t0=Date.now();
+  function loop(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    P.forEach(function(p){
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.12; p.r+=p.vr;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r);
+      cx.fillStyle=p.c; cx.fillRect(-p.s/2,-p.s/2,p.s,p.s);
+      cx.restore();
+    });
+    if(Date.now()-t0<4000) requestAnimationFrame(loop);
+    else cx.clearRect(0,0,cv.width,cv.height);
+  }
+  loop();
+}
+
+// init
+reset();
+
+// Resize canvas display
+function resizeCanvas(){
+  var max=Math.min(window.innerWidth-80, 540);
+  canvas.style.width=max+'px';
+  canvas.style.height=max+'px';
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2326 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ファイル管理君 Ver21.2</title>
+<style>
+:root{--primary:#0b5cab;--primary-dark:#083f76;--primary-light:#e8f1fb;--bg:#f5f7fa;--panel:#fff;--border:#e2e8f0;--text:#1f2937;--muted:#6b7280;--hover:#f0f6ff;--danger:#e53935;--warn:#f9a825;--sidebar-w:260px;--sidebar-w-c:56px;--footer-h:26px;}
+body.dark{--primary:#4a9eff;--primary-dark:#2b7cd8;--primary-light:#1e3a5f;--bg:#1a1a1a;--panel:#242424;--border:#3a3a3a;--text:#e5e5e5;--muted:#9a9a9a;--hover:#2f3542}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;font-family:"BIZ UDPGothic","Yu Gothic UI","Meiryo",sans-serif;color:var(--text);background:var(--bg);font-size:14px;overflow:hidden}
+button{font-family:inherit;font-size:13px;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:13px}
+kbd{font-family:inherit}
+@keyframes popIn{from{transform:translate(-50%,-50%) scale(.9);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
+header{height:56px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));color:#fff;display:flex;align-items:center;padding:0 16px;gap:12px;box-shadow:0 2px 8px rgba(0,0,0,.12);flex-shrink:0}
+.hamburger{background:rgba(255,255,255,.15);width:36px;height:36px;border-radius:6px;font-size:18px}
+.hamburger:hover{background:rgba(255,255,255,.28)}
+.logo{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px}
+.search-box{flex:1;max-width:520px}
+.search-box input{width:100%;padding:8px 14px;border-radius:20px;border:none;outline:none;background:rgba(255,255,255,.18);color:#fff}
+.search-box input::placeholder{color:rgba(255,255,255,.75)}
+.header-actions{display:flex;gap:6px;margin-left:auto}
+.header-actions button{color:#fff;padding:7px 12px;border-radius:6px;background:rgba(255,255,255,.15)}
+.header-actions button:hover{background:rgba(255,255,255,.28)}
+.layout{display:grid;grid-template-columns:var(--sidebar-w) 1fr;height:calc(100vh - 56px - var(--footer-h));transition:grid-template-columns .25s}
+.layout.collapsed{grid-template-columns:var(--sidebar-w-c) 1fr}
+aside{background:var(--panel);border-right:1px solid var(--border);overflow:hidden auto;padding:14px 0}
+.side-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;padding:8px 18px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.side-title button{color:var(--primary);font-weight:700;font-size:14px;padding:0 4px}
+.side-title .toggle-arrow{font-size:10px;color:var(--muted);transition:transform .2s}
+.side-title.collapsed .toggle-arrow{transform:rotate(-90deg)}
+.side-section-content{overflow:hidden;transition:max-height .3s ease}
+.side-section-content.collapsed{max-height:0 !important}
+.side-item{display:flex;align-items:center;gap:10px;padding:8px 18px;cursor:pointer;border-left:3px solid transparent;white-space:nowrap;overflow:hidden}
+.side-item:hover{background:var(--hover)}
+.side-item.active{background:var(--primary-light);border-left-color:var(--primary);color:var(--primary);font-weight:600}
+.side-item .count{margin-left:auto;font-size:11px;color:var(--muted);background:var(--hover);padding:1px 8px;border-radius:10px}
+.side-item .prj-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.layout.collapsed .side-title,.layout.collapsed .side-item .label,.layout.collapsed .side-item .count{display:none}
+.layout.collapsed .side-item{justify-content:center;padding:10px 0;position:relative}
+.layout.collapsed .side-item:hover::after{content:attr(data-tip);position:absolute;left:calc(100% + 6px);background:#333;color:#fff;padding:4px 10px;border-radius:4px;font-size:12px;white-space:nowrap;z-index:1000}
+.layout.collapsed .side-section-content{max-height:none !important}
+main{display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.sticky-top{flex-shrink:0;background:var(--panel);box-shadow:0 2px 4px rgba(0,0,0,.04);z-index:30}
+.tabs{background:var(--panel);border-bottom:1px solid var(--border);padding:0 20px;display:flex;gap:2px;align-items:center;flex-wrap:wrap}
+.tab{padding:10px 16px;cursor:pointer;border-bottom:3px solid transparent;font-size:13px;display:flex;align-items:center;gap:6px}
+.tab:hover{background:var(--hover)}
+.tab.active{border-bottom-color:var(--primary);color:var(--primary);font-weight:600}
+.tab .cnt{font-size:11px;background:var(--hover);padding:1px 7px;border-radius:9px;color:var(--muted)}
+.tab.active .cnt{background:var(--primary-light);color:var(--primary)}
+.tab .lbl-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+.tab .close-lbl{margin-left:4px;opacity:.4;font-size:14px}
+.tab .close-lbl:hover{opacity:1;color:var(--danger)}
+.tab-mgr{margin-left:auto;padding:8px 12px;border-radius:5px;background:var(--primary-light);color:var(--primary);font-weight:600}
+.tab-mgr:hover{background:var(--primary);color:#fff}
+.toolbar{background:var(--panel);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.toolbar button{padding:8px 14px;border-radius:6px;background:var(--panel);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;gap:6px}
+.toolbar button:hover{background:var(--primary-light);border-color:var(--primary);color:var(--primary)}
+.toolbar button.primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.toolbar button.primary:hover{background:var(--primary-dark)}
+.toolbar button.project{background:#00897b;color:#fff;border-color:#00897b}
+.toolbar button.project:hover{background:#00695c}
+.toolbar button.accent{background:#7b1fa2;color:#fff;border-color:#7b1fa2}
+.toolbar button.accent:hover{background:#4a148c}
+.toolbar button.bulk-on{background:#f9a825;color:#fff;border-color:#f9a825}
+.toolbar button.sort-on{background:#00acc1;color:#fff;border-color:#00acc1}
+.bulk-bar{background:#fff3cd;border-bottom:1px solid #f9a825;padding:8px 20px;display:none;gap:8px;align-items:center;flex-wrap:wrap}
+body.dark .bulk-bar{background:#4a3c00;color:#fff}
+.bulk-bar.show{display:flex}
+.bulk-bar select,.bulk-bar button{padding:6px 12px;border-radius:5px;border:1px solid var(--border);background:var(--panel);color:var(--text)}
+.bulk-bar .cnt{font-weight:600;color:var(--primary-dark)}
+body.dark .bulk-bar .cnt{color:#ffdb70}
+.breadcrumb{padding:10px 22px;background:var(--bg);border-bottom:1px solid var(--border);font-size:13px;color:var(--muted)}
+.tree-wrap{flex:1;overflow-y:auto;background:var(--bg)}
+.tree{padding:12px 8px;min-height:100%}
+.tree.drop-zone{background:repeating-linear-gradient(45deg,var(--hover),var(--hover) 10px,var(--primary-light) 10px,var(--primary-light) 20px);outline:3px dashed var(--primary);outline-offset:-8px}
+body.sort-mode .tree{background:#e0f7fa}
+body.dark.sort-mode .tree{background:#003e4a}
+.node-row{display:flex;align-items:center;gap:6px;padding:6px 8px;border-radius:4px;cursor:pointer;position:relative;user-select:none}
+.node-row:hover{background:var(--hover)}
+.node-row.selected{background:var(--primary-light);color:var(--primary-dark)}
+body.dark .node-row.selected{color:#fff}
+.node-row.project-row{background:linear-gradient(90deg,var(--primary-light) 0,transparent 100%);border-left:3px solid var(--primary);font-weight:600;padding:8px 10px;margin-top:4px}
+.node-row.project-row .name{font-size:14px;color:var(--primary-dark)}
+body.dark .node-row.project-row .name{color:#fff}
+.node-row.dead{color:var(--danger)}
+.node-row.dead .name::after{content:" (リンク切れ)";font-size:11px}
+.node-row.bulk-checked{background:#fff3cd}
+body.dark .node-row.bulk-checked{background:#4a3c00}
+.node-row.inherited{opacity:.75}
+.node-row.dragging{opacity:.4}
+.node-row.drop-into{background:#ffe8b3;outline:2px dashed var(--warn);outline-offset:-2px}
+.node-row.drop-before{box-shadow:inset 0 3px 0 0 var(--primary)}
+.node-row.drop-after{box-shadow:inset 0 -3px 0 0 var(--primary)}
+body.sort-mode .node-row{cursor:grab}
+body.sort-mode .node-row:active{cursor:grabbing}
+body.sort-mode .node-row::before{content:"⋮⋮";color:var(--muted);font-size:12px;margin-right:2px;opacity:.5;letter-spacing:-2px;pointer-events:none}
+.node-row .name,.node-row .svg-ico,.node-row .svc-emoji,.node-row .star,.node-row .folder-with-pf,.node-row .ext-badge{pointer-events:none}
+.chevron{width:16px;text-align:center;color:var(--muted);transition:transform .15s;flex-shrink:0;font-size:10px;cursor:pointer}
+.chevron.open{transform:rotate(90deg)}
+.chevron.leaf{visibility:hidden;cursor:default}
+.svg-ico{width:18px;height:18px;flex-shrink:0}
+.svc-emoji{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.platform-icon{filter:drop-shadow(0 1px 1px rgba(0,0,0,.12))}
+.name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ext-badge{font-size:9px;padding:1px 6px;border-radius:6px;color:#fff;font-weight:600;flex-shrink:0;text-transform:uppercase;letter-spacing:.5px}
+.badge{font-size:10px;padding:2px 6px;border-radius:8px;background:var(--hover);color:var(--muted)}
+.badge.app{background:#c8e6c9;color:#1b5e20;font-weight:600}
+.badge.act{background:#eceff1;color:#455a64;font-weight:600}
+.pf-badge{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;gap:3px}
+.pf-badge.box{background:#e3f2fd;color:#0072c6}
+.pf-badge.sp{background:#e8f5e9;color:#038387}
+.pf-badge.od{background:#e1f5fe;color:#0364b8}
+.pf-badge.fs{background:#fff3e0;color:#e65100}
+.pf-badge.teams{background:#ede7f6;color:#5e35b9}
+body.dark .pf-badge{filter:brightness(1.15)}
+.folder-with-pf{position:relative;width:18px;height:18px;flex-shrink:0}
+.folder-with-pf .svg-ico{width:18px;height:18px}
+.folder-with-pf .pf-mini{position:absolute;bottom:-3px;right:-4px;font-size:9px;background:#fff;border-radius:50%;width:12px;height:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 2px rgba(0,0,0,.3);line-height:1}
+body.dark .folder-with-pf .pf-mini{background:#242424}
+.folder-link-indicator{font-size:9px;color:var(--primary);margin-left:2px;flex-shrink:0}
+.lbl-chip{font-size:10px;padding:1px 8px;border-radius:8px;color:#fff;font-weight:500;cursor:pointer;position:relative;transition:transform .1s}
+.lbl-chip:hover{transform:scale(1.08);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.lbl-chip:hover::after{content:" ✕";font-weight:bold}
+.lbl-chip.inherit{opacity:.5;font-style:italic;cursor:default}
+.lbl-chip.inherit:hover{transform:none;box-shadow:none}
+.lbl-chip.inherit:hover::after{content:""}
+.add-label-btn{opacity:0;font-size:11px;padding:1px 6px;border-radius:8px;background:var(--hover);color:var(--muted);cursor:pointer;transition:all .15s;flex-shrink:0}
+.node-row:hover .add-label-btn{opacity:1}
+.add-label-btn:hover{background:var(--primary);color:#fff}
+.star{color:var(--warn)}
+.children{margin-left:22px;border-left:1px dashed var(--border);padding-left:2px}
+.node.project-node > .children{margin-left:14px;border-left:2px solid var(--primary-light);padding-left:6px}
+.bulk-check{width:16px;height:16px;cursor:pointer;flex-shrink:0;display:none}
+.bulk-mode .bulk-check{display:inline-block}
+.tooltip{position:fixed;background:#1e293b;color:#fff;padding:10px 14px;border-radius:6px;font-size:12px;line-height:1.6;z-index:5000;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.3);max-width:340px;display:none}
+.tooltip.show{display:block}
+.tooltip .tt-title{font-weight:600;color:#fff;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:4px;margin-bottom:6px}
+.tooltip .tt-row{display:flex;gap:8px}
+.tooltip .tt-key{color:#94a3b8;min-width:60px}
+.tooltip .tt-val{color:#fff;word-break:break-all}
+.ctx-menu{position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.15);padding:4px 0;min-width:220px;z-index:6000;display:none}
+.ctx-menu.show{display:block}
+.ctx-menu button{display:block;padding:8px 14px;width:100%;text-align:left}
+.ctx-menu button:hover{background:var(--primary-light);color:var(--primary)}
+.ctx-sep{height:1px;background:var(--border);margin:4px 0}
+.ctx-sub{position:relative}
+.ctx-sub::after{content:"▶";float:right;font-size:9px;opacity:.6}
+.ctx-submenu{display:none;position:absolute;left:100%;top:0;background:var(--panel);border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,.15);padding:4px 0;min-width:180px}
+.ctx-sub:hover .ctx-submenu{display:block}
+.label-popover{position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.18);padding:14px;min-width:280px;max-width:360px;z-index:4000;display:none}
+.label-popover.show{display:block}
+.label-popover .pop-title{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.label-popover .pop-close{cursor:pointer;color:var(--muted);font-size:16px;padding:0 4px}
+.label-popover .pop-close:hover{color:var(--danger)}
+.label-popover .pop-target{color:var(--primary-dark);font-weight:600;font-size:13px;margin-bottom:10px;word-break:break-all}
+body.dark .label-popover .pop-target{color:var(--primary)}
+.label-popover .pop-labels{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;max-height:180px;overflow-y:auto}
+.label-popover .lbl-toggle{padding:5px 12px;border-radius:14px;cursor:pointer;font-size:12px;border:2px solid transparent;color:#fff;transition:all .1s}
+.label-popover .lbl-toggle:not(.on){opacity:.35}
+.label-popover .lbl-toggle:not(.on):hover{opacity:.6}
+.label-popover .lbl-toggle.on{border-color:#000;box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.label-popover .pop-new{display:flex;gap:6px;padding-top:10px;border-top:1px dashed var(--border)}
+.label-popover .pop-new input{flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--panel);color:var(--text)}
+.label-popover .pop-new select{width:70px;padding:6px;border:1px solid var(--border);border-radius:5px;font-size:12px;background:var(--panel);color:var(--text)}
+.label-popover .pop-new button{padding:6px 12px;background:var(--primary);color:#fff;border-radius:5px;font-size:12px}
+.modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:2000;display:none;align-items:center;justify-content:center}
+.modal-bg.show{display:flex !important}
+.modal{background:var(--panel);border-radius:10px;box-shadow:0 20px 40px rgba(0,0,0,.2);width:460px;max-width:calc(100vw - 32px);padding:24px;max-height:90vh;overflow-y:auto;overflow-x:hidden}
+.modal.wide{width:640px;max-width:calc(100vw - 32px)}
+.modal h3{margin:0 0 16px;color:var(--primary-dark);font-size:16px}
+body.dark .modal h3{color:var(--primary)}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px;font-weight:600}
+.field input,.field select,.field textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;outline:none;background:var(--panel);color:var(--text)}
+.field textarea{min-height:80px;font-size:12px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+.field .checkbox-inline{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:12px;cursor:pointer;color:var(--muted)}
+.field .checkbox-inline input{width:auto}
+.hint{font-size:11px;color:var(--muted);background:var(--bg);padding:8px 10px;border-radius:5px;border-left:3px solid var(--primary);margin-bottom:10px;line-height:1.5}
+.seg{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px}
+.seg button{flex:1;padding:8px 12px;border-radius:6px;font-size:13px;background:transparent;color:var(--text)}
+.seg button.active{background:var(--primary);color:#fff}
+.icon-picker{display:flex;gap:8px;flex-wrap:wrap}
+.icon-swatch{width:52px;height:56px;border-radius:6px;cursor:pointer;border:2px solid transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--bg);padding:4px}
+.icon-swatch svg{width:24px;height:24px}
+.icon-swatch .lbl-txt{font-size:9px;color:var(--muted);margin-top:2px;text-align:center}
+.icon-swatch.active{border-color:#000;transform:scale(1.08);background:var(--panel)}
+#projectModalBg .icon-swatch.active{transform:scale(1.03)}
+#projectModalBg .icon-picker{max-width:100%;overflow:hidden}
+#projectModalBg .field{overflow:hidden}
+.project-icon-picker{display:grid;grid-template-columns:repeat(auto-fit,minmax(40px,1fr));gap:6px;max-width:100%;overflow:hidden}
+.project-icon-picker .icon-swatch{width:100%;min-width:0;height:44px;font-size:22px;justify-content:center}
+.label-picker{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:6px;min-height:44px}
+.label-picker .lbl-toggle{padding:4px 12px;border-radius:14px;cursor:pointer;font-size:12px;border:2px solid transparent;color:#fff}
+.label-picker .lbl-toggle:not(.on){opacity:.35}
+.label-picker .lbl-toggle.on{border-color:#000}
+.label-list{max-height:340px;overflow-y:auto;border:1px solid var(--border);border-radius:6px}
+.label-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border)}
+.label-row:last-child{border-bottom:none}
+.label-row .lbl-chip{font-size:12px;padding:4px 12px;cursor:default}
+.label-row .lbl-chip:hover{transform:none;box-shadow:none}
+.label-row .lbl-chip:hover::after{content:""}
+.label-row input[type=text]{flex:1;padding:6px 10px}
+.label-row select{width:90px;padding:6px}
+.label-row .lbl-cnt{font-size:11px;color:var(--muted);background:var(--hover);padding:2px 8px;border-radius:8px}
+.label-row .del-btn{color:var(--danger);font-size:16px;padding:4px 8px}
+.checkbox-row{display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer}
+.checkbox-row input{width:auto}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.modal-actions button{padding:9px 18px;border-radius:6px}
+.btn-cancel{background:var(--hover);color:var(--text)}
+.btn-cancel:hover{background:var(--border)}
+.btn-ok{background:var(--primary);color:#fff}
+.btn-ok:hover{background:var(--primary-dark)}
+.preview{background:var(--bg);padding:10px;border-radius:6px;max-height:200px;overflow-y:auto;font-family:Consolas,monospace;font-size:11px;line-height:1.6;border:1px solid var(--border)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--primary-dark);color:#fff;padding:12px 20px;border-radius:6px;z-index:3000}
+.empty{text-align:center;padding:60px;color:var(--muted)}
+.stat-bar{display:flex;align-items:center;gap:8px;padding:6px 0}
+.stat-bar .lbl-txt{width:140px;font-size:12px;color:var(--muted)}
+.stat-bar .bar{flex:1;height:16px;background:var(--bg);border-radius:8px;overflow:hidden}
+.stat-bar .bar-fill{height:100%;background:var(--primary);border-radius:8px;transition:width .3s}
+.stat-bar .val{width:50px;text-align:right;font-size:12px;font-weight:600}
+.move-tree{max-height:360px;overflow-y:auto;border:1px solid var(--border);border-radius:6px;padding:8px}
+.move-node{padding:6px 8px;border-radius:4px;cursor:pointer;display:flex;align-items:center;gap:6px}
+.move-node:hover{background:var(--hover)}
+.move-node.selected{background:var(--primary-light);color:var(--primary-dark)}
+body.dark .move-node.selected{color:#fff}
+.help-section{margin-bottom:16px}
+.help-section h4{color:var(--primary);font-size:14px;margin:0 0 6px}
+.help-section p{margin:4px 0;font-size:13px;line-height:1.6}
+.help-section code{background:var(--bg);padding:1px 6px;border-radius:3px;font-size:12px}
+
+
+.version-footer{height:var(--footer-h);display:flex;align-items:center;justify-content:flex-end;padding:0 14px;background:var(--panel);border-top:1px solid var(--border);color:var(--muted);font-size:11px;font-weight:700;line-height:1;white-space:nowrap;overflow:hidden;flex-shrink:0}
+.version-footer .vf-ver{display:inline-flex;align-items:center;justify-content:center;padding:3px 9px;border-radius:999px;background:var(--hover);color:var(--primary-dark);border:1px solid var(--border);letter-spacing:.2px}
+body.dark .version-footer .vf-ver{color:var(--primary);background:var(--hover)}
+
+
+.view-toggle{height:36px;min-width:120px;border-radius:999px!important;padding:4px!important;background:var(--panel)!important;position:relative;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.05);gap:0!important}
+.view-toggle::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:linear-gradient(90deg,var(--primary-dark),var(--primary));transition:transform .18s ease}
+.view-toggle.todo-on::before{transform:translateX(100%)}
+.view-toggle span{position:relative;z-index:1;flex:1;text-align:center;font-size:12px;font-weight:800;line-height:26px;white-space:nowrap}
+.view-toggle:not(.todo-on) .v-file,.view-toggle.todo-on .v-todo{color:#fff}.view-toggle:not(.todo-on) .v-todo,.view-toggle.todo-on .v-file{color:var(--muted)}
+.todo-wrap{display:none;flex:1;overflow:auto;background:var(--bg);padding:14px 18px}.todo-wrap.show{display:block}
+.todo-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;padding:12px 14px;background:var(--panel);border:1px solid var(--border);border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.todo-head h3{margin:0;color:var(--primary-dark);font-size:15px;display:flex;align-items:center;gap:8px}body.dark .todo-head h3{color:var(--primary)}.todo-summary{font-size:12px;color:var(--muted)}
+.todo-project-section{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:14px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.todo-project-title{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(90deg,var(--primary-light),transparent);border-bottom:1px solid var(--border);font-weight:700;color:var(--primary-dark)}body.dark .todo-project-title{color:#fff}.todo-project-title .cnt{margin-left:auto;font-size:11px;color:var(--muted);font-weight:600}
+.todo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:12px;align-items:start;padding:12px}.todo-wrap>.todo-grid{padding:0}
+.todo-card{background:var(--panel);border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.todo-card-head{padding:11px 12px;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:flex-start;background:linear-gradient(90deg,rgba(11,92,171,.06),transparent)}
+.todo-card-title{flex:1;min-width:0}.todo-name{font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.todo-path{font-size:11px;color:var(--muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.todo-card-actions{display:flex;gap:4px;flex-shrink:0}.todo-mini-btn{padding:4px 8px;border-radius:6px;background:var(--panel);border:1px solid var(--border);font-size:11px;color:var(--text)}.todo-mini-btn:hover{background:var(--primary);color:#fff;border-color:var(--primary)}
+.todo-add{display:flex;gap:6px;padding:10px 12px;border-bottom:1px dashed var(--border)}.todo-add input{flex:1;min-width:0;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)}.todo-add button{padding:8px 10px;border-radius:6px;background:var(--primary);color:#fff;font-weight:700}.todo-list{padding:6px 8px 10px;display:flex;flex-direction:column;gap:4px}.todo-item{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:6px}.todo-item:hover{background:var(--hover)}.todo-item.done{opacity:.55}.todo-item.done .todo-text{text-decoration:line-through;color:var(--muted)}.todo-item input{width:15px;height:15px;flex-shrink:0}.todo-text{flex:1;min-width:0;word-break:break-word;font-size:13px}.todo-meta{font-size:10px;color:var(--muted);white-space:nowrap}.todo-del{color:var(--danger);padding:2px 6px;border-radius:4px;opacity:.75}.todo-del:hover{opacity:1;background:rgba(229,57,53,.08)}.todo-empty{padding:18px;color:var(--muted);text-align:center;font-size:12px}.todo-card-foot{padding:0 12px 10px;color:var(--muted);font-size:11px}.meta-badge.todo{background:#fff3cd;color:#8a5a00;font-weight:700}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:#cbd5e0;border-radius:4px}
+</style>
+</head>
+<body>
+
+<header>
+  <button class="hamburger" id="btnSidebar" title="サイドバー">☰</button>
+  <div class="logo">🗂️ ファイル管理君</div>
+  <div class="search-box"><input type="text" id="searchInput" placeholder="🔍 横断検索…（Ctrl+F）"></div>
+  <div class="header-actions">
+    <button id="btnStats" title="統計">📊</button>
+    <button id="btnHelp" title="ヘルプ">❓</button>
+    <button id="btnDark" title="ダークモード">🌓</button>
+    <button id="btnCheck">🔎 検査</button>
+    <button id="btnExport">⬇ エクスポート</button>
+    <button id="btnImport">⬆ インポート</button>
+    <input type="file" id="importFile" style="display:none" accept=".json">
+  </div>
+</header>
+
+<div class="layout" id="layout">
+  <aside>
+    <div class="side-title" data-section="prj">
+      <span>プロジェクト</span>
+      <span style="display:flex;gap:8px;align-items:center">
+        <button id="sideAddPrj" title="新規">＋</button>
+        <span class="toggle-arrow">▼</span>
+      </span>
+    </div>
+    <div class="side-section-content" id="secPrj">
+      <div class="side-item active" data-filter="all" data-tip="すべて">📋 <span class="label">すべて表示</span><span class="count" id="cntAll">0</span></div>
+      <div id="projectSideList"></div>
+    </div>
+    <div class="side-title" data-section="pf">
+      <span>プラットフォーム横断</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="side-section-content" id="secPf">
+      <div class="side-item" data-filter="box" data-tip="BOX">📦 <span class="label">BOX</span><span class="count" id="cntBox">0</span></div>
+      <div class="side-item" data-filter="sp" data-tip="SharePoint">🌐 <span class="label">SharePoint</span><span class="count" id="cntSp">0</span></div>
+      <div class="side-item" data-filter="od" data-tip="OneDrive">☁️ <span class="label">OneDrive</span><span class="count" id="cntOd">0</span></div>
+      <div class="side-item" data-filter="fs" data-tip="FS">🗄️ <span class="label">ファイルサーバー</span><span class="count" id="cntFs">0</span></div>
+      <div class="side-item" data-filter="teams" data-tip="Teams">👥 <span class="label">Teams</span><span class="count" id="cntTeams">0</span></div>
+    </div>
+    <div class="side-title" data-section="qa">
+      <span>クイックアクセス</span>
+      <span class="toggle-arrow">▼</span>
+    </div>
+    <div class="side-section-content" id="secQa">
+      <div class="side-item" data-filter="fav" data-tip="お気に入り">⭐ <span class="label">お気に入り</span><span class="count" id="cntFav">0</span></div>
+      <div class="side-item" data-filter="recent" data-tip="最近">🕒 <span class="label">最近使用</span><span class="count" id="cntRecent">0</span></div>
+      <div class="side-item" data-filter="dead" data-tip="リンク切れ">❌ <span class="label">リンク切れ</span><span class="count" id="cntDead">0</span></div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="sticky-top">
+      <div class="tabs" id="tabsBar"></div>
+      <div class="toolbar">
+        <button class="view-toggle" id="btnTodoView" title="フォルダ画面 / ToDo画面 切替"><span class="v-file">📁</span><span class="v-todo">✅</span></button>
+        <button class="project" id="btnNewProject">🎯 新規プロジェクト</button>
+        <button class="primary" id="btnNewFolder">➕ 新規フォルダ</button>
+        <button id="btnNewLink">🔗 リンク登録</button>
+        <button class="accent" id="btnAutoTree">🪄 自動階層化</button>
+        <button id="btnBulk">☑ 一括モード</button>
+        <button id="btnSortMode">↕ 並替モード</button>
+        <button id="btnExpandAll">⏬ 展開</button>
+        <button id="btnCollapseAll">⏫ 折畳</button>
+        <button id="btnReset" style="margin-left:auto;color:var(--danger)">🗑️ リセット</button>
+      </div>
+      <div class="bulk-bar" id="bulkBar">
+        <span>選択: <span class="cnt" id="bulkCnt">0</span>件</span>
+        <button id="bulkSelectAll">全選択</button>
+        <button id="bulkClear">解除</button>
+        <span style="margin-left:8px">一括:</span>
+        <select id="bulkColorSel"><option value="">-- 色 --</option><option value="default">既定</option><option value="blue">青</option><option value="green">緑</option><option value="orange">橙</option><option value="purple">紫</option><option value="red">赤</option><option value="gray">灰</option></select>
+        <select id="bulkLabelSel"><option value="">-- ラベル --</option></select>
+        <button id="bulkApply" class="primary" style="color:#fff">適用</button>
+        <button id="bulkMove" style="background:#7b1fa2;color:#fff">📁 一括移動</button>
+        <button id="bulkFav">⭐切替</button>
+        <button id="bulkDelete" style="color:var(--danger)">🗑️削除</button>
+      </div>
+      <div class="breadcrumb" id="breadcrumb">🏠 ホーム</div>
+    </div>
+    <div class="tree-wrap" id="treeWrap">
+      <div class="tree" id="tree"></div>
+    </div>
+    <div class="todo-wrap" id="todoWrap"></div>
+  </main>
+</div>
+
+<footer class="version-footer" aria-label="バージョン情報">
+  <span class="vf-ver">Ver21.2</span>
+</footer>
+<div class="ctx-menu" id="ctxMenu">
+  <button data-act="open">📂 開く</button>
+  <button data-act="todo">✅ ToDo追加</button>
+  <button data-act="quickLabel" style="color:var(--primary);font-weight:600">🏷️ ラベル付与</button>
+  <button data-act="edit">✏️ 編集</button>
+  <button data-act="duplicate">📄 複製</button>
+  <button data-act="addFolder">📁＋ 新規フォルダ</button>
+  <button data-act="addLink">🔗＋ リンク追加</button>
+  <div class="ctx-sep"></div>
+  <button data-act="moveUp">⬆ 上へ移動</button>
+  <button data-act="moveDown">⬇ 下へ移動</button>
+  <div class="ctx-sub">🔀 このフォルダ内をソート
+    <div class="ctx-submenu">
+      <button data-act="sortNameAsc">名前昇順(A→Z)</button>
+      <button data-act="sortNameDesc">名前降順(Z→A)</button>
+      <button data-act="sortDateNew">更新日 新しい順</button>
+      <button data-act="sortDateOld">更新日 古い順</button>
+      <button data-act="sortFolderFirst">フォルダ優先</button>
+    </div>
+  </div>
+  <div class="ctx-sep"></div>
+  <button data-act="copyUrl">📋 URL/パスをコピー</button>
+  <button data-act="fav">⭐ お気に入り</button>
+  <div class="ctx-sep"></div>
+  <button data-act="delete" style="color:var(--danger)">🗑️ 削除</button>
+</div>
+
+
+<div class="modal-bg" id="todoModalBg">
+  <div class="modal">
+    <h3 id="todoModalTitle">✅ ToDo追加</h3>
+    <div class="hint" id="todoTargetHint">対象を選択してください</div>
+    <div class="field"><label>ToDo内容</label><textarea id="todoText" placeholder="例：リンク先を確認、資料更新、関係者へ共有"></textarea></div>
+    <div class="modal-actions"><button class="btn-cancel" id="btnTodoCancel">キャンセル</button><button class="btn-ok" id="btnTodoSave">追加</button></div>
+  </div>
+</div>
+<div class="label-popover" id="labelPop">
+  <div class="pop-title"><span>🏷️ ラベル付与</span><span class="pop-close" id="popClose">×</span></div>
+  <div class="pop-target" id="popTarget"></div>
+  <div class="pop-labels" id="popLabels"></div>
+  <div class="pop-new">
+    <input type="text" id="popNewName" placeholder="新規ラベル（即付与）">
+    <select id="popNewColor">
+      <option value="#1976d2">🔵</option><option value="#43a047">🟢</option>
+      <option value="#f57c00">🟠</option><option value="#7b1fa2">🟣</option>
+      <option value="#e53935">🔴</option><option value="#607d8b">⚫</option>
+      <option value="#ec407a">🌸</option><option value="#00acc1">💧</option>
+    </select>
+    <button id="popNewBtn">➕作成</button>
+  </div>
+</div>
+
+<div class="tooltip" id="tooltip"></div>
+
+<div class="modal-bg" id="projectModalBg">
+  <div class="modal">
+    <h3 id="projectModalTitle">🎯 新規プロジェクト</h3>
+    <div class="field"><label>プロジェクト名 <span style="color:red">*</span></label><input type="text" id="projectName" placeholder="例：保全管理DX"></div>
+    <div class="field"><label>説明（任意）</label><textarea id="projectDesc" placeholder="プロジェクトの目的や概要"></textarea></div>
+    <div class="field"><label>アイコン</label>
+      <div class="project-icon-picker" id="projectIconPicker"></div>
+    </div>
+    <div class="field"><label>アクセントカラー</label>
+      <div class="icon-picker" id="projectColorPicker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnProjectCancel">キャンセル</button>
+      <button class="btn-ok" id="btnProjectSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3 id="modalTitle">新規</h3>
+    <div class="hint" id="autoHint" style="display:none">💡 URLパスから自動階層化できます</div>
+    <div class="field"><label>名称 <span style="color:red">*</span></label><input type="text" id="itemName"></div>
+    <div class="field" id="linkKindField" style="display:none">
+      <label>登録種別</label>
+      <div class="seg" id="linkKindSeg">
+        <button data-kind="folder">📁 フォルダ</button>
+        <button data-kind="file" class="active">📄 ファイル</button>
+      </div>
+    </div>
+    <div class="field" id="urlField"><label>URL / パス</label>
+      <input type="text" id="itemUrl" placeholder="https://…（プラットフォーム自動判定）">
+      <div id="pfPreview" style="margin-top:6px;font-size:11px;color:var(--muted)"></div>
+      <label class="checkbox-row" style="margin-top:6px"><input type="checkbox" id="autoDecomp"> URLパスから階層を自動生成</label>
+    </div>
+    <div class="field" id="colorField"><label>フォルダ色</label>
+      <div class="icon-picker" id="colorPicker"></div>
+    </div>
+    <div class="field" id="fileIconField" style="display:none">
+      <label>ファイル種別アイコン</label>
+      <div class="icon-picker" id="fileIconPicker"></div>
+      <label class="checkbox-inline"><input type="checkbox" id="showExt" checked> 拡張子バッジを表示する（例: .xlsx）</label>
+    </div>
+    <div class="field"><label>ラベル（複数選択可）</label>
+      <div class="label-picker" id="labelPicker">まだラベルがありません</div>
+    </div>
+    <div class="field"><label class="checkbox-row"><input type="checkbox" id="itemFav"> ⭐ お気に入り</label></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnCancel">キャンセル</button>
+      <button class="btn-ok" id="btnSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="autoModalBg">
+  <div class="modal wide">
+    <h3>🪄 URLから自動階層化</h3>
+    <div class="hint">1行に1URLで貼付。プロジェクト内に階層構造で追加されます。中間フォルダにもURLが自動セットされます。</div>
+    <div class="field"><label>追加先プロジェクト</label>
+      <select id="autoTargetProject"></select>
+    </div>
+    <div class="field"><label>URL一覧</label><textarea id="bulkText" style="min-height:180px;font-family:Consolas,monospace" placeholder="https://toyota-body.box.com/s/hozen/PM/kijun.pdf&#10;\\SV01835\share\backup\book.xlsx"></textarea></div>
+    <div class="field"><label>プレビュー</label><div class="preview" id="autoPreview">↑入力するとプレビュー</div></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnAutoCancel">キャンセル</button>
+      <button class="btn-ok" id="btnAutoRun">🚀 追加</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="labelMgrBg">
+  <div class="modal wide">
+    <h3>🏷️ ラベル管理</h3>
+    <div class="hint">ラベルを作成/編集/削除。上位ノードのラベルは配下も同タブに表示。</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <input type="text" id="newLabelName" placeholder="新規ラベル名" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)">
+      <select id="newLabelColor" style="width:120px;padding:8px;border:1px solid var(--border);border-radius:6px;background:var(--panel);color:var(--text)">
+        <option value="#1976d2">🔵 青</option><option value="#43a047">🟢 緑</option>
+        <option value="#f57c00">🟠 橙</option><option value="#7b1fa2">🟣 紫</option>
+        <option value="#e53935">🔴 赤</option><option value="#607d8b">⚫ 灰</option>
+        <option value="#ec407a">🌸 ピンク</option><option value="#00acc1">💧 水色</option>
+      </select>
+      <button class="btn-ok" id="btnAddLabel" style="padding:8px 16px;border-radius:6px">➕ 追加</button>
+    </div>
+    <div class="label-list" id="labelList"></div>
+    <div class="modal-actions"><button class="btn-ok" id="btnLabelClose">閉じる</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="moveModalBg">
+  <div class="modal wide">
+    <h3>📁 移動先を選択</h3>
+    <div class="hint">選択したノードの移動先フォルダをクリックして選んでください。</div>
+    <div class="move-tree" id="moveTree"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" id="btnMoveCancel">キャンセル</button>
+      <button class="btn-ok" id="btnMoveConfirm">🚀 ここへ移動</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="statsModalBg">
+  <div class="modal wide">
+    <h3>📊 統計ダッシュボード</h3>
+    <div id="statsContent"></div>
+    <div class="modal-actions"><button class="btn-ok" id="btnStatsClose">閉じる</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="helpModalBg">
+  <div class="modal wide">
+    <h3>❓ ファイル管理君 使い方</h3>
+    <div class="help-section">
+      <h4>🎯 プロジェクトベース管理</h4>
+      <p>最上位に<b>プロジェクト</b>を作り、その中に BOX/SharePoint/OneDrive/ファイルサーバー等のリンクをまとめます。</p>
+      <p>プラットフォームは URL から<b>自動判定</b>され、行の右端に色付きバッジで表示されます。</p>
+    </div>
+    <div class="help-section">
+      <h4>🖱️ 基本操作</h4>
+      <p>・<b>シングルクリック</b>：選択　・<b>ダブルクリック</b>：リンクを開く</p>
+      <p>・<b>ホイールクリック(中クリック)</b>：ブラウザの別タブで開く</p>
+      <p>・<b>右クリック</b>：メニュー　・<b>▶マーク</b>：フォルダの開閉</p>
+    </div>
+    <div class="help-section">
+      <h4>🔗 リンク動作</h4>
+      <p>・オンライン（http）：新規タブ</p>
+      <p>・FS + Office：Excel/Word/PowerPoint をデスクトップ起動</p>
+      <p>・FS + フォルダ・その他：パスをコピー→Win+R+Ctrl+V</p>
+    </div>
+    <div class="help-section">
+      <h4>📄 ファイル種別アイコン</h4>
+      <p>Excel/Word/PPT/PDF/画像/動画/音声/ZIP/コード/テキスト/ブックマーク から選択可能。URL/拡張子から自動判定もあり。</p>
+      <p>Teams/SharePoint/BOX/OneDrive/ファイルサーバーは、URLから自動判定して専用アイコンを選択できます。手動選択も可能です。</p>
+      <p>拡張子バッジの表示ON/OFF可能。</p>
+    </div>
+    <div class="help-section">
+      <h4>🏷️ ラベル / タブ</h4>
+      <p>ラベルを付与するとタブでプロジェクト横断して同一テーマを表示。上位のラベルは配下も継承。</p>
+    </div>
+    <div class="help-section">
+      <h4>☑ 一括モード / 並替モード</h4>
+      <p>一括モード：親をチェック→配下も自動選択、一括変更/移動/削除。</p>
+      <p>並替モード：ドラッグで前後挿入のみ（誤ってフォルダに入れる事故防止）。</p>
+    </div>
+
+    <div class="help-section">
+      <h4>✅ ToDo</h4>
+      <p>右クリックメニューの「ToDo追加」から、フォルダ・リンク・ファイルにToDoを追加できます。</p>
+      <p>ToDo画面では、すべて表示時にプロジェクト別で確認できます。特定プロジェクトやプラットフォーム絞り込みにも連動します。</p>
+    </div>
+    <div class="help-section">
+      <h4>⌨ ショートカット</h4>
+      <p>・<code>Ctrl+F</code>：検索　・<code>Esc</code>：メニュー閉じる</p>
+    </div>
+    <div class="modal-actions"><button class="btn-ok" id="btnHelpClose">閉じる</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const KEY = "fileManagerKunData_v18";
+let data, filter="all", activeTab="all", selectedId=null, ctxTargetId=null, modalMode=null, dragId=null;
+let bulkMode=false, bulkChecked=new Set(), tooltipTimer=null, editLabels=new Set();
+let popTargetId=null, ctxEvent=null;
+let sortMode=false, dropMode=null;
+let linkKind="file";
+let moveTargetSelected=null;
+let projectModalMode=null;
+let appView="files", todoTargetId=null;
+
+const uid = () => "n_"+Math.random().toString(36).slice(2,10);
+const prjId = () => "prj_"+Math.random().toString(36).slice(2,8);
+const lblId = () => "lbl_"+Math.random().toString(36).slice(2,8);
+const esc = s => (s||"").replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const now = () => new Date().toISOString();
+
+const PROJECT_ICONS = ["🎯","🚀","🎨","🔧","🏭","📊","💡","🌟","🎓","🛠️","⚙️","🏆","🔬","📚","🏥","🚗","💼","🌐","🔒","📱"];
+
+const PLATFORM_INFO = {
+  box:{label:"BOX",emoji:"📦"},
+  sp:{label:"SP",emoji:"🌐"},
+  od:{label:"OD",emoji:"☁️"},
+  fs:{label:"FS",emoji:"🗄️"},
+  teams:{label:"Teams",emoji:"👥"}
+};
+
+const FOLDER_COLORS = {default:"#f4c65b",blue:"#1976d2",green:"#43a047",orange:"#f57c00",purple:"#7b1fa2",red:"#e53935",gray:"#607d8b"};
+function svgFolder(color, open){
+  const c = FOLDER_COLORS[color] || FOLDER_COLORS.default;
+  const cDark = shade(c, -0.15);
+  if(open) return `<svg class="svg-ico" viewBox="0 0 24 24"><path fill="${cDark}" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v1H3z"/><path fill="${c}" d="M3 9h18l-2 9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`;
+  return `<svg class="svg-ico" viewBox="0 0 24 24"><path fill="${c}" stroke="${cDark}" stroke-width="0.5" d="M3 7a2 2 0 012-2h4l2 2h8a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>`;
+}
+function shade(hex, pct){
+  const n = parseInt(hex.slice(1),16);
+  let r=(n>>16)&255,g=(n>>8)&255,b=n&255;
+  r=Math.max(0,Math.min(255,Math.round(r+r*pct)));
+  g=Math.max(0,Math.min(255,Math.round(g+g*pct)));
+  b=Math.max(0,Math.min(255,Math.round(b+b*pct)));
+  return "#"+((r<<16)|(g<<8)|b).toString(16).padStart(6,"0");
+}
+
+/* ★ ファイルアイコン拡張版 */
+const FILE_ICONS = {
+  excel: {name:"Excel", color:"#1D6F42", emoji:null},
+  word: {name:"Word", color:"#2B579A", emoji:null},
+  ppt: {name:"PPT", color:"#D24726", emoji:null},
+  pdf: {name:"PDF", color:"#D93025", emoji:null},
+  image: {name:"画像", color:"#7b1fa2", emoji:"🖼️"},
+  photo: {name:"写真", color:"#e91e63", emoji:"📷"},
+  design: {name:"デザイン", color:"#00acc1", emoji:"🎨"},
+  video: {name:"動画", color:"#e53935", emoji:"🎬"},
+  audio: {name:"音声", color:"#0277bd", emoji:"🎵"},
+  teams: {name:"Teams", color:"#6264A7", platform:true, short:"T", sub:"MS"},
+  sp: {name:"SharePoint", color:"#038387", platform:true, short:"SP", sub:"Site"},
+  box: {name:"BOX", color:"#0061D5", platform:true, short:"BOX", sub:"Cloud"},
+  od: {name:"OneDrive", color:"#0364B8", platform:true, short:"OD", sub:"Cloud"},
+  fs: {name:"FileServer", color:"#E65100", platform:true, short:"FS", sub:"LAN"},
+  bookmark: {name:"ﾌﾞｯｸﾏｰｸ", color:"#f57c00", emoji:"🔖"},
+  zip: {name:"ZIP", color:"#795548", emoji:"📦"},
+  code: {name:"コード", color:"#00897b", emoji:"💻"},
+  text: {name:"テキスト", color:"#546e7a", emoji:"📝"},
+  db: {name:"DB", color:"#37474f", emoji:"🗃️"},
+  generic: {name:"その他", color:"#546e7a", emoji:null}
+};
+
+function svgFileIcon(kind){
+  const info = FILE_ICONS[kind] || FILE_ICONS.generic;
+  if(info.platform){
+    const c = info.color;
+    const dark = shade(c, -0.18);
+    const short = esc(info.short || info.name || "P");
+    const sub = esc(info.sub || "LINK");
+    const fsMark = kind === "fs" ? `<path fill="#fff" opacity=".95" d="M7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/>` : "";
+    const txtSize = short.length >= 3 ? 4.6 : 6.4;
+    return `<svg class="svg-ico platform-icon" viewBox="0 0 24 24" aria-label="${esc(info.name)}">
+      <rect x="3" y="4" width="18" height="16" rx="4" fill="${c}"/>
+      <path d="M3 8c4-3 14-3 18 0v-1a3 3 0 00-3-3H6a3 3 0 00-3 3z" fill="${dark}" opacity=".85"/>
+      ${fsMark}
+      <text x="12" y="14.3" font-size="${txtSize}" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">${short}</text>
+      <text x="12" y="18.3" font-size="3.2" font-weight="700" fill="#fff" opacity=".85" text-anchor="middle" font-family="Arial, sans-serif">${sub}</text>
+    </svg>`;
+  }
+  if(info.emoji){
+    return `<span class="svc-emoji" style="font-size:16px">${info.emoji}</span>`;
+  }
+  const c = info.color;
+  let label = "";
+  if(kind==="excel") label = `<text x="12" y="17" font-size="7" font-weight="bold" fill="#fff" text-anchor="middle" font-family="Arial">X</text>`;
+  else if(kind==="word") label = `<text x="12" y="17" font-size="7" font-weight="bold" fill="#fff" text-anchor="middle" font-family="Arial">W</text>`;
+  else if(kind==="ppt") label = `<text x="12" y="17" font-size="7" font-weight="bold" fill="#fff" text-anchor="middle" font-family="Arial">P</text>`;
+  else if(kind==="pdf") label = `<text x="12" y="17" font-size="6" font-weight="bold" fill="#fff" text-anchor="middle" font-family="Arial">PDF</text>`;
+  return `<svg class="svg-ico" viewBox="0 0 24 24"><path fill="#fff" stroke="${c}" stroke-width="1.2" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path fill="${c}" opacity=".2" d="M14 2v6h6z"/><path fill="none" stroke="${c}" stroke-width="1.2" d="M14 2v6h6"/><rect x="5" y="12" width="14" height="7" rx="1" fill="${c}"/>${label}</svg>`;
+}
+function detectFileIcon(url){
+  if(!url) return "generic";
+  const detectedPlatform = detectPlatform(url);
+  if(detectedPlatform && FILE_ICONS[detectedPlatform]) return detectedPlatform;
+  const clean = url.split("?")[0].split("#")[0].toLowerCase();
+  const m = clean.match(/\.([a-z0-9]+)$/);
+  if(!m){
+    if(url.startsWith("http")) return "bookmark";
+    return "generic";
+  }
+  const ext = m[1];
+  if(["xls","xlsx","xlsm","xlsb","csv"].includes(ext)) return "excel";
+  if(["doc","docx","docm","rtf"].includes(ext)) return "word";
+  if(["ppt","pptx","pptm"].includes(ext)) return "ppt";
+  if(ext==="pdf") return "pdf";
+  if(["png","jpg","jpeg","gif","bmp","svg","webp","ico","tiff","tif","heic","raw"].includes(ext)) return "image";
+  if(["psd","ai","xd","fig","sketch","indd"].includes(ext)) return "design";
+  if(["mp4","avi","mov","wmv","mkv","webm","flv","m4v","mpg","mpeg"].includes(ext)) return "video";
+  if(["mp3","wav","aac","flac","ogg","m4a","wma"].includes(ext)) return "audio";
+  if(["zip","rar","7z","tar","gz","tgz","bz2","xz"].includes(ext)) return "zip";
+  if(["js","ts","py","java","c","cpp","cs","html","css","json","xml","yaml","yml","md","sh","bat","ps1","php","rb","go","rs","kt","swift","sql"].includes(ext)) return "code";
+  if(["txt","log","ini","cfg","conf"].includes(ext)) return "text";
+  if(["mdb","accdb","sqlite","db"].includes(ext)) return "db";
+  return "generic";
+}
+
+/* ★ 拡張子抽出 */
+function extractExtension(url, name){
+  const source = name || url || "";
+  const clean = source.split("?")[0].split("#")[0].toLowerCase();
+  const m = clean.match(/\.([a-z0-9]{1,10})$/);
+  return m ? m[1] : "";
+}
+
+/* ★ 拡張子バッジの色 */
+function extColor(ext){
+  const map = {
+    xlsx:"#1D6F42",xls:"#1D6F42",xlsm:"#1D6F42",csv:"#217346",
+    docx:"#2B579A",doc:"#2B579A",docm:"#2B579A",rtf:"#2B579A",
+    pptx:"#D24726",ppt:"#D24726",pptm:"#D24726",
+    pdf:"#D93025",
+    png:"#7b1fa2",jpg:"#7b1fa2",jpeg:"#7b1fa2",gif:"#7b1fa2",svg:"#7b1fa2",webp:"#7b1fa2",bmp:"#7b1fa2",
+    mp4:"#e53935",avi:"#e53935",mov:"#e53935",mkv:"#e53935",webm:"#e53935",
+    mp3:"#0277bd",wav:"#0277bd",flac:"#0277bd",m4a:"#0277bd",
+    zip:"#795548",rar:"#795548","7z":"#795548",tar:"#795548",gz:"#795548",
+    js:"#00897b",ts:"#00897b",py:"#00897b",html:"#00897b",css:"#00897b",json:"#00897b",
+    txt:"#546e7a",log:"#546e7a",md:"#546e7a"
+  };
+  return map[ext] || "#546e7a";
+}
+
+const OFFICE_MAP = {xls:"ms-excel",xlsx:"ms-excel",xlsm:"ms-excel",xlsb:"ms-excel",csv:"ms-excel",doc:"ms-word",docx:"ms-word",docm:"ms-word",rtf:"ms-word",ppt:"ms-powerpoint",pptx:"ms-powerpoint",pptm:"ms-powerpoint",vsd:"ms-visio",vsdx:"ms-visio",mpp:"ms-project"};
+const APP_LABEL = {"ms-excel":"Excel","ms-word":"Word","ms-powerpoint":"PowerPoint","ms-visio":"Visio","ms-project":"Project"};
+function getOfficeScheme(url){
+  const clean = (url||"").split("?")[0].split("#")[0];
+  const m = clean.match(/\.([a-z0-9]+)$/i);
+  if(!m) return null;
+  return OFFICE_MAP[m[1].toLowerCase()] || null;
+}
+function isFsUrl(url){ const u=(url||"").toLowerCase(); return u.startsWith("\\\\")||/^[a-z]:\\/i.test(u); }
+function buildOfficeUri(scheme, fsPath){ return `${scheme}:ofe|u|${fsPath}`; }
+
+function detectPlatform(url){
+  if(!url) return null;
+  const u = url.toLowerCase();
+  if(u.startsWith("\\\\")||/^[a-z]:\\/i.test(u)) return "fs";
+  if(u.includes("box.com")) return "box";
+  if(u.includes("sharepoint.com")) return "sp";
+  if(u.includes("onedrive")||u.includes("1drv.ms")) return "od";
+  if(u.includes("teams.microsoft.com")) return "teams";
+  return null;
+}
+
+function makeSample(){
+  const l1=lblId(),l2=lblId(),l3=lblId();
+  const t = now();
+  return {
+    labels:[
+      {id:l1,name:"重要",color:"#e53935"},
+      {id:l2,name:"優先",color:"#f57c00"},
+      {id:l3,name:"参考",color:"#607d8b"}
+    ],
+    root:[
+      {id:prjId(),type:"project",name:"保全管理DX",projectIcon:"🔧",projectColor:"blue",description:"MSS+移行プロジェクト",open:true,updatedAt:t,children:[
+        {id:uid(),name:"PM管理",linkKind:"folder",color:"default",open:true,updatedAt:t,children:[
+          {id:uid(),name:"PM管理表.xlsx",url:"https://toyota-body.box.com/s/pm",platform:"box",linkKind:"file",fileIcon:"excel",showExt:true,labels:[l1],fav:true,updatedAt:t},
+          {id:uid(),name:"点検基準書.pdf",url:"\\\\SV01835\\share\\kijun.pdf",platform:"fs",linkKind:"file",fileIcon:"pdf",showExt:true,updatedAt:t}
+        ]},
+        {id:uid(),name:"SharePoint会議資料",url:"https://toyotabody.sharepoint.com/hozen/meetings",platform:"sp",linkKind:"folder",color:"green",labels:[l2],updatedAt:t},
+        {id:uid(),name:"MSS+仕様書.docx",url:"\\\\SV01835\\share\\mss.docx",platform:"fs",linkKind:"file",fileIcon:"word",showExt:true,updatedAt:t}
+      ]},
+      {id:prjId(),type:"project",name:"教育プログラム",projectIcon:"🎓",projectColor:"orange",description:"新人教育・スキルアップ",open:true,updatedAt:t,children:[
+        {id:uid(),name:"教育マニュアル.docx",url:"\\\\SV01835\\share\\edu.docx",platform:"fs",linkKind:"file",fileIcon:"word",showExt:true,labels:[l3],updatedAt:t},
+        {id:uid(),name:"eラーニング資料",url:"https://onedrive.live.com/elearning",platform:"od",linkKind:"folder",color:"blue",updatedAt:t},
+        {id:uid(),name:"研修動画",url:"https://teams.microsoft.com/l/team/edu",platform:"teams",linkKind:"folder",color:"purple",updatedAt:t},
+        {id:uid(),name:"参考リンク",url:"https://example.com/reference",linkKind:"file",fileIcon:"bookmark",updatedAt:t}
+      ]},
+      {id:prjId(),type:"project",name:"その他資料",projectIcon:"📚",projectColor:"gray",description:"分類未定",updatedAt:t,children:[]}
+    ],
+    recent:[],
+    darkMode:false,
+    sidebarState:{prj:true,pf:true,qa:true}
+  };
+}
+function load(){ try{const r=localStorage.getItem(KEY); if(r){data=JSON.parse(r); if(!data.labels)data.labels=[]; if(!data.sidebarState) data.sidebarState={prj:true,pf:true,qa:true}; if(data.darkMode) document.body.classList.add("dark"); walk(data.root,n=>{ if(n.type!=="project" && !Array.isArray(n.todos)) n.todos=[]; }); return;}}catch(e){} data=makeSample(); }
+function save(){ try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){} }
+function walk(nodes,cb,depth=0){ for(const n of nodes){ cb(n,depth); if(n.children) walk(n.children,cb,depth+1); } }
+function findNode(id){ let f=null; walk(data.root,n=>{if(n.id===id)f=n;}); return f; }
+function findParent(id){
+  let parent = null;
+  function rec(nodes, p){
+    for(const n of nodes){
+      if(n.id === id){ parent = p; return true; }
+      if(n.children && rec(n.children, n)) return true;
+    }
+    return false;
+  }
+  rec(data.root, null);
+  return parent;
+}
+function findProject(id){
+  const n = findNode(id); if(!n) return null;
+  if(n.type === "project") return n;
+  let cur = findParent(id);
+  while(cur && cur.type !== "project") cur = findParent(cur.id);
+  return cur;
+}
+function removeNode(id){
+  function rec(a){ for(let i=0;i<a.length;i++){if(a[i].id===id){a.splice(i,1);return true;} if(a[i].children&&rec(a[i].children))return true;} return false; }
+  rec(data.root);
+}
+function countChildren(n){ if(!n.children) return 0; let c=0; walk(n.children,()=>c++); return c; }
+function getLabel(id){ return data.labels.find(l=>l.id===id); }
+function nodeLabels(n){ return (n.labels||[]).map(getLabel).filter(Boolean); }
+function isFolderLike(n){ return n.type==="project" || !!n.children || n.linkKind === "folder"; }
+
+function moveNodeInParent(id, dir){
+  const parent = findParent(id);
+  const arr = parent ? parent.children : data.root;
+  const idx = arr.findIndex(x=>x.id===id);
+  if(idx < 0) return false;
+  const newIdx = dir==="up" ? idx-1 : idx+1;
+  if(newIdx < 0 || newIdx >= arr.length) return false;
+  [arr[idx], arr[newIdx]] = [arr[newIdx], arr[idx]];
+  return true;
+}
+function duplicateNode(id){
+  const n = findNode(id); if(!n) return;
+  function deepCopy(node){
+    const cp = JSON.parse(JSON.stringify(node));
+    cp.id = node.type==="project" ? prjId() : uid();
+    cp.updatedAt = now();
+    if(cp.children) cp.children = cp.children.map(deepCopy);
+    return cp;
+  }
+  const copy = deepCopy(n);
+  copy.name = n.name + " (コピー)";
+  const parent = findParent(id);
+  const arr = parent ? parent.children : data.root;
+  const idx = arr.findIndex(x=>x.id===id);
+  arr.splice(idx+1, 0, copy);
+}
+function sortChildren(id, mode){
+  const n = id ? findNode(id) : {children:data.root};
+  if(!n || !n.children) return false;
+  const arr = n.children;
+  const isFolderFirst = mode === "sortFolderFirst";
+  arr.sort((a,b)=>{
+    if(isFolderFirst){
+      const af = isFolderLike(a) ? 0 : 1;
+      const bf = isFolderLike(b) ? 0 : 1;
+      if(af !== bf) return af - bf;
+      return (a.name||"").localeCompare(b.name||"","ja");
+    }
+    if(mode === "sortNameAsc") return (a.name||"").localeCompare(b.name||"","ja");
+    if(mode === "sortNameDesc") return (b.name||"").localeCompare(a.name||"","ja");
+    if(mode === "sortDateNew") return (b.updatedAt||"").localeCompare(a.updatedAt||"");
+    if(mode === "sortDateOld") return (a.updatedAt||"").localeCompare(b.updatedAt||"");
+    return 0;
+  });
+  return true;
+}
+
+function iconFor(n, depth){
+  if(n.type === "project"){
+    const ic = n.projectIcon || "🎯";
+    return `<span class="svc-emoji">${ic}</span>`;
+  }
+  const isFolder = n.children || n.linkKind === "folder";
+  if(isFolder){
+    const folderSvg = svgFolder(n.color || "default", !!n.open);
+    const p = n.platform || (n.url ? detectPlatform(n.url) : null);
+    if(p && p !== "fs" && PLATFORM_INFO[p]){
+      return `<span class="folder-with-pf">${folderSvg}<span class="pf-mini">${PLATFORM_INFO[p].emoji}</span></span>`;
+    }
+    return folderSvg;
+  }
+  const iconKind = n.fileIcon || detectFileIcon(n.url);
+  return svgFileIcon(iconKind);
+}
+function actionBadge(n){
+  if(n.type === "project") return "";
+  if(!n.url) return "";
+  if(n.children || n.linkKind === "folder"){
+    if(isFsUrl(n.url)) return `<span class="badge act" title="ダブルクリックでパスコピー">📋</span>`;
+    if(n.url.startsWith("http")) return `<span class="badge act" title="ダブルクリックで新規タブ">🔗</span>`;
+    return "";
+  }
+  if(isFsUrl(n.url)){
+    const s = getOfficeScheme(n.url);
+    if(s) return `<span class="badge app" title="ダブルクリックでデスクトップ起動">🖥️</span>`;
+    return `<span class="badge act" title="ダブルクリックでパスコピー">📋</span>`;
+  }
+  return `<span class="badge act" title="ダブルクリックで新規タブ">🔗</span>`;
+}
+function platformBadge(n){
+  if(n.type === "project") return "";
+  const p = n.platform || (n.url ? detectPlatform(n.url) : null);
+  if(!p) return "";
+  const info = PLATFORM_INFO[p]; if(!info) return "";
+  return `<span class="pf-badge ${p}" title="${info.label}">${info.emoji} ${info.label}</span>`;
+}
+
+/* ★ 拡張子バッジ */
+function extBadge(n){
+  if(n.type === "project") return "";
+  if(n.children || n.linkKind === "folder") return "";
+  if(n.showExt === false) return "";
+  const ext = extractExtension(n.url, n.name);
+  if(!ext) return "";
+  return `<span class="ext-badge" style="background:${extColor(ext)}">.${ext}</span>`;
+}
+
+function parsePath(url){
+  const type=detectPlatform(url)||"none"; let segments=[],root="";
+  try{
+    if(type==="fs"){
+      const c=url.replace(/^\\\\/,"").replace(/\\/g,"/");
+      segments=c.split("/").filter(Boolean);
+      root = segments.length ? ("\\\\"+segments[0]) : "\\\\";
+    } else if(url.startsWith("http")){
+      const u=new URL(url); root=u.hostname;
+      segments=u.pathname.split("/").filter(Boolean).map(s=>decodeURIComponent(s));
+    }
+  }catch(e){ segments=[url]; root=url; }
+  return {type,root,segments,url};
+}
+function autoBuildTree(text){
+  const parsed=text.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).map(parsePath);
+  const groups={};
+  parsed.forEach(p=>{ const k=p.type+"::"+p.root; if(!groups[k])groups[k]={type:p.type,root:p.root,entries:[]}; groups[k].entries.push(p); });
+  return groups;
+}
+function mergeAutoTreeIntoProject(groups, projectId){
+  const project = findNode(projectId);
+  if(!project || project.type !== "project"){ toast("プロジェクトが見つかりません"); return 0; }
+  if(!project.children) project.children = [];
+  let added = 0;
+  const t = now();
+  Object.values(groups).forEach(g=>{
+    const isFs = g.type==="fs";
+    let rootUrl;
+    if(isFs){ rootUrl = "\\\\"+g.root.replace(/^\\\\/,""); }
+    else { try{ rootUrl = new URL(g.entries[0].url).origin; }catch(e){ rootUrl = "https://"+g.root; } }
+    let rootNode = project.children.find(n=>n.name===g.root);
+    if(!rootNode){
+      rootNode = {id:uid(),name:g.root,url:rootUrl,platform:g.type,linkKind:"folder",color:"gray",open:true,children:[],updatedAt:t};
+      project.children.push(rootNode); added++;
+    }
+    if(!rootNode.children) rootNode.children=[]; rootNode.open=true;
+    g.entries.forEach(entry=>{
+      let cur = rootNode;
+      const segsAcc = [];
+      entry.segments.forEach((seg,idx)=>{
+        segsAcc.push(seg);
+        const isLast = idx===entry.segments.length-1;
+        if(!cur.children) cur.children=[];
+        let child=cur.children.find(c=>c.name===seg);
+        let segUrl;
+        if(isLast) segUrl = entry.url;
+        else if(isFs) segUrl = rootUrl + "\\" + segsAcc.join("\\");
+        else { try{ segUrl = new URL(entry.url).origin + "/" + segsAcc.map(encodeURIComponent).join("/"); }catch(e){ segUrl = entry.url; } }
+        if(!child){
+          child={id:uid(),name:seg,url:segUrl,platform:g.type,updatedAt:t};
+          if(!isLast){ child.children=[]; child.open=true; child.linkKind="folder"; child.color="default"; }
+          else { child.fileIcon = detectFileIcon(segUrl); child.linkKind = "file"; child.showExt = true; }
+          cur.children.push(child); added++;
+        } else { if(!child.url) child.url = segUrl; }
+        cur=child;
+      });
+    });
+  });
+  project.updatedAt = t;
+  return added;
+}
+
+function render(){
+  renderTabs();
+  renderProjectSideList();
+  const tree=document.getElementById("tree");
+  const q=document.getElementById("searchInput").value.trim().toLowerCase();
+  const nodes=filteredNodes(q);
+  if(nodes.length===0){
+    tree.innerHTML = `<div class="empty">
+      📭 該当なし<br>
+      <small>「🎯 新規プロジェクト」ボタンからスタート</small>
+    </div>`;
+  } else {
+    tree.innerHTML = nodes.map(n=>renderNode(n,q,0)).join("");
+  }
+  tree.classList.toggle("bulk-mode", bulkMode);
+  updateCounts(); updateBulkCnt(); updateBulkLabelSel();
+  renderTodoView();
+  updateViewMode();
+}
+function renderTabs(){
+  const bar=document.getElementById("tabsBar");
+  let html=`<div class="tab ${activeTab==='all'?'active':''}" data-tab="all">📋 すべて <span class="cnt" id="tabCntAll">0</span></div>`;
+  data.labels.forEach(l=>{
+    html+=`<div class="tab ${activeTab===l.id?'active':''}" data-tab="${l.id}"><span class="lbl-dot" style="background:${l.color}"></span>${esc(l.name)}<span class="cnt">${countByLabel(l.id)}</span><span class="close-lbl" data-close="${l.id}">×</span></div>`;
+  });
+  html+=`<button class="tab-mgr" id="btnLabelMgr">🏷️ ラベル管理</button>`;
+  bar.innerHTML=html;
+}
+function renderProjectSideList(){
+  const el = document.getElementById("projectSideList");
+  const projects = data.root.filter(n=>n.type==="project");
+  el.innerHTML = projects.map(p=>{
+    const active = filter === "project:"+p.id ? " active" : "";
+    const color = FOLDER_COLORS[p.projectColor] || FOLDER_COLORS.default;
+    const cnt = p.children ? countChildren(p) : 0;
+    const ic = p.projectIcon || "🎯";
+    return `<div class="side-item${active}" data-filter="project:${p.id}" data-tip="${esc(p.name)}"><span class="prj-dot" style="background:${color}"></span>${ic}<span class="label">${esc(p.name)}</span><span class="count">${cnt}</span></div>`;
+  }).join("");
+}
+function countByLabel(lid){ let c=0; walk(data.root, n=>{if((n.labels||[]).includes(lid)) c++;}); return c; }
+function nodeMatchesTab(n,anc){ if(activeTab==="all") return true; if((n.labels||[]).includes(activeTab)) return true; if(anc) return true; return false; }
+
+function filteredNodes(q){
+  const isProjectFilter = filter.startsWith("project:");
+  const projectFilterId = isProjectFilter ? filter.substring(8) : null;
+  function keep(n){
+    if(filter==="fav"&&!n.fav) return false;
+    if(filter==="dead"&&!n.dead) return false;
+    if(filter==="recent"&&!(data.recent||[]).includes(n.id)) return false;
+    if(["box","sp","od","fs","teams"].includes(filter)){
+      if(n.type==="project") return false;
+      const p = n.platform || (n.url?detectPlatform(n.url):null);
+      if(p!==filter) return false;
+    }
+    if(q&&!(n.name||"").toLowerCase().includes(q)&&!(n.url||"").toLowerCase().includes(q)) return false;
+    return true;
+  }
+  function rec(nodes, ancL){
+    const out=[];
+    for(const n of nodes){
+      if(isProjectFilter && n.type==="project" && n.id !== projectFilterId) continue;
+      const selfLbl = activeTab!=="all" && (n.labels||[]).includes(activeTab);
+      const nextAnc = ancL || selfLbl;
+      const kids = n.children ? rec(n.children, nextAnc) : [];
+      const platformFilterMode = ["box","sp","od","fs","teams"].includes(filter);
+      const showProject = n.type==="project" && (platformFilterMode || filter==="fav"||filter==="dead"||filter==="recent") && kids.length>0;
+      if(showProject || (keep(n) && nodeMatchesTab(n,ancL)) || kids.length>0){
+        const c = Object.assign({}, n);
+        c._inherited = ancL && !selfLbl && activeTab!=="all";
+        c._originalNode = n;
+        if(kids.length>0){
+          c.children=kids;
+          c.open = q ? true : (n.open === true);
+        } else if(n.children){
+          c.children=[];
+          c.open = n.open === true;
+        }
+        out.push(c);
+      }
+    }
+    return out;
+  }
+  return rec(data.root, false);
+}
+
+function renderNode(n,q,depth){
+  const hasKids=!!(n.children&&n.children.length);
+  const chev=hasKids?(n.open?"chevron open":"chevron"):"chevron leaf";
+  const sel=selectedId===n.id?" selected":"";
+  const dead=n.dead?" dead":"";
+  const inh=n._inherited?" inherited":"";
+  const checked=bulkChecked.has(n.id);
+  const bulkCls=checked?" bulk-checked":"";
+  const projectCls = n.type==="project" ? " project-row" : "";
+  const nodeCls = n.type==="project" ? "node project-node" : "node";
+  const star=n.fav?'<span class="star">★</span>':"";
+  let name=esc(n.name);
+  if(q){ const s=q.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); name=name.replace(new RegExp("("+s+")","ig"),'<mark style="background:#fff3a0">$1</mark>'); }
+  const lbls = nodeLabels(n).map(l=>`<span class="lbl-chip" data-lbl-remove="${l.id}" data-node="${n.id}" style="background:${l.color}" title="クリックで解除">${esc(l.name)}</span>`).join("");
+  const inhMark = n._inherited?`<span class="lbl-chip inherit" style="background:#94a3b8">継承</span>`:"";
+  const addLblBtn = `<span class="add-label-btn" data-add-label="${n.id}" title="ラベル付与">+🏷️</span>`;
+  const isFolder = n.children || n.linkKind === "folder";
+  const folderLinkIndicator = (isFolder && n.url && n.type !== "project") ? `<span class="folder-link-indicator" title="リンク付きフォルダ">🔗</span>` : "";
+  const openTodos = (n.todos||[]).filter(t=>!t.done).length;
+  const todoBadge = openTodos ? `<span class="meta-badge todo" title="未完了ToDo">✅ ${openTodos}</span>` : "";
+  const kids=hasKids&&n.open?`<div class="children">${n.children.map(c=>renderNode(c,q,depth+1)).join("")}</div>`:"";
+  return `<div class="${nodeCls}" data-id="${n.id}">
+    <div class="node-row${sel}${dead}${bulkCls}${inh}${projectCls}" draggable="true" data-id="${n.id}">
+      <input type="checkbox" class="bulk-check" data-role="bulkcheck" ${checked?"checked":""}>
+      <span class="${chev}" data-role="chevron">▶</span>
+      ${iconFor(n,depth)}
+      <span class="name">${name}</span>
+      ${extBadge(n)}${folderLinkIndicator}${star}${actionBadge(n)}${todoBadge}${lbls}${inhMark}${addLblBtn}${platformBadge(n)}
+    </div>${kids}</div>`;
+}
+
+
+function ensureTodoBuckets(n){
+  if(!n) return;
+  if(n.type !== "project" && !Array.isArray(n.todos)) n.todos = [];
+}
+function isTodoCapable(n){ return n && n.type !== "project"; }
+function getTodoPathArray(id){
+  const path=[];
+  function rec(nodes,chain){
+    for(const n of nodes){
+      const next=[...chain,n];
+      if(n.id===id){ path.push(...next); return true; }
+      if(n.children && rec(n.children,next)) return true;
+    }
+    return false;
+  }
+  rec(data.root,[]);
+  return path;
+}
+function getTodoPathText(id){
+  return getTodoPathArray(id).map(n=>(n.type==="project"?(n.projectIcon||"🎯")+" ":"")+n.name).join(" ＞ ");
+}
+function todoNodeMatchesSideFilter(n){
+  if(!n) return false;
+  if(filter === "all") return true;
+  if(filter.startsWith("project:")){ const p=findProject(n.id); return !!p && p.id===filter.substring(8); }
+  if(["box","sp","od","fs","teams"].includes(filter)){ const p=n.platform || (n.url?detectPlatform(n.url):null); return p===filter; }
+  if(filter === "fav") return !!n.fav;
+  if(filter === "dead") return !!n.dead;
+  if(filter === "recent") return (data.recent||[]).includes(n.id);
+  return true;
+}
+function collectTodoTargets(){
+  const q=(document.getElementById("searchInput")?.value||"").trim().toLowerCase();
+  const arr=[];
+  walk(data.root,n=>{
+    if(isTodoCapable(n) && Array.isArray(n.todos) && n.todos.length && todoNodeMatchesSideFilter(n)){
+      const path=getTodoPathText(n.id);
+      if(!q || (n.name||"").toLowerCase().includes(q) || (n.url||"").toLowerCase().includes(q) || path.toLowerCase().includes(q) || n.todos.some(t=>(t.text||"").toLowerCase().includes(q))){
+        arr.push({node:n,path,project:findProject(n.id)});
+      }
+    }
+  });
+  return arr;
+}
+function updateViewMode(){
+  const treeWrap=document.getElementById("treeWrap"), todoWrap=document.getElementById("todoWrap"), btn=document.getElementById("btnTodoView");
+  if(!treeWrap||!todoWrap||!btn) return;
+  const todo = appView === "todo";
+  treeWrap.style.display = todo ? "none" : "block";
+  todoWrap.classList.toggle("show", todo);
+  btn.classList.toggle("todo-on", todo);
+  if(!todo && !selectedId) document.getElementById("breadcrumb").innerHTML = "🏠 ホーム";
+}
+function toggleTodoView(){ appView = appView === "todo" ? "files" : "todo"; render(); }
+function renderTodoView(){
+  const wrap=document.getElementById("todoWrap"); if(!wrap) return;
+  const targets=collectTodoTargets();
+  let total=0, open=0;
+  targets.forEach(x=>{ total+=x.node.todos.length; open+=x.node.todos.filter(t=>!t.done).length; });
+  if(!targets.length){
+    wrap.innerHTML=`<div class="todo-empty">右クリックメニューの「✅ ToDo追加」から、フォルダ・リンク・ファイルにToDoを追加できます。</div>`;
+    return;
+  }
+  if(filter === "all"){
+    const groups=new Map();
+    targets.forEach(x=>{ const key=x.project?x.project.id:"none"; if(!groups.has(key)) groups.set(key,{project:x.project,items:[]}); groups.get(key).items.push(x); });
+    wrap.innerHTML=`${[...groups.values()].map(renderTodoProjectGroup).join("")}`;
+  } else {
+    wrap.innerHTML=`<div class="todo-grid">${targets.map(x=>renderTodoCard(x.node,x.path)).join("")}</div>`;
+  }
+}
+function renderTodoProjectGroup(g){
+  const p=g.project;
+  const title=p?`${p.projectIcon||"🎯"} ${esc(p.name)}`:"未分類";
+  const open=g.items.reduce((a,x)=>a+x.node.todos.filter(t=>!t.done).length,0);
+  return `<section class="todo-project-section"><div class="todo-project-title">${title}<span class="cnt">${g.items.length}対象 / 未完了 ${open}件</span></div><div class="todo-grid">${g.items.map(x=>renderTodoCard(x.node,x.path)).join("")}</div></section>`;
+}
+function renderTodoCard(n,path){
+  ensureTodoBuckets(n);
+  const rows=n.todos.map(t=>`<div class="todo-item ${t.done?'done':''}"><input type="checkbox" data-todo-toggle="${n.id}" data-todo-id="${t.id}" ${t.done?'checked':''}><div class="todo-text">${esc(t.text)}</div><div class="todo-meta">${t.createdAt?new Date(t.createdAt).toLocaleDateString('ja-JP'):''}</div><button class="todo-del" data-todo-delete="${n.id}" data-todo-id="${t.id}">削除</button></div>`).join("");
+  const open=n.todos.filter(t=>!t.done).length;
+  return `<div class="todo-card" data-node-id="${n.id}"><div class="todo-card-head">${iconFor(n,0)}<div class="todo-card-title"><div class="todo-name">${esc(n.name)}</div><div class="todo-path">${esc(path)}</div></div><div class="todo-card-actions"><button class="todo-mini-btn" data-todo-open-add="${n.id}">追加</button><button class="todo-mini-btn" data-open-node="${n.id}">開く</button></div></div><div class="todo-add"><input data-todo-input="${n.id}" placeholder="ToDoを追加"><button data-todo-add="${n.id}">追加</button></div><div class="todo-list">${rows}</div><div class="todo-card-foot">未完了 ${open}件</div></div>`;
+}
+function openTodoModal(id){
+  const n=findNode(id); if(!isTodoCapable(n)){ toast("プロジェクト本体には追加できません"); return; }
+  ensureTodoBuckets(n); todoTargetId=id;
+  document.getElementById("todoModalTitle").textContent=`✅ ToDo追加 - ${n.name}`;
+  document.getElementById("todoTargetHint").textContent=getTodoPathText(id) || n.name;
+  document.getElementById("todoText").value="";
+  const bg=document.getElementById("todoModalBg"); bg.classList.add("show"); bg.style.display="flex";
+  setTimeout(()=>document.getElementById("todoText").focus(),50);
+}
+function closeTodoModal(){ const bg=document.getElementById("todoModalBg"); bg.classList.remove("show"); bg.style.display="none"; todoTargetId=null; }
+function addTodoDirect(id,text){
+  const n=findNode(id); if(!n) return;
+  ensureTodoBuckets(n);
+  n.todos.push({id:uid(),text,done:false,createdAt:now(),doneAt:null}); n.updatedAt=now();
+  save(); render(); toast("ToDoを追加しました");
+}
+function saveTodoModal(){
+  const text=document.getElementById("todoText").value.trim();
+  if(!text){ toast("ToDo内容を入力"); return; }
+  addTodoDirect(todoTargetId,text); closeTodoModal();
+}
+function addTodoFromCard(id){
+  const input=document.querySelector(`[data-todo-input="${id}"]`);
+  const text=(input?.value||"").trim();
+  if(!text){ toast("ToDoを入力"); return; }
+  addTodoDirect(id,text);
+}
+function toggleTodoDone(nodeId,todoId){
+  const n=findNode(nodeId); if(!n||!n.todos) return;
+  const t=n.todos.find(x=>x.id===todoId); if(!t) return;
+  t.done=!t.done; t.doneAt=t.done?now():null; n.updatedAt=now();
+  save(); render();
+}
+function deleteTodo(nodeId,todoId){
+  const n=findNode(nodeId); if(!n||!n.todos) return;
+  n.todos=n.todos.filter(x=>x.id!==todoId); n.updatedAt=now();
+  save(); render(); toast("ToDoを削除しました");
+}
+
+function openInNewTab(id){
+  const n=findNode(id); if(!n) return;
+  if(n.type==="project" || !n.url) return;
+  data.recent = [id,...(data.recent||[]).filter(x=>x!==id)].slice(0,10);
+  save();
+  if(isFsUrl(n.url)){
+    // FSパスは新規タブでは開けないので、既存動作(Officeアプリ起動 or パスコピー)に委譲
+    openNode(id);
+    return;
+  }
+  window.open(n.url,"_blank","noopener");
+  toast(`「${n.name}」を別タブで開きました`);
+}
+function openNode(id){
+  const n=findNode(id); if(!n) return;
+  if(n.type==="project" || !n.url){ if(n.children){ n.open=!n.open; save(); render(); } return; }
+  data.recent = [id,...(data.recent||[]).filter(x=>x!==id)].slice(0,10);
+  save();
+  if(isFsUrl(n.url)){
+    const isFolder = n.children || n.linkKind === "folder";
+    if(!isFolder){
+      const scheme = getOfficeScheme(n.url);
+      if(scheme){
+        window.location.href = buildOfficeUri(scheme, n.url);
+        toast(`🖥️ ${APP_LABEL[scheme]}で起動…`);
+        return;
+      }
+    }
+    const winPath = n.url.replace(/\//g,"\\");
+    if(navigator.clipboard) navigator.clipboard.writeText(winPath).then(()=>showExplorerHelp(winPath,n.name),()=>showExplorerHelp(winPath,n.name));
+    else showExplorerHelp(winPath, n.name);
+    return;
+  }
+  window.open(n.url,"_blank");
+  toast(`「${n.name}」を開きました`);
+}
+
+function showExplorerHelp(path, name){
+  const old = document.getElementById("explorerHelpDlg"); if(old) old.remove();
+  const dlg = document.createElement("div");
+  dlg.id = "explorerHelpDlg";
+  dlg.style.cssText = "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--panel);padding:22px 26px;border-radius:12px;box-shadow:0 20px 40px rgba(0,0,0,.25);z-index:9999;max-width:500px;font-size:14px;line-height:1.7;border-top:4px solid var(--primary);animation:popIn .2s ease;color:var(--text)";
+  dlg.innerHTML = `
+    <div style="font-weight:700;font-size:15px;color:var(--primary);margin-bottom:6px">🗂️ エクスプローラーで開く</div>
+    <div style="color:var(--muted);font-size:12px;margin-bottom:12px">📋 パスをクリップボードにコピーしました</div>
+    <div style="background:var(--bg);padding:10px 14px;border-radius:6px;font-family:Consolas,'MS Gothic',monospace;font-size:12px;word-break:break-all;margin-bottom:14px;border-left:3px solid var(--primary)">
+      <b style="color:var(--primary)">${esc(name)}</b><br>${esc(path)}
+    </div>
+    <div style="background:#fff3cd;color:#333;padding:12px 14px;border-radius:6px;margin-bottom:14px;font-size:13px;line-height:1.9">
+      <b>🚀 3ステップで開ける:</b><br>
+      1️⃣ <kbd style="background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">Win</kbd> + <kbd style="background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">R</kbd><br>
+      2️⃣ <kbd style="background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">Ctrl</kbd> + <kbd style="background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">V</kbd><br>
+      3️⃣ <kbd style="background:#1e293b;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px">Enter</kbd>
+    </div>
+    <div style="text-align:right;display:flex;gap:8px;justify-content:flex-end">
+      <button id="expHelpCopy" style="padding:8px 16px;background:var(--hover);color:var(--text);border-radius:6px;border:none;cursor:pointer">再コピー</button>
+      <button id="expHelpOk" style="padding:8px 20px;background:var(--primary);color:#fff;border-radius:6px;border:none;cursor:pointer">OK</button>
+    </div>`;
+  document.body.appendChild(dlg);
+  document.getElementById("expHelpOk").onclick = ()=>dlg.remove();
+  document.getElementById("expHelpCopy").onclick = ()=>{ if(navigator.clipboard) navigator.clipboard.writeText(path).then(()=>toast("再コピー")); };
+  setTimeout(()=>{ if(dlg.parentElement) dlg.remove(); }, 12000);
+}
+
+function openLabelPop(clientX, clientY, nodeId){
+  popTargetId = nodeId;
+  const n = findNode(nodeId); if(!n) return;
+  document.getElementById("popTarget").textContent = `対象: ${n.name}`;
+  renderPopLabels();
+  const pop = document.getElementById("labelPop");
+  pop.classList.add("show");
+  const x = Math.min(clientX, window.innerWidth - 380);
+  const y = Math.min(clientY, window.innerHeight - 300);
+  pop.style.left = x+"px"; pop.style.top = y+"px";
+  document.getElementById("popNewName").value = "";
+  setTimeout(()=>document.getElementById("popNewName").focus(),50);
+}
+function closeLabelPop(){ document.getElementById("labelPop").classList.remove("show"); popTargetId=null; }
+function renderPopLabels(){
+  const box = document.getElementById("popLabels");
+  const n = findNode(popTargetId); if(!n) return;
+  const has = new Set(n.labels||[]);
+  if(data.labels.length===0){ box.innerHTML=`<div style="color:var(--muted);font-size:12px">まだラベルがありません。下から作成↓</div>`; return; }
+  box.innerHTML = data.labels.map(l=>{
+    const on = has.has(l.id);
+    return `<span class="lbl-toggle ${on?'on':''}" data-lbl="${l.id}" style="background:${l.color}">${esc(l.name)}${on?" ✓":""}</span>`;
+  }).join("");
+  box.querySelectorAll(".lbl-toggle").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      const lid = el.dataset.lbl;
+      const node = findNode(popTargetId); if(!node) return;
+      if(!node.labels) node.labels = [];
+      if(node.labels.includes(lid)) node.labels = node.labels.filter(x=>x!==lid);
+      else node.labels.push(lid);
+      node.updatedAt = now();
+      save(); renderPopLabels(); render();
+    });
+  });
+}
+function createLabelInPop(){
+  const name = document.getElementById("popNewName").value.trim();
+  const color = document.getElementById("popNewColor").value;
+  if(!name){ toast("ラベル名を入力"); return; }
+  const newLbl = {id:lblId(), name, color};
+  data.labels.push(newLbl);
+  const node = findNode(popTargetId);
+  if(node){ if(!node.labels) node.labels=[]; node.labels.push(newLbl.id); node.updatedAt = now(); }
+  document.getElementById("popNewName").value = "";
+  save(); renderPopLabels(); render();
+  toast(`「${name}」を作成＆付与`);
+}
+
+function scheduleTooltip(e,id){
+  clearTimeout(tooltipTimer);
+  tooltipTimer=setTimeout(()=>{
+    const n=findNode(id); if(!n) return;
+    const tt=document.getElementById("tooltip");
+    const cnt=countChildren(n);
+    const lblsHtml=nodeLabels(n).map(l=>`<span class="lbl-chip" style="background:${l.color};margin-right:4px;cursor:default">${esc(l.name)}</span>`).join("");
+    const scheme = isFsUrl(n.url) && !(n.children||n.linkKind==="folder") ? getOfficeScheme(n.url) : null;
+    let action = "";
+    if(n.url){
+      if(isFsUrl(n.url)) action = scheme ? `🖥️ ${APP_LABEL[scheme]}で起動` : "📋 パスコピー→Win+R+Ctrl+V";
+      else action = "🔗 新規タブで開く";
+    }
+    const updatedStr = n.updatedAt ? new Date(n.updatedAt).toLocaleString("ja-JP") : "";
+    const platform = n.type==="project" ? null : (n.platform || (n.url?detectPlatform(n.url):null));
+    const platformStr = platform && PLATFORM_INFO[platform] ? `${PLATFORM_INFO[platform].emoji} ${PLATFORM_INFO[platform].label}` : "";
+    const ext = (!n.children && n.linkKind!=="folder" && n.type!=="project") ? extractExtension(n.url, n.name) : "";
+    tt.innerHTML=`
+      <div class="tt-title">${n.type==="project"?(n.projectIcon||"🎯")+" ":""}${esc(n.name)}</div>
+      ${n.type==="project"?`<div class="tt-row"><span class="tt-key">種別</span><span class="tt-val">プロジェクト</span></div>`:""}
+      ${n.type==="project"&&n.description?`<div class="tt-row"><span class="tt-key">説明</span><span class="tt-val">${esc(n.description)}</span></div>`:""}
+      ${platformStr?`<div class="tt-row"><span class="tt-key">保管場所</span><span class="tt-val">${platformStr}</span></div>`:""}
+      ${ext?`<div class="tt-row"><span class="tt-key">拡張子</span><span class="tt-val">.${ext}</span></div>`:""}
+      ${n.url?`<div class="tt-row"><span class="tt-key">URL</span><span class="tt-val">${esc(n.url)}</span></div>`:""}
+      ${action?`<div class="tt-row"><span class="tt-key">動作</span><span class="tt-val">${action}</span></div>`:""}
+      ${n.children?`<div class="tt-row"><span class="tt-key">子ノード</span><span class="tt-val">${cnt}件</span></div>`:""}
+      ${lblsHtml?`<div class="tt-row"><span class="tt-key">ラベル</span><span class="tt-val">${lblsHtml}</span></div>`:""}
+      ${updatedStr?`<div class="tt-row"><span class="tt-key">更新</span><span class="tt-val">${updatedStr}</span></div>`:""}
+      ${n.fav?`<div class="tt-row"><span class="tt-key">状態</span><span class="tt-val">⭐</span></div>`:""}
+      ${n.dead?`<div class="tt-row"><span class="tt-key">状態</span><span class="tt-val" style="color:#ff8a80">❌ リンク切れ</span></div>`:""}
+    `;
+    tt.classList.add("show"); moveTooltip(e);
+  }, 400);
+}
+function moveTooltip(e){
+  const tt=document.getElementById("tooltip"); if(!tt.classList.contains("show")) return;
+  const x=Math.min(e.clientX+14, window.innerWidth-tt.offsetWidth-10);
+  const y=Math.min(e.clientY+14, window.innerHeight-tt.offsetHeight-10);
+  tt.style.left=x+"px"; tt.style.top=y+"px";
+}
+function hideTooltip(){ clearTimeout(tooltipTimer); document.getElementById("tooltip").classList.remove("show"); }
+
+function updateCounts(){
+  const c={all:0,box:0,sp:0,od:0,fs:0,teams:0,fav:0,dead:0};
+  walk(data.root, n=>{
+    if(n.type!=="project") c.all++;
+    if(n.fav) c.fav++;
+    if(n.dead) c.dead++;
+    const p = n.platform || (n.url?detectPlatform(n.url):null);
+    if(p && c[p]!==undefined) c[p]++;
+  });
+  const m={cntAll:c.all,cntBox:c.box,cntSp:c.sp,cntOd:c.od,cntFs:c.fs,cntTeams:c.teams,cntFav:c.fav,cntDead:c.dead,cntRecent:(data.recent||[]).length};
+  Object.entries(m).forEach(([k,v])=>{const el=document.getElementById(k); if(el) el.textContent=v;});
+  const tAll=document.getElementById("tabCntAll"); if(tAll) tAll.textContent=c.all;
+}
+function updateBulkCnt(){ const el=document.getElementById("bulkCnt"); if(el) el.textContent=bulkChecked.size; }
+function updateBulkLabelSel(){
+  const sel=document.getElementById("bulkLabelSel"); if(!sel) return;
+  const cur=sel.value;
+  sel.innerHTML=`<option value="">-- ラベル --</option>`+data.labels.map(l=>`<option value="${l.id}">${esc(l.name)}</option>`).join("");
+  sel.value=cur;
+}
+function updateBreadcrumb(id){
+  const bc=document.getElementById("breadcrumb"); const path=[];
+  function rec(nodes,chain){
+    for(const n of nodes){
+      const c=[...chain,n];
+      if(n.id===id){
+        path.push(...c);
+        return true;
+      }
+      if(n.children&&rec(n.children,c)) return true;
+    }
+    return false;
+  }
+  rec(data.root,[]);
+  bc.innerHTML=`🏠 ホーム `+path.map(n=>`<span style="color:var(--primary)">› ${n.type==="project"?(n.projectIcon||"🎯")+" ":""}${esc(n.name)}</span>`).join(" ");
+}
+
+function showCtx(clientX, clientY, id){
+  ctxTargetId=id; selectedId=id;
+  ctxEvent={clientX, clientY};
+  const m=document.getElementById("ctxMenu");
+  const n = findNode(id);
+  const isFile = n && n.linkKind === "file" && !n.children;
+  const todoBtn = m.querySelector("button[data-act='todo']"); if(todoBtn) todoBtn.style.display = isTodoCapable(n) ? "block" : "none";
+  m.querySelectorAll("button[data-act='addFolder'],button[data-act='addLink']").forEach(b=>{
+    b.style.display = isFile ? "none" : "block";
+  });
+  m.classList.add("show");
+  m.style.left = (Math.min(clientX, window.innerWidth-240))+"px";
+  m.style.top = (Math.min(clientY, window.innerHeight-500))+"px";
+}
+function hideCtx(){ document.getElementById("ctxMenu").classList.remove("show"); }
+
+function renderColorPicker(){
+  const p = document.getElementById("colorPicker");
+  p.innerHTML = Object.keys(FOLDER_COLORS).map(k=>`<div class="icon-swatch" data-color="${k}">${svgFolder(k,false)}<div class="lbl-txt">${k==="default"?"既定":k}</div></div>`).join("");
+}
+function renderProjectColorPicker(){
+  const p = document.getElementById("projectColorPicker");
+  p.innerHTML = Object.keys(FOLDER_COLORS).map(k=>{
+    const c = FOLDER_COLORS[k];
+    return `<div class="icon-swatch" data-color="${k}"><span style="width:24px;height:24px;background:${c};border-radius:50%;display:inline-block"></span><div class="lbl-txt">${k==="default"?"既定":k}</div></div>`;
+  }).join("");
+}
+function renderProjectIconPicker(){
+  const p = document.getElementById("projectIconPicker");
+  p.innerHTML = PROJECT_ICONS.map(ic=>`<div class="icon-swatch" data-prj-icon="${ic}"><span style="font-size:22px">${ic}</span></div>`).join("");
+}
+function renderFileIconPicker(){
+  const p = document.getElementById("fileIconPicker");
+  p.innerHTML = Object.keys(FILE_ICONS).map(k=>`<div class="icon-swatch" data-file-icon="${k}">${svgFileIcon(k)}<div class="lbl-txt">${FILE_ICONS[k].name}</div></div>`).join("");
+}
+function renderLabelPicker(){
+  const box=document.getElementById("labelPicker");
+  if(data.labels.length===0){ box.innerHTML=`<span style="color:var(--muted);font-size:12px">まだラベルがありません</span>`; return; }
+  box.innerHTML=data.labels.map(l=>{
+    const on=editLabels.has(l.id);
+    return `<span class="lbl-toggle ${on?'on':''}" data-lbl="${l.id}" style="background:${l.color}">${esc(l.name)}</span>`;
+  }).join("");
+}
+
+function openProjectModal(id){
+  projectModalMode = id ? {mode:"edit",id} : {mode:"add"};
+  document.getElementById("projectModalTitle").textContent = id ? "🎯 プロジェクト編集" : "🎯 新規プロジェクト";
+  const n = id ? findNode(id) : null;
+  document.getElementById("projectName").value = n?n.name:"";
+  document.getElementById("projectDesc").value = n?(n.description||""):"";
+  setActiveProjectIcon(n?(n.projectIcon||"🎯"):"🎯");
+  setActiveProjectColor(n?(n.projectColor||"blue"):"blue");
+  const bg = document.getElementById("projectModalBg");
+  bg.classList.add("show"); bg.style.display="flex";
+  setTimeout(()=>document.getElementById("projectName").focus(),50);
+}
+function closeProjectModal(){ const bg=document.getElementById("projectModalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function setActiveProjectColor(c){ document.querySelectorAll("#projectColorPicker .icon-swatch").forEach(el=>el.classList.toggle("active", el.dataset.color===c)); }
+function getSelectedProjectColor(){ const el=document.querySelector("#projectColorPicker .icon-swatch.active"); return el?el.dataset.color:"blue"; }
+function setActiveProjectIcon(ic){ document.querySelectorAll("#projectIconPicker .icon-swatch").forEach(el=>el.classList.toggle("active", el.dataset.prjIcon===ic)); }
+function getSelectedProjectIcon(){ const el=document.querySelector("#projectIconPicker .icon-swatch.active"); return el?el.dataset.prjIcon:"🎯"; }
+
+function saveProject(){
+  const name = document.getElementById("projectName").value.trim();
+  const desc = document.getElementById("projectDesc").value.trim();
+  const icon = getSelectedProjectIcon();
+  const color = getSelectedProjectColor();
+  if(!name){ toast("プロジェクト名を入力"); return; }
+  const t = now();
+  if(projectModalMode.mode==="edit"){
+    const n = findNode(projectModalMode.id);
+    if(n){ n.name=name; n.description=desc; n.projectIcon=icon; n.projectColor=color; n.updatedAt=t; save(); closeProjectModal(); render(); toast("更新しました"); }
+  } else {
+    const prj = {id:prjId(),type:"project",name,description:desc,projectIcon:icon,projectColor:color,open:true,updatedAt:t,children:[]};
+    data.root.push(prj);
+    save(); closeProjectModal(); render(); toast(`プロジェクト「${name}」を作成`);
+  }
+}
+
+function setLinkKind(kind){
+  linkKind = kind;
+  document.querySelectorAll("#linkKindSeg button").forEach(b=>b.classList.toggle("active", b.dataset.kind===kind));
+  document.getElementById("colorField").style.display = kind==="folder" ? "block" : "none";
+  document.getElementById("fileIconField").style.display = kind==="file" ? "block" : "none";
+}
+function updatePfPreview(url){
+  const p = detectPlatform(url);
+  const el = document.getElementById("pfPreview");
+  if(!p){ el.textContent = url ? "❓ プラットフォーム自動判定: 不明（一般URL）" : ""; return; }
+  const info = PLATFORM_INFO[p];
+  el.innerHTML = `✅ プラットフォーム自動判定: <b style="color:var(--primary)">${info.emoji} ${info.label}</b>（アイコンにも自動反映）`;
+}
+function openAddModal(parentId,kind){
+  const projects = data.root.filter(n=>n.type==="project");
+  if(!parentId && projects.length === 0){
+    if(confirm("先にプロジェクトを作成する必要があります。作成しますか？")) openProjectModal();
+    return;
+  }
+  modalMode={mode:"add",parentId,kind};
+  document.getElementById("modalTitle").textContent = kind==="folder"?"📁 新規フォルダ":"🔗 リンク登録";
+  document.getElementById("autoHint").style.display = kind==="link"?"block":"none";
+  document.getElementById("itemName").value=""; document.getElementById("itemUrl").value="";
+  document.getElementById("autoDecomp").checked=false; document.getElementById("itemFav").checked=false;
+  document.getElementById("showExt").checked=true;
+  document.getElementById("urlField").style.display = kind==="folder"?"none":"block";
+  document.getElementById("linkKindField").style.display = kind==="link"?"block":"none";
+  document.getElementById("pfPreview").innerHTML = "";
+  if(kind==="folder"){
+    document.getElementById("colorField").style.display = "block";
+    document.getElementById("fileIconField").style.display = "none";
+  } else {
+    linkKind = "file";
+    setLinkKind("file");
+  }
+  setActiveColor("default");
+  setActiveFileIcon("generic");
+  editLabels=new Set(); renderLabelPicker(); showModal();
+}
+function openEditModal(id){
+  const n=findNode(id); if(!n) return;
+  if(n.type==="project"){ openProjectModal(id); return; }
+  const isFolder = !!n.children || n.linkKind === "folder";
+  modalMode={mode:"edit",id};
+  document.getElementById("modalTitle").textContent = "✏️ " + (isFolder?"フォルダ":"リンク") + "を編集";
+  document.getElementById("autoHint").style.display="none";
+  document.getElementById("itemName").value=n.name||""; document.getElementById("itemUrl").value=n.url||"";
+  document.getElementById("itemFav").checked=!!n.fav;
+  document.getElementById("showExt").checked = n.showExt !== false;
+  document.getElementById("autoDecomp").checked=false; document.getElementById("urlField").style.display="block";
+  document.getElementById("pfPreview").innerHTML = "";
+  updatePfPreview(n.url||"");
+  const canSwitchKind = !n.children && n.url;
+  document.getElementById("linkKindField").style.display = canSwitchKind ? "block" : "none";
+  if(canSwitchKind){
+    linkKind = n.linkKind || "file";
+    setLinkKind(linkKind);
+  } else {
+    document.getElementById("colorField").style.display = isFolder?"block":"none";
+    document.getElementById("fileIconField").style.display = !isFolder?"block":"none";
+  }
+  setActiveColor(n.color||"default");
+  setActiveFileIcon(n.fileIcon || detectFileIcon(n.url) || "generic");
+  editLabels=new Set(n.labels||[]); renderLabelPicker(); showModal();
+}
+function showModal(){ const bg=document.getElementById("modalBg"); bg.classList.add("show"); bg.style.display="flex"; setTimeout(()=>document.getElementById("itemName").focus(),50); }
+function closeModal(){ const bg=document.getElementById("modalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function setActiveColor(c){ document.querySelectorAll("#colorPicker .icon-swatch").forEach(el=>el.classList.toggle("active", el.dataset.color===c)); }
+function getSelectedColor(){ const el=document.querySelector("#colorPicker .icon-swatch.active"); return el?el.dataset.color:"default"; }
+function setActiveFileIcon(k){ document.querySelectorAll("#fileIconPicker .icon-swatch").forEach(el=>el.classList.toggle("active", el.dataset.fileIcon===k)); }
+function getSelectedFileIcon(){ const el=document.querySelector("#fileIconPicker .icon-swatch.active"); return el?el.dataset.fileIcon:"generic"; }
+
+function saveItem(){
+  const name=document.getElementById("itemName").value.trim();
+  if(!name){ toast("名称を入力"); return; }
+  const url=document.getElementById("itemUrl").value.trim();
+  const platform = url ? detectPlatform(url) : null;
+  const showExt = document.getElementById("showExt").checked;
+  const isFolderMode = (modalMode.mode==="add" && modalMode.kind==="folder") ||
+                       (modalMode.mode==="add" && modalMode.kind==="link" && linkKind==="folder") ||
+                       (modalMode.mode==="edit" && (findNode(modalMode.id).children || linkKind==="folder"));
+  const color = isFolderMode ? getSelectedColor() : null;
+  const fileIcon = !isFolderMode ? getSelectedFileIcon() : null;
+  const fav=document.getElementById("itemFav").checked;
+  const labels=[...editLabels];
+  const t = now();
+  if(modalMode.mode==="edit"){
+    const n=findNode(modalMode.id);
+    if(n){
+      n.name=name; n.url=url; n.fav=fav; n.labels=labels; n.updatedAt=t;
+      n.platform = platform;
+      if(!n.children && url){ n.linkKind = linkKind; }
+      if(isFolderMode){
+        n.color=color; delete n.fileIcon; delete n.showExt;
+        if(!n.children) n.children = [];
+        n.linkKind = "folder";
+      }
+      else {
+        n.fileIcon=fileIcon; n.showExt = showExt; delete n.color;
+        if(n.children && n.children.length > 0){
+          if(!confirm(`「${n.name}」をファイルに変更すると配下${n.children.length}件が削除されます。よろしいですか？`)){
+            return;
+          }
+        }
+        delete n.children; delete n.open;
+        n.linkKind = "file";
+      }
+      save(); closeModal(); render(); toast("更新");
+    }
+    return;
+  }
+  const autoDecomp=document.getElementById("autoDecomp").checked;
+  if(autoDecomp && url && modalMode.kind==="link"){
+    const parent = modalMode.parentId ? findNode(modalMode.parentId) : null;
+    const targetProject = parent ? (parent.type==="project" ? parent : findProject(parent.id)) : null;
+    if(!targetProject){ toast("プロジェクトを指定してください"); return; }
+    const groups = autoBuildTree(url);
+    const added = mergeAutoTreeIntoProject(groups, targetProject.id);
+    save(); closeModal(); render(); toast(`${added}件を階層化して追加`);
+    return;
+  }
+  const node={id:uid(),name,url,fav,labels,updatedAt:t,platform,todos:[]};
+  if(modalMode.kind==="folder"){
+    node.children=[]; node.open=true; node.color=color;
+    node.linkKind = "folder";
+  } else {
+    node.linkKind = linkKind;
+    if(isFolderMode){ node.color = color; node.children=[]; node.open = true; }
+    else { node.fileIcon = fileIcon; node.showExt = showExt; }
+  }
+  const parent=modalMode.parentId?findNode(modalMode.parentId):null;
+  if(parent && parent.linkKind === "file" && !parent.children){
+    toast("ファイルには追加できません"); return;
+  }
+  if(parent){ if(!parent.children) parent.children=[]; parent.children.push(node); parent.open=true; parent.updatedAt=t; }
+  else {
+    const firstPrj = data.root.find(n=>n.type==="project");
+    if(firstPrj){ if(!firstPrj.children) firstPrj.children=[]; firstPrj.children.push(node); firstPrj.open=true; firstPrj.updatedAt=t; }
+    else { toast("プロジェクトがありません"); return; }
+  }
+  save(); closeModal(); render(); toast(`「${name}」を追加`);
+}
+
+function openAutoModal(){
+  const projects = data.root.filter(n=>n.type==="project");
+  if(projects.length===0){
+    if(confirm("先にプロジェクトを作成する必要があります。作成しますか？")) openProjectModal();
+    return;
+  }
+  const sel = document.getElementById("autoTargetProject");
+  sel.innerHTML = projects.map(p=>`<option value="${p.id}">${p.projectIcon||"🎯"} ${esc(p.name)}</option>`).join("");
+  document.getElementById("bulkText").value="";
+  document.getElementById("autoPreview").textContent="↑入力するとプレビュー";
+  const bg=document.getElementById("autoModalBg");
+  bg.classList.add("show"); bg.style.display="flex";
+  setTimeout(()=>document.getElementById("bulkText").focus(),50);
+}
+function closeAutoModal(){ const bg=document.getElementById("autoModalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function updateAutoPreview(){
+  const text=document.getElementById("bulkText").value; const pv=document.getElementById("autoPreview");
+  if(!text.trim()){ pv.textContent="↑入力するとプレビュー"; return; }
+  const groups=autoBuildTree(text); let html="";
+  Object.values(groups).forEach(g=>{
+    const emoji = PLATFORM_INFO[g.type] ? PLATFORM_INFO[g.type].emoji : "📁";
+    html+=`<div style="color:var(--primary);font-weight:600">${emoji} ${esc(g.root)}</div>`;
+    const tree={}; g.entries.forEach(e=>{ let cur=tree; e.segments.forEach(seg=>{if(!cur[seg])cur[seg]={};cur=cur[seg];}); });
+    function draw(obj,depth){ let s=""; Object.keys(obj).forEach(k=>{ const has=Object.keys(obj[k]).length>0; s+=`<div style="padding-left:${depth*16}px">${has?"📁":"📄"} ${esc(k)}</div>`; if(has) s+=draw(obj[k],depth+1); }); return s; }
+    html+=draw(tree,1);
+  });
+  pv.innerHTML=html;
+}
+function runAutoBuild(){
+  const text=document.getElementById("bulkText").value;
+  const projectId = document.getElementById("autoTargetProject").value;
+  if(!text.trim()){toast("URL入力");return;}
+  const added = mergeAutoTreeIntoProject(autoBuildTree(text), projectId);
+  save(); closeAutoModal(); render(); toast(`${added}件追加`);
+}
+
+function toggleBulkMode(){ bulkMode=!bulkMode; document.getElementById("btnBulk").classList.toggle("bulk-on",bulkMode); document.getElementById("bulkBar").classList.toggle("show",bulkMode); if(!bulkMode) bulkChecked.clear(); render(); }
+function toggleSortMode(){
+  sortMode = !sortMode;
+  document.getElementById("btnSortMode").classList.toggle("sort-on", sortMode);
+  document.body.classList.toggle("sort-mode", sortMode);
+  toast(sortMode ? "並替モード ON（前後挿入のみ）" : "並替モード OFF");
+}
+function toggleBulkCheck(id){
+  const n = findNode(id); if(!n) return;
+  const shouldCheck = !bulkChecked.has(id);
+  const ids = [id];
+  if(n.children) walk(n.children, c=>ids.push(c.id));
+  if(shouldCheck) ids.forEach(x=>bulkChecked.add(x));
+  else ids.forEach(x=>bulkChecked.delete(x));
+}
+function bulkApply(){
+  const c=document.getElementById("bulkColorSel").value;
+  const l=document.getElementById("bulkLabelSel").value;
+  if(!c&&!l){ toast("変更内容を選択"); return; }
+  let n=0;
+  const ts = now();
+  bulkChecked.forEach(id=>{
+    const node=findNode(id); if(!node) return;
+    if(c && (node.children||node.linkKind==="folder")) node.color=c;
+    if(l){ if(!node.labels) node.labels=[]; if(!node.labels.includes(l)) node.labels.push(l); }
+    node.updatedAt=ts;
+    n++;
+  });
+  save(); render(); toast(`${n}件更新`);
+}
+function bulkFavToggle(){ let n=0; const t=now(); bulkChecked.forEach(id=>{const nn=findNode(id); if(nn){nn.fav=!nn.fav; nn.updatedAt=t; n++;}}); save(); render(); toast(`${n}件切替`); }
+function bulkDelete(){ if(!confirm(`${bulkChecked.size}件を削除？`)) return; const ids=[...bulkChecked]; ids.forEach(id=>removeNode(id)); bulkChecked.clear(); save(); render(); toast(`${ids.length}件削除`); }
+function bulkSelectAllFn(){ walk(data.root, n=>bulkChecked.add(n.id)); render(); }
+function bulkClearFn(){ bulkChecked.clear(); render(); }
+
+function openMoveModal(){
+  if(bulkChecked.size===0){ toast("選択がありません"); return; }
+  moveTargetSelected = null;
+  renderMoveTree();
+  const bg=document.getElementById("moveModalBg");
+  bg.classList.add("show"); bg.style.display="flex";
+}
+function closeMoveModal(){ const bg=document.getElementById("moveModalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function renderMoveTree(){
+  const wrap = document.getElementById("moveTree");
+  const excludeIds = new Set();
+  bulkChecked.forEach(id=>{
+    excludeIds.add(id);
+    const n = findNode(id);
+    if(n && n.children) walk(n.children, c=>excludeIds.add(c.id));
+  });
+  function rec(nodes, depth){
+    let html = "";
+    for(const n of nodes){
+      if(excludeIds.has(n.id)) continue;
+      const isFolder = n.type==="project" || !!n.children || n.linkKind === "folder";
+      if(!isFolder) continue;
+      const sel = moveTargetSelected === n.id ? " selected" : "";
+      const kids = n.children ? rec(n.children, depth+1) : "";
+      const ic = n.type==="project" ? (n.projectIcon||"🎯") : "📁";
+      html += `<div class="move-node${sel}" data-move-id="${n.id}" style="padding-left:${depth*16+8}px">${ic} <span>${esc(n.name)}</span></div>${kids}`;
+    }
+    return html;
+  }
+  wrap.innerHTML = rec(data.root, 0);
+  wrap.querySelectorAll(".move-node").forEach(el=>{
+    el.addEventListener("click", ()=>{
+      moveTargetSelected = el.dataset.moveId;
+      wrap.querySelectorAll(".move-node").forEach(x=>x.classList.remove("selected"));
+      el.classList.add("selected");
+    });
+  });
+}
+function confirmMove(){
+  if(!moveTargetSelected){ toast("移動先を選択"); return; }
+  const targetNode = findNode(moveTargetSelected);
+  if(!targetNode){ toast("移動先が見つかりません"); return; }
+  const ids = [...bulkChecked];
+  const nodes = ids.map(id=>findNode(id)).filter(Boolean);
+  nodes.sort((a,b)=>{
+    let da=0, db=0;
+    walk(data.root, (n,d)=>{ if(n.id===a.id) da=d; if(n.id===b.id) db=d; });
+    return da - db;
+  });
+  const t = now();
+  let moved = 0;
+  if(!targetNode.children) targetNode.children = [];
+  for(const n of nodes){
+    if(!findNode(n.id)) continue;
+    if(n.type==="project"){ continue; }
+    removeNode(n.id);
+    targetNode.children.push(n);
+    n.updatedAt = t;
+    moved++;
+  }
+  targetNode.open = true; targetNode.updatedAt = t;
+  bulkChecked.clear();
+  save(); closeMoveModal(); render();
+  toast(`${moved}件を移動しました`);
+}
+
+function openLabelMgr(){ renderLabelList(); const bg=document.getElementById("labelMgrBg"); bg.classList.add("show"); bg.style.display="flex"; }
+function closeLabelMgr(){ const bg=document.getElementById("labelMgrBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function renderLabelList(){
+  const list=document.getElementById("labelList");
+  if(data.labels.length===0){ list.innerHTML=`<div style="padding:20px;text-align:center;color:var(--muted)">ラベルがまだありません</div>`; return; }
+  list.innerHTML=data.labels.map(l=>`
+    <div class="label-row" data-lbl="${l.id}">
+      <span class="lbl-chip" style="background:${l.color}">${esc(l.name)}</span>
+      <input type="text" data-name="${l.id}" value="${esc(l.name)}">
+      <select data-color="${l.id}">
+        ${["#1976d2","#43a047","#f57c00","#7b1fa2","#e53935","#607d8b","#ec407a","#00acc1"].map(c=>`<option value="${c}" ${c===l.color?"selected":""}>${c}</option>`).join("")}
+      </select>
+      <span class="lbl-cnt">${countByLabel(l.id)}件</span>
+      <button class="del-btn" data-del="${l.id}">🗑️</button>
+    </div>`).join("");
+  list.querySelectorAll("input[data-name]").forEach(inp=>{ inp.addEventListener("change", ()=>{ const l=getLabel(inp.dataset.name); if(l){ l.name=inp.value.trim()||l.name; save(); render(); renderLabelList(); } }); });
+  list.querySelectorAll("select[data-color]").forEach(sel=>{ sel.addEventListener("change", ()=>{ const l=getLabel(sel.dataset.color); if(l){ l.color=sel.value; save(); render(); renderLabelList(); } }); });
+  list.querySelectorAll("button[data-del]").forEach(btn=>{ btn.addEventListener("click", ()=>{ const l=getLabel(btn.dataset.del); if(l && confirm(`「${l.name}」を削除？`)){ deleteLabel(l.id); renderLabelList(); } }); });
+}
+function addLabel(){
+  const name=document.getElementById("newLabelName").value.trim();
+  const color=document.getElementById("newLabelColor").value;
+  if(!name){ toast("ラベル名を入力"); return; }
+  data.labels.push({id:lblId(),name,color});
+  document.getElementById("newLabelName").value="";
+  save(); render(); renderLabelList(); toast("追加");
+}
+function deleteLabel(id){
+  data.labels=data.labels.filter(l=>l.id!==id);
+  walk(data.root, n=>{ if(n.labels) n.labels=n.labels.filter(x=>x!==id); });
+  if(activeTab===id) activeTab="all";
+  save(); render();
+}
+
+function openStats(){
+  const c={total:0,box:0,sp:0,od:0,fs:0,teams:0,fav:0,dead:0,folder:0,file:0,project:0};
+  const extCount = {};
+  walk(data.root, n=>{
+    if(n.type==="project"){ c.project++; return; }
+    c.total++;
+    const p = n.platform || (n.url?detectPlatform(n.url):null);
+    if(p && c[p]!==undefined) c[p]++;
+    if(n.fav) c.fav++;
+    if(n.dead) c.dead++;
+    if(n.children||n.linkKind==="folder") c.folder++;
+    else {
+      c.file++;
+      const ext = extractExtension(n.url, n.name);
+      if(ext) extCount[ext] = (extCount[ext]||0) + 1;
+    }
+  });
+  const max = c.total || 1;
+  function bar(label, val, color){
+    return `<div class="stat-bar"><span class="lbl-txt">${label}</span><div class="bar"><div class="bar-fill" style="width:${(val/max)*100}%${color?`;background:${color}`:""}"></div></div><span class="val">${val}</span></div>`;
+  }
+  const lblBars = data.labels.map(l=>{
+    const v = countByLabel(l.id);
+    return bar(esc(l.name), v, l.color);
+  }).join("");
+  const projects = data.root.filter(n=>n.type==="project");
+  const prjBars = projects.map(p=>{
+    const v = p.children ? countChildren(p) : 0;
+    return bar((p.projectIcon||"🎯") + " " + esc(p.name), v, FOLDER_COLORS[p.projectColor]||FOLDER_COLORS.default);
+  }).join("");
+  const extBars = Object.entries(extCount).sort((a,b)=>b[1]-a[1]).slice(0,10).map(([ext,v])=>bar("."+ext, v, extColor(ext))).join("");
+  document.getElementById("statsContent").innerHTML = `
+    <div style="font-size:24px;font-weight:600;color:var(--primary);margin-bottom:12px">プロジェクト ${c.project}件 / アイテム ${c.total}件</div>
+    <h4 style="color:var(--primary);margin:14px 0 6px">🎯 プロジェクト別</h4>
+    ${prjBars||`<div style="color:var(--muted);font-size:12px">プロジェクトなし</div>`}
+    <h4 style="color:var(--primary);margin:14px 0 6px">📂 プラットフォーム別</h4>
+    ${bar("📦 BOX", c.box, "#0072c6")}
+    ${bar("🌐 SharePoint", c.sp, "#038387")}
+    ${bar("☁️ OneDrive", c.od, "#0364b8")}
+    ${bar("🗄️ FileServer", c.fs, "#e65100")}
+    ${bar("👥 Teams", c.teams, "#5e35b9")}
+    <h4 style="color:var(--primary);margin:14px 0 6px">📁 構造</h4>
+    ${bar("フォルダ", c.folder)}
+    ${bar("ファイル/リンク", c.file)}
+    ${extBars ? `<h4 style="color:var(--primary);margin:14px 0 6px">📄 拡張子TOP10</h4>${extBars}` : ""}
+    <h4 style="color:var(--primary);margin:14px 0 6px">⭐ ステータス</h4>
+    ${bar("お気に入り", c.fav)}
+    ${bar("リンク切れ", c.dead)}
+    ${lblBars ? `<h4 style="color:var(--primary);margin:14px 0 6px">🏷️ ラベル別</h4>${lblBars}` : ""}
+  `;
+  const bg=document.getElementById("statsModalBg"); bg.classList.add("show"); bg.style.display="flex";
+}
+function closeStats(){ const bg=document.getElementById("statsModalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+function openHelp(){ const bg=document.getElementById("helpModalBg"); bg.classList.add("show"); bg.style.display="flex"; }
+function closeHelp(){ const bg=document.getElementById("helpModalBg"); bg.classList.remove("show"); bg.style.display="none"; }
+
+function setupTreeDropZone(){
+  const tree=document.getElementById("tree");
+  tree.addEventListener("dragover", e=>{ if(e.dataTransfer.types.includes("Files")){e.preventDefault();tree.classList.add("drop-zone");} });
+  tree.addEventListener("dragleave", ()=>tree.classList.remove("drop-zone"));
+  tree.addEventListener("drop", async e=>{
+    if(!e.dataTransfer.types.includes("Files")) return;
+    e.preventDefault(); tree.classList.remove("drop-zone");
+    const firstPrj = data.root.find(n=>n.type==="project");
+    if(!firstPrj){ toast("プロジェクトを先に作成してください"); return; }
+    if(!firstPrj.children) firstPrj.children = [];
+    let added=0;
+    for(const item of Array.from(e.dataTransfer.items)){
+      const ent=item.webkitGetAsEntry&&item.webkitGetAsEntry();
+      if(ent) added+=await scanEntry(ent, firstPrj);
+    }
+    firstPrj.open = true;
+    save(); render(); toast(`${added}件取込`);
+  });
+}
+async function scanEntry(entry,parent){
+  return new Promise(res=>{
+    const t = now();
+    const node={id:uid(),name:entry.name,url:entry.fullPath,platform:"fs",updatedAt:t};
+    if(entry.isDirectory){
+      node.children=[]; node.open=false; node.linkKind="folder"; node.color="default";
+      if(parent){ if(!parent.children)parent.children=[]; parent.children.push(node); } else data.root.push(node);
+      const r=entry.createReader(); let c=1;
+      r.readEntries(async ents=>{ for(const e of ents) c+=await scanEntry(e,node); res(c); });
+    } else {
+      node.fileIcon = detectFileIcon(entry.name);
+      node.linkKind = "file";
+      node.showExt = true;
+      if(parent){ if(!parent.children)parent.children=[]; parent.children.push(node); } else data.root.push(node);
+      res(1);
+    }
+  });
+}
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2200); }
+
+function clearDropVisual(){
+  document.querySelectorAll(".node-row.drop-into,.node-row.drop-before,.node-row.drop-after")
+    .forEach(r=>r.classList.remove("drop-into","drop-before","drop-after"));
+}
+function detectDropMode(e, row){
+  const rect = row.getBoundingClientRect();
+  const y = e.clientY - rect.top;
+  const h = rect.height;
+  if(sortMode){
+    return y < h/2 ? "before" : "after";
+  }
+  const id = row.dataset.id;
+  const node = findNode(id);
+  const canContain = node && (node.type==="project" || node.children || node.linkKind==="folder");
+  if(!canContain){
+    return y < h/2 ? "before" : "after";
+  }
+  if(y < h * 0.30) return "before";
+  if(y > h * 0.70) return "after";
+  return "into";
+}
+
+function formatDateForFilename(){
+  const d = new Date();
+  const p = n=>n.toString().padStart(2,"0");
+  return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}_${p(d.getHours())}${p(d.getMinutes())}${p(d.getSeconds())}`;
+}
+
+/* サイドバーアコーディオン */
+function setupSidebarAccordion(){
+  const state = data.sidebarState || {prj:true, pf:true, qa:true};
+  data.sidebarState = state;
+  const map = {prj:"secPrj", pf:"secPf", qa:"secQa"};
+  Object.keys(map).forEach(key=>{
+    const title = document.querySelector(`.side-title[data-section="${key}"]`);
+    const content = document.getElementById(map[key]);
+    if(!title || !content) return;
+    if(!state[key]){
+      title.classList.add("collapsed");
+      content.classList.add("collapsed");
+      content.style.maxHeight = "0px";
+    } else {
+      content.style.maxHeight = "none";
+    }
+    title.addEventListener("click", (e)=>{
+      if(e.target.closest("button")) return;
+      state[key] = !state[key];
+      title.classList.toggle("collapsed");
+      if(state[key]){
+        content.classList.remove("collapsed");
+        content.style.maxHeight = content.scrollHeight + "px";
+        setTimeout(()=>{ if(state[key]) content.style.maxHeight = "none"; }, 300);
+      } else {
+        content.style.maxHeight = content.scrollHeight + "px";
+        requestAnimationFrame(()=>{
+          content.classList.add("collapsed");
+          content.style.maxHeight = "0px";
+        });
+      }
+      save();
+    });
+  });
+}
+
+function setupGlobalEvents(){
+  const tree = document.getElementById("tree");
+
+  tree.addEventListener("click", e=>{
+    const row = e.target.closest(".node-row");
+    if(!row) return;
+    const id = row.dataset.id;
+    if(e.target.dataset && e.target.dataset.lblRemove){
+      e.stopPropagation();
+      const nid = e.target.dataset.node, lid = e.target.dataset.lblRemove;
+      const n = findNode(nid); if(!n||!n.labels) return;
+      n.labels = n.labels.filter(x=>x!==lid); n.updatedAt = now();
+      save(); render();
+      const l = getLabel(lid); toast(`「${l?l.name:""}」を解除`);
+      return;
+    }
+    if(e.target.dataset && e.target.dataset.addLabel){
+      e.stopPropagation();
+      openLabelPop(e.clientX, e.clientY, e.target.dataset.addLabel);
+      return;
+    }
+    if(e.target.dataset && e.target.dataset.role === "bulkcheck"){
+      toggleBulkCheck(id);
+      render();
+      return;
+    }
+    if(e.target.dataset && e.target.dataset.role === "chevron"){
+      e.stopPropagation();
+      const n=findNode(id);
+      if(n && n.children && n.children.length){ n.open=!n.open; save(); render(); }
+      return;
+    }
+    if(bulkMode){
+      toggleBulkCheck(id);
+      render(); return;
+    }
+    selectedId = id;
+    document.querySelectorAll(".node-row.selected").forEach(r=>r.classList.remove("selected"));
+    row.classList.add("selected");
+    updateBreadcrumb(id);
+  });
+
+  tree.addEventListener("dblclick", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(bulkMode) return;
+    if(e.target.dataset && (e.target.dataset.role === "chevron" || e.target.dataset.role === "bulkcheck" || e.target.dataset.lblRemove || e.target.dataset.addLabel)) return;
+    e.preventDefault(); e.stopPropagation();
+    openNode(row.dataset.id);
+  });
+  // ホイールクリック(中クリック)で別タブ開く
+  tree.addEventListener("mousedown", e=>{
+    if(e.button !== 1) return; // 中ボタンのみ
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(bulkMode) return;
+    if(e.target.dataset && (e.target.dataset.role === "chevron" || e.target.dataset.role === "bulkcheck" || e.target.dataset.lblRemove || e.target.dataset.addLabel)) return;
+    e.preventDefault(); // オートスクロール防止
+  });
+  tree.addEventListener("auxclick", e=>{
+    if(e.button !== 1) return; // 中ボタンのみ
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(bulkMode) return;
+    if(e.target.dataset && (e.target.dataset.role === "chevron" || e.target.dataset.role === "bulkcheck" || e.target.dataset.lblRemove || e.target.dataset.addLabel)) return;
+    e.preventDefault(); e.stopPropagation();
+    openInNewTab(row.dataset.id);
+  });
+
+  tree.addEventListener("contextmenu", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    e.preventDefault(); e.stopPropagation();
+    showCtx(e.clientX, e.clientY, row.dataset.id);
+  });
+
+  tree.addEventListener("mouseover", e=>{ const row = e.target.closest(".node-row"); if(!row) return; scheduleTooltip(e, row.dataset.id); });
+  tree.addEventListener("mouseout", e=>{ const row = e.target.closest(".node-row"); if(!row) return; hideTooltip(); });
+  tree.addEventListener("mousemove", e=>{ const row = e.target.closest(".node-row"); if(!row) return; moveTooltip(e); });
+
+  tree.addEventListener("dragstart", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(e.target.dataset && (e.target.dataset.lblRemove || e.target.dataset.addLabel || e.target.dataset.role)){
+      e.preventDefault(); return;
+    }
+    dragId = row.dataset.id;
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", dragId);
+    row.classList.add("dragging");
+  });
+  tree.addEventListener("dragend", e=>{
+    document.querySelectorAll(".node-row.dragging").forEach(r=>r.classList.remove("dragging"));
+    clearDropVisual();
+    dragId = null;
+  });
+  tree.addEventListener("dragover", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(row.dataset.id === dragId) return;
+    e.preventDefault();
+    clearDropVisual();
+    dropMode = detectDropMode(e, row);
+    row.classList.add("drop-"+dropMode);
+  });
+  tree.addEventListener("dragleave", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    if(row.contains(e.relatedTarget)) return;
+    row.classList.remove("drop-into","drop-before","drop-after");
+  });
+  tree.addEventListener("drop", e=>{
+    const row = e.target.closest(".node-row"); if(!row) return;
+    e.preventDefault();
+    clearDropVisual();
+    const targetId = row.dataset.id;
+    if(!dragId || dragId===targetId){dragId=null;return;}
+    const src = findNode(dragId);
+    const tgt = findNode(targetId);
+    if(!src || !tgt){ dragId=null; return; }
+    if(src.type==="project" && dropMode==="into"){ toast("プロジェクトは他プロジェクトに入れられません"); dragId=null; return; }
+    // ファイルへのdrop into禁止
+    if(dropMode==="into" && tgt.linkKind==="file" && !tgt.children){ toast("ファイルには入れられません"); dragId=null; return; }
+    let isDesc = false;
+    walk(src.children||[], n=>{ if(n.id===targetId) isDesc = true; });
+    if(isDesc){ toast("配下ノードには移動不可"); dragId=null; return; }
+    removeNode(dragId);
+    const t = now();
+    if(dropMode === "into"){
+      if(!tgt.children) tgt.children = [];
+      tgt.children.push(src);
+      tgt.open = true; tgt.updatedAt = t; src.updatedAt = t;
+      toast(`「${src.name}」を「${tgt.name}」へ移動`);
+    } else {
+      const tgtParent = findParent(targetId);
+      const parentArr = tgtParent ? tgtParent.children : data.root;
+      const idx = parentArr.findIndex(x=>x.id===targetId);
+      if(idx < 0){ dragId=null; save(); render(); return; }
+      const insertAt = dropMode === "before" ? idx : idx + 1;
+      parentArr.splice(insertAt, 0, src);
+      src.updatedAt = t;
+      toast(dropMode==="before" ? `「${src.name}」を上へ挿入` : `「${src.name}」を下へ挿入`);
+    }
+    save(); render(); dragId=null;
+  });
+
+  document.getElementById("ctxMenu").addEventListener("click", e=>{
+    const btn = e.target.closest("button"); if(!btn) return;
+    e.stopPropagation();
+    const act = btn.dataset.act;
+    const n = findNode(ctxTargetId);
+    const savedE = ctxEvent;
+    hideCtx();
+    if(!n) return;
+    if(act==="open") openNode(n.id);
+    else if(act==="todo") openTodoModal(n.id);
+    else if(act==="quickLabel") openLabelPop(savedE.clientX, savedE.clientY, n.id);
+    else if(act==="edit") openEditModal(n.id);
+    else if(act==="duplicate"){ duplicateNode(n.id); save(); render(); toast("複製しました"); }
+    else if(act==="addFolder") openAddModal(n.id, "folder");
+    else if(act==="addLink") openAddModal(n.id, "link");
+    else if(act==="moveUp"){ if(moveNodeInParent(n.id, "up")){ save(); render(); toast("上へ移動"); } else toast("これ以上上へ移動できません"); }
+    else if(act==="moveDown"){ if(moveNodeInParent(n.id, "down")){ save(); render(); toast("下へ移動"); } else toast("これ以上下へ移動できません"); }
+    else if(act && act.startsWith("sort")){
+      if(sortChildren(n.id, act)){ save(); render(); toast("ソートしました"); }
+      else toast("ソート対象なし");
+    }
+    else if(act==="copyUrl"){
+      if(!n.url){ toast("URLなし"); return; }
+      if(navigator.clipboard) navigator.clipboard.writeText(n.url).then(()=>toast("コピーしました"));
+    }
+    else if(act==="fav"){ n.fav=!n.fav; n.updatedAt=now(); save(); render(); }
+    else if(act==="delete"){ if(confirm(`「${n.name}」を削除？`)){ removeNode(n.id); save(); render(); } }
+  });
+
+  document.addEventListener("click", e=>{
+    if(!e.target.closest(".ctx-menu")) hideCtx();
+    const pop = document.getElementById("labelPop");
+    if(pop.classList.contains("show") && !e.target.closest(".label-popover") && !(e.target.dataset && e.target.dataset.addLabel) && !e.target.closest("[data-act='quickLabel']")){
+      closeLabelPop();
+    }
+  });
+  document.addEventListener("contextmenu", e=>{ if(!e.target.closest(".node-row")){ hideCtx(); } });
+  document.addEventListener("keydown", e=>{
+    if(e.key === "Escape"){ hideCtx(); closeLabelPop(); }
+    if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="f"){
+      e.preventDefault();
+      document.getElementById("searchInput").focus();
+      document.getElementById("searchInput").select();
+    }
+  });
+
+  document.getElementById("tabsBar").addEventListener("click", e=>{
+    if(e.target.id === "btnLabelMgr"){ openLabelMgr(); return; }
+    const tab = e.target.closest(".tab"); if(!tab) return;
+    if(e.target.dataset && e.target.dataset.close){
+      const id=e.target.dataset.close, l=getLabel(id);
+      if(l && confirm(`ラベル「${l.name}」を削除？`)) deleteLabel(id);
+      return;
+    }
+    activeTab = tab.dataset.tab; render();
+  });
+
+  document.getElementById("colorPicker").addEventListener("click", e=>{
+    const s = e.target.closest(".icon-swatch"); if(!s) return;
+    setActiveColor(s.dataset.color);
+  });
+  document.getElementById("projectColorPicker").addEventListener("click", e=>{
+    const s = e.target.closest(".icon-swatch"); if(!s) return;
+    setActiveProjectColor(s.dataset.color);
+  });
+  document.getElementById("projectIconPicker").addEventListener("click", e=>{
+    const s = e.target.closest(".icon-swatch"); if(!s) return;
+    setActiveProjectIcon(s.dataset.prjIcon);
+  });
+  document.getElementById("fileIconPicker").addEventListener("click", e=>{
+    const s = e.target.closest(".icon-swatch"); if(!s) return;
+    setActiveFileIcon(s.dataset.fileIcon);
+  });
+  document.getElementById("labelPicker").addEventListener("click", e=>{
+    const el = e.target.closest(".lbl-toggle"); if(!el) return;
+    const id = el.dataset.lbl;
+    if(editLabels.has(id)) editLabels.delete(id); else editLabels.add(id);
+    el.classList.toggle("on");
+  });
+  document.getElementById("linkKindSeg").addEventListener("click", e=>{
+    const btn = e.target.closest("button"); if(!btn) return;
+    setLinkKind(btn.dataset.kind);
+  });
+
+  // サイドバー全体を委譲でイベント処理
+  document.querySelector("aside").addEventListener("click", (e)=>{
+    // タイトルのアコーディオンは setupSidebarAccordion 側で処理
+    if(e.target.closest(".side-title")) return;
+    const item = e.target.closest(".side-item"); if(!item) return;
+    filter = item.dataset.filter;
+    document.querySelectorAll(".side-item").forEach(x=>x.classList.remove("active"));
+    item.classList.add("active");
+    render();
+  });
+
+  document.getElementById("itemUrl").addEventListener("input", e=>{
+    updatePfPreview(e.target.value);
+    if(document.getElementById("fileIconField").style.display !== "none"){
+      const auto = detectFileIcon(e.target.value);
+      setActiveFileIcon(auto);
+    }
+  });
+}
+
+function init(){
+  load();
+  renderColorPicker();
+  renderProjectColorPicker();
+  renderProjectIconPicker();
+  renderFileIconPicker();
+  render();
+  setupTreeDropZone();
+  setupSidebarAccordion();
+  setupGlobalEvents();
+
+  document.getElementById("btnSidebar").addEventListener("click", ()=>document.getElementById("layout").classList.toggle("collapsed"));
+  document.getElementById("btnStats").addEventListener("click", openStats);
+  document.getElementById("btnStatsClose").addEventListener("click", closeStats);
+  document.getElementById("statsModalBg").addEventListener("click", e=>{ if(e.target.id==="statsModalBg") closeStats(); });
+  document.getElementById("btnHelp").addEventListener("click", openHelp);
+  document.getElementById("btnHelpClose").addEventListener("click", closeHelp);
+  document.getElementById("helpModalBg").addEventListener("click", e=>{ if(e.target.id==="helpModalBg") closeHelp(); });
+  document.getElementById("btnDark").addEventListener("click", ()=>{
+    data.darkMode = !document.body.classList.contains("dark");
+    document.body.classList.toggle("dark");
+    save();
+  });
+  document.getElementById("btnCheck").addEventListener("click", ()=>{
+    let c=0; walk(data.root, n=>{ if(n.type==="project") return; if(n.url&&(n.url.includes("hx1sv032")||Math.random()<0.02)){n.dead=true;c++;} else if(n.url) n.dead=false; });
+    save(); render(); toast(`検査完了：${c}件`);
+  });
+  document.getElementById("btnExport").addEventListener("click", ()=>{
+    const b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+    const a=document.createElement("a"); a.href=URL.createObjectURL(b);
+    a.download=`ファイル管理君_${formatDateForFilename()}.json`;
+    a.click();
+    toast("エクスポート完了");
+  });
+  document.getElementById("btnImport").addEventListener("click", ()=>document.getElementById("importFile").click());
+  document.getElementById("importFile").addEventListener("change", e=>{
+    const f=e.target.files[0]; if(!f) return; const r=new FileReader();
+    r.onload=ev=>{ try{ const o=JSON.parse(ev.target.result); if(!o.root) throw 0; if(!o.labels) o.labels=[]; if(!o.sidebarState) o.sidebarState={prj:true,pf:true,qa:true}; data=o; save(); location.reload(); }catch(err){ toast("JSON不正"); } };
+    r.readAsText(f);
+  });
+  document.getElementById("searchInput").addEventListener("input", render);
+
+  document.getElementById("btnNewProject").addEventListener("click", ()=>openProjectModal());
+  document.getElementById("sideAddPrj").addEventListener("click", (e)=>{ e.stopPropagation(); openProjectModal(); });
+  document.getElementById("btnProjectCancel").addEventListener("click", closeProjectModal);
+  document.getElementById("btnProjectSave").addEventListener("click", saveProject);
+  document.getElementById("projectModalBg").addEventListener("click", e=>{ if(e.target.id==="projectModalBg") closeProjectModal(); });
+  document.getElementById("projectName").addEventListener("keydown", e=>{ if(e.key==="Enter") saveProject(); });
+
+  document.getElementById("btnNewFolder").addEventListener("click", ()=>openAddModal(null,"folder"));
+  document.getElementById("btnNewLink").addEventListener("click", ()=>openAddModal(null,"link"));
+  document.getElementById("btnAutoTree").addEventListener("click", openAutoModal);
+  document.getElementById("btnBulk").addEventListener("click", toggleBulkMode);
+  document.getElementById("btnSortMode").addEventListener("click", toggleSortMode);
+
+  document.getElementById("btnExpandAll").addEventListener("click", ()=>{
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const visible = filteredNodes(q);
+    function openVisible(nodes){
+      for(const c of nodes){
+        const orig = c._originalNode || findNode(c.id);
+        if(orig && orig.children && orig.children.length) orig.open = true;
+        if(c.children && c.children.length) openVisible(c.children);
+      }
+    }
+    openVisible(visible);
+    if(filter==="all" && activeTab==="all" && !q){
+      walk(data.root, n=>{ if(n.children&&n.children.length) n.open=true; });
+    }
+    save(); render();
+  });
+  document.getElementById("btnCollapseAll").addEventListener("click", ()=>{
+    const q = document.getElementById("searchInput").value.trim().toLowerCase();
+    const visible = filteredNodes(q);
+    function closeVisible(nodes){
+      for(const c of nodes){
+        const orig = c._originalNode || findNode(c.id);
+        if(orig && orig.children) orig.open = false;
+        if(c.children && c.children.length) closeVisible(c.children);
+      }
+    }
+    closeVisible(visible);
+    if(filter==="all" && activeTab==="all" && !q){
+      walk(data.root, n=>{ if(n.children) n.open=false; });
+    }
+    save(); render();
+  });
+  document.getElementById("btnReset").addEventListener("click", ()=>{ if(confirm("初期化しますか？")){ localStorage.removeItem(KEY); data=makeSample(); save(); location.reload(); } });
+
+  document.getElementById("bulkSelectAll").addEventListener("click", bulkSelectAllFn);
+  document.getElementById("bulkClear").addEventListener("click", bulkClearFn);
+  document.getElementById("bulkApply").addEventListener("click", bulkApply);
+  document.getElementById("bulkMove").addEventListener("click", openMoveModal);
+  document.getElementById("bulkFav").addEventListener("click", bulkFavToggle);
+  document.getElementById("bulkDelete").addEventListener("click", bulkDelete);
+
+  document.getElementById("btnMoveCancel").addEventListener("click", closeMoveModal);
+  document.getElementById("btnMoveConfirm").addEventListener("click", confirmMove);
+  document.getElementById("moveModalBg").addEventListener("click", e=>{ if(e.target.id==="moveModalBg") closeMoveModal(); });
+
+  document.getElementById("btnCancel").addEventListener("click", closeModal);
+  document.getElementById("btnSave").addEventListener("click", saveItem);
+  document.getElementById("modalBg").addEventListener("click", e=>{ if(e.target.id==="modalBg") closeModal(); });
+  document.getElementById("itemName").addEventListener("keydown", e=>{ if(e.key==="Enter") saveItem(); });
+  document.getElementById("itemUrl").addEventListener("keydown", e=>{ if(e.key==="Enter") saveItem(); });
+
+  document.getElementById("btnAutoCancel").addEventListener("click", closeAutoModal);
+  document.getElementById("btnAutoRun").addEventListener("click", runAutoBuild);
+  document.getElementById("bulkText").addEventListener("input", updateAutoPreview);
+  document.getElementById("autoModalBg").addEventListener("click", e=>{ if(e.target.id==="autoModalBg") closeAutoModal(); });
+
+  document.getElementById("btnAddLabel").addEventListener("click", addLabel);
+  document.getElementById("btnLabelClose").addEventListener("click", closeLabelMgr);
+  document.getElementById("labelMgrBg").addEventListener("click", e=>{ if(e.target.id==="labelMgrBg") closeLabelMgr(); });
+  document.getElementById("newLabelName").addEventListener("keydown", e=>{ if(e.key==="Enter") addLabel(); });
+
+  document.getElementById("popClose").addEventListener("click", closeLabelPop);
+  document.getElementById("popNewBtn").addEventListener("click", createLabelInPop);
+  document.getElementById("popNewName").addEventListener("keydown", e=>{ if(e.key==="Enter") createLabelInPop(); });
+
+  document.getElementById("btnTodoView").addEventListener("click", toggleTodoView);
+  document.getElementById("btnTodoCancel").addEventListener("click", closeTodoModal);
+  document.getElementById("btnTodoSave").addEventListener("click", saveTodoModal);
+  document.getElementById("todoModalBg").addEventListener("click", e=>{ if(e.target.id==="todoModalBg") closeTodoModal(); });
+  document.getElementById("todoText").addEventListener("keydown", e=>{ if((e.ctrlKey||e.metaKey) && e.key==="Enter") saveTodoModal(); });
+  document.getElementById("todoWrap").addEventListener("click", e=>{
+    const add=e.target.closest("[data-todo-add]");
+    const openAdd=e.target.closest("[data-todo-open-add]");
+    const toggle=e.target.closest("[data-todo-toggle]");
+    const del=e.target.closest("[data-todo-delete]");
+    const open=e.target.closest("[data-open-node]");
+    if(add){ addTodoFromCard(add.dataset.todoAdd); return; }
+    if(openAdd){ openTodoModal(openAdd.dataset.todoOpenAdd); return; }
+    if(toggle){ toggleTodoDone(toggle.dataset.todoToggle, toggle.dataset.todoId); return; }
+    if(del){ deleteTodo(del.dataset.todoDelete, del.dataset.todoId); return; }
+    if(open){ openNode(open.dataset.openNode); return; }
+  });
+  document.getElementById("todoWrap").addEventListener("keydown", e=>{
+    if(e.key==="Enter" && e.target.dataset && e.target.dataset.todoInput){ e.preventDefault(); addTodoFromCard(e.target.dataset.todoInput); }
+  });
+}
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", init);
+else init();
+</script>
+</body>
+</html>
