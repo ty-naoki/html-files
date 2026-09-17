@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Power Platform ノート辞書 v3 | Power Apps / Power Automate</title>
+<style>
+:root{
+  --blue:#1565c0; --blue-d:#0d47a1; --blue-l:#e3f0fc; --blue-xl:#f5faff;
+  --green:#2e7d32; --green-l:#e8f5e9;
+  --ink:#1c2530; --sub:#5b6b7c; --line:#dde5ee; --bg:#f6f9fc; --white:#fff;
+  --warn:#b26a00; --warn-l:#fff6e5; --danger:#c62828; --purple:#6a1b9a; --purple-l:#f3e5f5;
+  --r:10px; --sh:0 1px 3px rgba(16,40,70,.08), 0 6px 18px rgba(16,40,70,.06);
+  --cols:430px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:"Noto Sans JP","BIZ UDPGothic","BIZ UDPゴシック",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:14px; line-height:1.7;
+}
+body.noscroll{overflow:hidden;}
+code,pre,.mono{font-family:"Cascadia Mono","Consolas","BIZ UDGothic",monospace;}
+
+header{
+  background:linear-gradient(135deg,var(--blue-d),var(--blue));
+  color:#fff; padding:14px 20px; position:sticky; top:0; z-index:50;
+  box-shadow:0 2px 10px rgba(13,71,161,.25);
+}
+.hd-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1440px;margin:0 auto;}
+.logo{display:flex;align-items:center;gap:9px;font-weight:700;font-size:17px;white-space:nowrap;}
+.logo .mark{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.18);display:grid;place-items:center;font-size:16px;}
+.hd-sub{font-size:11px;opacity:.8;font-weight:400;}
+.searchbox{flex:1;min-width:240px;position:relative;}
+.searchbox input{width:100%;padding:9px 34px 9px 34px;border:none;border-radius:8px;font-size:14px;font-family:inherit;background:rgba(255,255,255,.95);color:var(--ink);}
+.searchbox input:focus{outline:2px solid #90caf9;}
+.searchbox .ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub);}
+.searchbox .clr{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:none;background:none;color:var(--sub);cursor:pointer;font-size:15px;padding:2px 5px;}
+.hd-btns{display:flex;gap:7px;flex-wrap:wrap;}
+.hbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;padding:7px 12px;border-radius:8px;cursor:pointer;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;transition:.15s;white-space:nowrap;}
+.hbtn:hover{background:rgba(255,255,255,.26);}
+.hbtn.primary{background:#fff;color:var(--blue-d);border-color:#fff;font-weight:600;}
+
+.wrap{max-width:1440px;margin:0 auto;padding:16px 20px 60px;}
+
+.prod-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.prod{border:1px solid var(--line);background:#fff;color:var(--sub);padding:8px 16px;border-radius:999px;cursor:pointer;font-size:13px;font-family:inherit;font-weight:600;display:inline-flex;align-items:center;gap:6px;}
+.prod:hover{border-color:var(--blue);color:var(--blue);}
+.prod.on{background:var(--blue);border-color:var(--blue);color:#fff;}
+.prod.on.g{background:var(--green);border-color:var(--green);}
+.prod .cnt{font-size:11px;opacity:.75;font-weight:400;}
+
+.tabs{display:flex;gap:4px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:7px;margin-bottom:12px;box-shadow:var(--sh);}
+.tab{border:none;background:transparent;color:var(--sub);padding:7px 13px;border-radius:7px;cursor:pointer;font-size:12.5px;font-family:inherit;white-space:nowrap;}
+.tab:hover{background:var(--blue-xl);color:var(--blue);}
+.tab.on{background:var(--blue-l);color:var(--blue-d);font-weight:700;}
+.tab .n{font-size:11px;opacity:.65;margin-left:3px;}
+
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;font-size:12.5px;color:var(--sub);}
+.toolbar .sp{flex:1;}
+.chk{display:inline-flex;align-items:center;gap:5px;cursor:pointer;user-select:none;}
+.sbtn{border:1px solid var(--line);background:#fff;color:var(--sub);padding:6px 11px;border-radius:7px;cursor:pointer;font-size:12.5px;font-family:inherit;display:inline-flex;align-items:center;gap:5px;}
+.sbtn:hover{border-color:var(--blue);color:var(--blue);}
+select.sbtn{padding:6px 8px;}
+
+.vswitch{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;background:#fff;}
+.vswitch button{border:none;background:#fff;color:var(--sub);padding:6px 11px;cursor:pointer;font-size:12.5px;font-family:inherit;border-right:1px solid var(--line);}
+.vswitch button:last-child{border-right:none;}
+.vswitch button:hover{background:var(--blue-xl);color:var(--blue);}
+.vswitch button.on{background:var(--blue);color:#fff;font-weight:700;}
+
+.tagbar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.tagchip{border:1px solid var(--line);background:#fff;color:var(--sub);padding:3px 10px;border-radius:999px;font-size:11.5px;cursor:pointer;font-family:inherit;}
+.tagchip:hover{border-color:var(--green);color:var(--green);}
+.tagchip.on{background:var(--green-l);border-color:var(--green);color:var(--green);font-weight:700;}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(var(--cols),1fr));gap:14px;}
+.grid.one{grid-template-columns:1fr;}
+.grid.one .card{max-width:1000px;margin:0 auto;width:100%;}
+@media(max-width:920px){.grid{grid-template-columns:1fr;}}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;display:flex;flex-direction:column;}
+.card.fav{border-color:#f0b400;box-shadow:0 0 0 1px #f0b400 inset,var(--sh);}
+.c-head{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:flex-start;}
+.c-head .t{flex:1;min-width:0;}
+.c-title{font-size:15px;font-weight:700;color:var(--blue-d);word-break:break-word;cursor:pointer;}
+.c-title:hover{text-decoration:underline;}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;margin-right:6px;vertical-align:2px;display:inline-block;background:var(--blue-l);color:var(--blue-d);}
+.badge.g{background:var(--green-l);color:var(--green);}
+.badge.u{background:var(--purple-l);color:var(--purple);}
+.badge.note{background:#fff3cd;color:#8a6100;}
+.badge.doc{background:#e0f2f1;color:#00695c;}
+.c-syntax{font-size:12px;color:var(--sub);margin-top:4px;word-break:break-all;}
+.c-grp{font-size:11px;color:var(--sub);margin-top:3px;}
+.icobtn{border:1px solid var(--line);background:#fff;border-radius:7px;width:30px;height:30px;cursor:pointer;font-size:14px;color:var(--sub);display:grid;place-items:center;flex:none;}
+.icobtn:hover{border-color:var(--blue);color:var(--blue);}
+.icobtn.star.on{color:#f0b400;border-color:#f0b400;background:#fffdf3;}
+.icobtn.zoom{border-color:var(--blue-l);color:var(--blue);background:var(--blue-xl);}
+.icobtn.zoom:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+.c-body{padding:12px 14px;flex:1;}
+.c-desc{font-size:13px;white-space:pre-wrap;}
+.c-note{margin-top:10px;background:var(--warn-l);border-left:3px solid var(--warn);padding:7px 10px;font-size:12px;color:#7a4b00;border-radius:0 6px 6px 0;white-space:pre-wrap;}
+.codebox{position:relative;margin-top:11px;}
+.codebox pre{margin:0;background:#0f2436;color:#e6f1ff;padding:12px 14px;border-radius:8px;font-size:12.5px;overflow-x:auto;line-height:1.65;white-space:pre;}
+.cb-btns{position:absolute;top:7px;right:7px;display:flex;gap:5px;}
+.copy{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;border-radius:6px;padding:3px 9px;font-size:11px;cursor:pointer;font-family:inherit;}
+.copy:hover{background:rgba(255,255,255,.28);}
+.copy.done{background:var(--green);border-color:var(--green);}
+.ptbl{width:100%;border-collapse:collapse;margin-top:11px;font-size:12px;}
+.ptbl th,.ptbl td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top;}
+.ptbl th{background:var(--blue-xl);color:var(--blue-d);font-weight:700;white-space:nowrap;}
+.c-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:11px;}
+.c-tags span{background:var(--blue-xl);color:var(--blue);border:1px solid var(--blue-l);font-size:11px;padding:2px 8px;border-radius:999px;}
+.c-links{margin-top:10px;display:flex;flex-direction:column;gap:3px;}
+.c-links a{font-size:12px;color:var(--blue);text-decoration:none;word-break:break-all;}
+.c-links a:hover{text-decoration:underline;}
+.c-refs{margin-top:9px;font-size:11.5px;color:var(--sub);background:#f3f6f9;border:1px dashed var(--line);border-radius:7px;padding:7px 10px;}
+.c-refs .h{font-weight:700;margin-bottom:3px;}
+.c-refs ul{margin:0;padding-left:1.1em;}
+.memo{margin:11px 14px 12px;border:1px dashed var(--line);border-radius:8px;padding:9px 11px;background:var(--blue-xl);}
+.memo .lbl{font-size:11px;color:var(--sub);font-weight:700;margin-bottom:5px;display:flex;align-items:center;gap:5px;}
+.memo textarea{width:100%;min-height:52px;border:1px solid var(--line);border-radius:6px;padding:7px 9px;font-family:inherit;font-size:12.5px;resize:vertical;background:#fff;}
+.memo textarea:focus{outline:2px solid #90caf9;border-color:var(--blue);}
+.memo .row{display:flex;gap:6px;margin-top:6px;align-items:center;}
+.memo .saved{font-size:11px;color:var(--green);}
+
+.empty{background:#fff;border:1px dashed var(--line);border-radius:var(--r);padding:50px 20px;text-align:center;color:var(--sub);}
+mark{background:#fff3a3;padding:0 2px;border-radius:2px;}
+
+/* ======= 詳細ビュー（1画面表示） ======= */
+.dv{position:fixed;inset:0;background:var(--bg);z-index:400;display:none;flex-direction:column;--dvfs:16px;}
+.dv.on{display:flex;}
+.dv-head{background:linear-gradient(135deg,var(--blue-d),var(--blue));color:#fff;padding:11px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 10px rgba(13,71,161,.3);}
+.dv-head .nav{display:flex;gap:6px;align-items:center;}
+.dv-head .pos{font-size:12px;opacity:.85;white-space:nowrap;}
+.dv-head .ttl{flex:1;min-width:120px;font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dvbtn{border:1px solid rgba(255,255,255,.35);background:rgba(255,255,255,.12);color:#fff;padding:6px 11px;border-radius:8px;cursor:pointer;font-size:12.5px;font-family:inherit;white-space:nowrap;}
+.dvbtn:hover{background:rgba(255,255,255,.28);}
+.dvbtn:disabled{opacity:.35;cursor:not-allowed;}
+.dvbtn.close{background:#fff;color:var(--blue-d);border-color:#fff;font-weight:700;}
+.fsw{display:inline-flex;border:1px solid rgba(255,255,255,.35);border-radius:8px;overflow:hidden;}
+.fsw button{border:none;background:rgba(255,255,255,.12);color:#fff;padding:6px 10px;cursor:pointer;font-size:12.5px;font-family:inherit;border-right:1px solid rgba(255,255,255,.25);}
+.fsw button:last-child{border-right:none;}
+.fsw button:hover{background:rgba(255,255,255,.28);}
+.fsw button.on{background:#fff;color:var(--blue-d);font-weight:700;}
+
+.dv-body{flex:1;overflow:auto;padding:22px 20px 70px;}
+.dv-inner{max-width:1000px;margin:0 auto;}
+.dv-title{font-size:27px;font-weight:700;color:var(--blue-d);line-height:1.35;word-break:break-word;margin:0 0 8px;}
+.dv-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+.dv-syntax{font-size:calc(var(--dvfs) - 1px);color:var(--ink);background:#fff;border:1px solid var(--line);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:10px 14px;margin:12px 0 0;word-break:break-all;}
+.dv-sec{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-top:16px;box-shadow:var(--sh);}
+.dv-sec>h4{margin:0 0 12px;font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.06em;display:flex;align-items:center;gap:7px;}
+.dv-sec>h4::after{content:"";flex:1;height:1px;background:var(--line);}
+.dv-desc{font-size:var(--dvfs);white-space:pre-wrap;line-height:1.9;}
+.dv-note{background:var(--warn-l);border:1px solid #f0d9ac;border-left:4px solid var(--warn);padding:14px 16px;border-radius:0 8px 8px 0;font-size:var(--dvfs);color:#7a4b00;white-space:pre-wrap;line-height:1.9;}
+.dv .codebox pre{font-size:var(--dvfs);padding:18px 20px;line-height:1.8;}
+.dv .ptbl{font-size:calc(var(--dvfs) - 2px);}
+.dv .ptbl th,.dv .ptbl td{padding:8px 12px;}
+.dv-tags{display:flex;gap:7px;flex-wrap:wrap;}
+.dv-tags button{background:var(--blue-xl);color:var(--blue);border:1px solid var(--blue-l);font-size:12.5px;padding:4px 12px;border-radius:999px;cursor:pointer;font-family:inherit;}
+.dv-tags button:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+.dv-links{display:flex;flex-direction:column;gap:7px;}
+.dv-links a{font-size:calc(var(--dvfs) - 1px);color:var(--blue);text-decoration:none;word-break:break-all;}
+.dv-links a:hover{text-decoration:underline;}
+.dv-refs{margin:0;padding-left:1.3em;font-size:calc(var(--dvfs) - 2px);color:var(--sub);line-height:1.9;}
+.dv-memo textarea{width:100%;min-height:130px;border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-family:inherit;font-size:var(--dvfs);resize:vertical;background:#fff;line-height:1.8;}
+.dv-memo textarea:focus{outline:2px solid #90caf9;border-color:var(--blue);}
+.dv-memo .row{display:flex;gap:8px;margin-top:9px;align-items:center;flex-wrap:wrap;}
+.dv-rel{display:flex;flex-direction:column;gap:7px;}
+.dv-rel button{text-align:left;border:1px solid var(--line);background:#fff;border-radius:8px;padding:9px 12px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--ink);display:flex;gap:8px;align-items:center;}
+.dv-rel button:hover{border-color:var(--blue);background:var(--blue-xl);}
+.dv-rel .g{font-size:11px;color:var(--sub);margin-left:auto;white-space:nowrap;}
+.dv-foot{display:flex;gap:9px;justify-content:space-between;align-items:center;margin-top:20px;flex-wrap:wrap;}
+
+.ov{position:fixed;inset:0;background:rgba(16,32,50,.5);display:none;place-items:center;z-index:500;padding:18px;}
+.ov.on{display:grid;}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:680px;max-height:88vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+.m-head{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px;}
+.m-head h3{margin:0;font-size:15px;color:var(--blue-d);flex:1;}
+.m-body{padding:16px 18px;}
+.m-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;}
+.fld{margin-bottom:12px;}
+.fld label{display:block;font-size:12px;font-weight:700;color:var(--sub);margin-bottom:4px;}
+.fld input,.fld textarea,.fld select{width:100%;border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-family:inherit;font-size:13px;background:#fff;}
+.fld textarea{resize:vertical;min-height:64px;}
+.fld .hint{font-size:11px;color:var(--sub);margin-top:3px;}
+.fld2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+@media(max-width:600px){.fld2{grid-template-columns:1fr;}}
+.btn{border:1px solid var(--line);background:#fff;color:var(--ink);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:13px;font-family:inherit;}
+.btn:hover{border-color:var(--blue);color:var(--blue);}
+.btn.pri{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:600;}
+.btn.pri:hover{background:var(--blue-d);color:#fff;}
+.btn.dan{color:var(--danger);border-color:#f2c6c6;}
+.btn.dan:hover{background:#fdeaea;border-color:var(--danger);}
+#phPrev{background:#0f2436;color:#e6f1ff;padding:11px 13px;border-radius:8px;font-size:12.5px;overflow-x:auto;white-space:pre;margin:0;}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.22s;z-index:600;box-shadow:0 8px 24px rgba(0,0,0,.25);}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.notice{background:var(--warn-l);border:1px solid #f0d9ac;color:#7a4b00;border-radius:var(--r);padding:11px 14px;font-size:12px;margin-bottom:14px;line-height:1.75;}
+.notice b{color:#5e3a00;}
+
+@media print{
+  header,.prod-row,.tabs,.toolbar,.tagbar,.memo .row,.cb-btns,.icobtn,.notice,.dv-head,.dv-rel,.dv-foot,.dv-memo .row{display:none!important;}
+  body{background:#fff;overflow:visible!important;}
+  .grid{grid-template-columns:1fr;} .card{break-inside:avoid;box-shadow:none;}
+  .codebox pre{background:#f4f6f8;color:#111;border:1px solid #ccc;}
+  .dv{position:static;display:block;} .dv-body{overflow:visible;padding:0;}
+  .dv-sec{box-shadow:none;break-inside:avoid;}
+  body.dvopen .wrap{display:none!important;}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd-row">
+    <div class="logo">
+      <div class="mark">⚡</div>
+      <div>Power Platform ノート辞書 <span style="font-size:11px;opacity:.7">v3</span><div class="hd-sub">Power Apps / Power Automate リファレンス</div></div>
+    </div>
+    <div class="searchbox">
+      <span class="ic">⌕</span>
+      <input id="q" type="search" placeholder="検索（関数名・説明・コード・タグ・メモ）  「/」キーでフォーカス" autocomplete="off">
+      <button class="clr" id="qclr" title="クリア">✕</button>
+    </div>
+    <div class="hd-btns">
+      <button class="hbtn primary" id="btnAdd">＋ 項目追加</button>
+      <button class="hbtn" id="btnExport">⭳ エクスポート</button>
+      <button class="hbtn" id="btnImport">⭱ インポート</button>
+      <button class="hbtn" id="btnHelp">? 使い方</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="notice" id="notice">
+    <b>【収録データの出典】</b><br>
+    ・<span class="badge note">ノート</span>＝OneNote「Power Apps / PowerAutomate」セクションから読み取った内容。<b>原文どおりに収録</b>し、URLが記録されていない参考記事は「参考記事（URL未記録）」として<b>タイトルのみ</b>を掲載しています（リンク化していません）。<br>
+    ・<span class="badge doc">社内資料</span>＝社内のWord/Excel資料から採録。資料名を各カードに明記。<br>
+    ・<span class="badge">Apps</span><span class="badge g">Automate</span>のみの項目＝一般公開情報ベースの基本リファレンス。参照リンクはMicrosoft Learnを想定していますが<b>リンクの有効性は未検証</b>です。<br>
+    <b>【未取得】</b> ノートの「■CSVインポート」ページ冒頭にあるPower Apps関数の画像／崩れたテキストは正確に読み取れなかったため<b>収録していません</b>。
+    <button class="sbtn" style="margin-left:8px" onclick="document.getElementById('notice').style.display='none'">閉じる</button>
+  </div>
+
+  <div class="prod-row" id="prodRow"></div>
+  <div class="tabs" id="tabs"></div>
+
+  <div class="toolbar">
+    <span>表示：</span>
+    <div class="vswitch" id="vswitch">
+      <button data-v="auto" title="幅に応じて自動で複数列">▦ 自動</button>
+      <button data-v="wide" title="2列相当（1枚を広く）">▥ 広め</button>
+      <button data-v="one" title="1列（1枚を大きく）">▤ 1列</button>
+    </div>
+    <select class="sbtn" id="srcFilter">
+      <option value="all">出典：すべて</option>
+      <option value="note">出典：ノート由来のみ</option>
+      <option value="doc">出典：社内資料のみ</option>
+      <option value="pub">出典：一般リファレンスのみ</option>
+      <option value="user">出典：自作のみ</option>
+    </select>
+    <label class="chk"><input type="checkbox" id="onlyFav"> ★お気に入り</label>
+    <label class="chk"><input type="checkbox" id="onlyMemo"> メモ有り</label>
+    <label class="chk"><input type="checkbox" id="onlyCode"> コード有り</label>
+    <select class="sbtn" id="sortBy">
+      <option value="default">並び順：既定（分類順）</option>
+      <option value="title">並び順：名称 昇順</option>
+      <option value="titleD">並び順：名称 降順</option>
+      <option value="fav">並び順：お気に入り優先</option>
+    </select>
+    <span class="sp"></span>
+    <span id="count"></span>
+    <button class="sbtn" id="btnFirst">⤢ 1画面で見る</button>
+    <button class="sbtn" id="btnPrint">🖨 印刷</button>
+    <button class="sbtn" id="btnReset">↺ 初期化</button>
+  </div>
+
+  <div class="tagbar" id="tagbar"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="dv" id="dv">
+  <div class="dv-head">
+    <div class="nav">
+      <button class="dvbtn" id="dvPrev" title="前の項目（←）">◀ 前</button>
+      <span class="pos" id="dvPos"></span>
+      <button class="dvbtn" id="dvNext" title="次の項目（→）">次 ▶</button>
+    </div>
+    <div class="ttl" id="dvHeadTitle"></div>
+    <div class="fsw" id="dvFsw">
+      <button data-fs="14">小</button><button data-fs="16">中</button><button data-fs="19">大</button><button data-fs="23">特大</button>
+    </div>
+    <button class="dvbtn" id="dvStar" title="お気に入り">☆</button>
+    <button class="dvbtn" id="dvEdit" title="編集">✎ 編集</button>
+    <button class="dvbtn" id="dvPrint" title="この項目だけ印刷">🖨</button>
+    <button class="dvbtn close" id="dvClose" title="閉じる（Esc）">✕ 閉じる</button>
+  </div>
+  <div class="dv-body" id="dvBody"></div>
+</div>
+
+<div class="ov" id="ovEdit">
+  <div class="modal">
+    <div class="m-head"><h3 id="edTitle">項目を追加</h3><button class="icobtn" onclick="closeOv('ovEdit')">✕</button></div>
+    <div class="m-body">
+      <div class="fld2">
+        <div class="fld"><label>製品 *</label>
+          <select id="edProd"><option value="apps">Power Apps</option><option value="automate">Power Automate</option></select>
+        </div>
+        <div class="fld"><label>分類（タブ） *</label>
+          <input id="edGroup" list="groupList" placeholder="例：データ更新(Patch系)"><datalist id="groupList"></datalist>
+        </div>
+      </div>
+      <div class="fld"><label>名称 *</label><input id="edName" placeholder="例：Patch"></div>
+      <div class="fld"><label>構文</label><input id="edSyntax" class="mono" placeholder="例：Patch( データソース, レコード, 変更 )"></div>
+      <div class="fld"><label>説明</label><textarea id="edDesc"></textarea></div>
+      <div class="fld"><label>コード例</label><textarea id="edCode" class="mono" style="min-height:110px"></textarea>
+        <div class="hint">{{項目名}} と書くと、コピー時に値を差し替えられる入力欄が出ます（例：{{リスト名}}）</div></div>
+      <div class="fld"><label>注意点・Tips</label><textarea id="edNote"></textarea></div>
+      <div class="fld"><label>タグ</label><input id="edTags" placeholder="カンマ区切り　例：更新,SharePoint,委任"></div>
+      <div class="fld"><label>参照リンク</label><textarea id="edLinks" placeholder="1行1件：ラベル | https://..."></textarea>
+        <div class="hint">例）公式リファレンス | https://learn.microsoft.com/ja-jp/…</div></div>
+      <div class="fld"><label>参考記事（URL未記録・タイトルのみ）</label><textarea id="edRefs" placeholder="1行1件：記事タイトル"></textarea></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn dan" id="edDelete" style="margin-right:auto">削除</button>
+      <button class="btn" onclick="closeOv('ovEdit')">キャンセル</button>
+      <button class="btn pri" id="edSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovPh">
+  <div class="modal" style="max-width:600px">
+    <div class="m-head"><h3>値を差し替えてコピー</h3><button class="icobtn" onclick="closeOv('ovPh')">✕</button></div>
+    <div class="m-body">
+      <div id="phFields"></div>
+      <div class="fld"><label>プレビュー</label><pre id="phPrev"></pre></div>
+    </div>
+    <div class="m-foot">
+      <button class="btn" onclick="closeOv('ovPh')">キャンセル</button>
+      <button class="btn pri" id="phCopy">この内容でコピー</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovImp">
+  <div class="modal" style="max-width:600px">
+    <div class="m-head"><h3>データのインポート</h3><button class="icobtn" onclick="closeOv('ovImp')">✕</button></div>
+    <div class="m-body">
+      <div class="fld"><label>① JSONファイルを選択</label><input type="file" id="impFile" accept=".json,application/json"></div>
+      <div class="fld"><label>② または JSON を貼り付け</label><textarea id="impText" class="mono" style="min-height:130px" placeholder='{"entries":[...],"memos":{...},"favs":[...]}'></textarea></div>
+      <div class="fld"><label>取り込み方法</label>
+        <select id="impMode">
+          <option value="merge">マージ（同じIDは上書き・既存は残す）</option>
+          <option value="replace">置換（既存データをすべて破棄して入れ替え）</option>
+        </select>
+        <div class="hint">「置換」は元に戻せません。事前に「⭳ エクスポート」でバックアップを取ってください。</div>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn" onclick="closeOv('ovImp')">キャンセル</button>
+      <button class="btn pri" id="impRun">取り込む</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovExp">
+  <div class="modal" style="max-width:540px">
+    <div class="m-head"><h3>データのエクスポート</h3><button class="icobtn" onclick="closeOv('ovExp')">✕</button></div>
+    <div class="m-body">
+      <p style="margin:0 0 12px;font-size:13px">現在の全データ（収録項目＋自作項目＋メモ＋お気に入り）を書き出します。</p>
+      <div class="fld"><label>形式</label>
+        <select id="expMode">
+          <option value="all">JSON（全データ・バックアップ／復元用）</option>
+          <option value="mine">JSON（自作項目とメモのみ）</option>
+          <option value="csv">CSV（Excel閲覧用・UTF-8 BOM付き）</option>
+          <option value="md">Markdown（ドキュメント共有用）</option>
+        </select>
+      </div>
+    </div>
+    <div class="m-foot">
+      <button class="btn" onclick="closeOv('ovExp')">キャンセル</button>
+      <button class="btn pri" id="expRun">ダウンロード</button>
+    </div>
+  </div>
+</div>
+
+<div class="ov" id="ovHelp">
+  <div class="modal" style="max-width:680px">
+    <div class="m-head"><h3>使い方</h3><button class="icobtn" onclick="closeOv('ovHelp')">✕</button></div>
+    <div class="m-body" style="font-size:13px">
+      <p><b>1画面で大きく見る</b></p>
+      <ul style="padding-left:1.2em;margin-top:4px">
+        <li>カードの <b>⤢</b> ボタン、または<b>タイトルをクリック</b>すると、その項目だけを全画面で表示します</li>
+        <li>詳細ビューでは <b>◀ 前 / 次 ▶</b>（キーボードの <code>←</code> <code>→</code>）で、絞り込み中の項目を順に読めます</li>
+        <li>右上の <b>小 / 中 / 大 / 特大</b> で本文とコードの文字サイズを変更できます（設定は保存されます）</li>
+        <li>詳細ビュー内の <b>🖨</b> で、その項目だけを印刷できます</li>
+        <li>下部の「関連項目」から、同じ分類・同じタグの項目へジャンプできます</li>
+        <li>一覧側は <b>表示：自動 / 広め / 1列</b> で列数を切り替えられます（設定は保存されます）</li>
+      </ul>
+      <p style="margin-top:14px"><b>基本操作</b></p>
+      <ul style="padding-left:1.2em;margin-top:4px">
+        <li>製品切替（Power Apps / Power Automate）→ 機能別タブで絞り込み</li>
+        <li>検索は「名称・構文・説明・コード・タグ・自分のメモ」を全文AND検索。該当箇所は<mark>ハイライト</mark></li>
+        <li>コード右上の <b>⧉ コピー</b> でクリップボードへ</li>
+        <li>コードに <code>{{…}}</code> がある項目は <b>⚙ 差替コピー</b> が出ます。リスト名・列名を入力してからコピーできます</li>
+        <li>カード下部の <b>メモ欄</b> は入力後「保存」でブラウザに保存</li>
+        <li><b>★</b> お気に入り／<b>✎</b> 編集（収録項目も編集可）</li>
+      </ul>
+      <p style="margin-top:14px"><b>出典バッジ</b></p>
+      <ul style="padding-left:1.2em;margin-top:4px">
+        <li><span class="badge note">ノート</span>OneNote「Power Apps / PowerAutomate」セクションの内容を原文どおり収録</li>
+        <li><span class="badge doc">社内資料</span>社内のWord/Excel資料から採録（資料名をカードに明記）</li>
+        <li>バッジなし＝一般公開情報ベースの基本リファレンス</li>
+      </ul>
+      <p style="margin-top:14px"><b>ショートカット</b></p>
+      <ul style="padding-left:1.2em;margin-top:4px">
+        <li><code>/</code>：検索へフォーカス</li>
+        <li><code>Enter</code>（検索欄）：先頭の項目を1画面表示</li>
+        <li><code>←</code> <code>→</code>：詳細ビューで前／次の項目へ</li>
+        <li><code>Esc</code>：詳細ビュー／モーダルを閉じる、検索クリア</li>
+        <li><code>Ctrl+S</code>：エクスポート</li>
+      </ul>
+      <p style="margin-top:14px"><b>データの保存場所と制約（重要）</b></p>
+      <ul style="padding-left:1.2em;margin-top:4px">
+        <li>メモ・お気に入り・自作項目は<b>ブラウザのlocalStorage</b>に保存されます。<b>PCやブラウザが変わると引き継がれません</b>。</li>
+        <li>InPrivate／シークレットウィンドウ、ブラウザのキャッシュ削除で<b>消えます</b>。</li>
+        <li>複数人で共有する場合は、定期的に <b>JSONエクスポート → 共有フォルダ保存 → 各自インポート</b> の運用、
+            もしくは SharePoint リスト＋Power Apps への移行を検討してください。</li>
+      </ul>
+    </div>
+    <div class="m-foot"><button class="btn pri" onclick="closeOv('ovHelp')">閉じる</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var L = "https://learn.microsoft.com/ja-jp/";
+function lk(l,u){return {label:l,url:u};}
+
+var NB_APPS = "https://toyotabody-my.sharepoint.com/personal/tyf0688_tabad_tns_toyota-body_co_jp/_layouts/Doc.aspx?sourcedoc=%7bFFBA3F59-EA8D-43CB-86E6-FBE9BAAA71F9%7d&wd=target%28Power%20Apps.one%7C296B1A18-5DF3-4149-86F1-CD85652DAC8F%2F%29&wdsectionfileid=%7b99E51D80-381C-43B2-B324-FD1045FDD82F%7d&end";
+var NB_AUTO = "https://toyotabody-my.sharepoint.com/personal/tyf0688_tabad_tns_toyota-body_co_jp/_layouts/Doc.aspx?sourcedoc=%7bFFBA3F59-EA8D-43CB-86E6-FBE9BAAA71F9%7d&wd=target%28PowerAutomate.one%7CD58B3CD9-927A-4AAD-9957-DF55A0009625%2F%29&wdsectionfileid=%7bCDD63A5B-8996-404A-AEBE-0BC48A28177F%7d&end";
+function nbA(){return lk("ノート原文：Power Apps セクション",NB_APPS);}
+function nbF(){return lk("ノート原文：PowerAutomate セクション",NB_AUTO);}
+
+var SEED = [
+/* ===================== Power Apps : 変数・基本 ===================== */
+{id:"A-VAR-01",src:"pub",prod:"apps",group:"変数・基本",name:"Set",syntax:"Set( 変数名, 値 )",
+ desc:"アプリ全体で使えるグローバル変数を設定する。どの画面からでも参照できる。",
+ code:'Set( gblUser, User() );\nSet( gblIsAdmin, !IsBlank( LookUp( 管理者マスタ, Mail = User().Email ) ) );',
+ note:"変数は宣言不要。OnStart で初期化するとアプリ全体で使える。ただし OnStart が重いと起動が遅くなるため、重い処理は OnVisible へ逃がす。",
+ tags:["変数","グローバル","OnStart"],links:[lk("Set 関数",L+"power-platform/power-fx/reference/function-set")]},
+
+{id:"A-VAR-02",src:"pub",prod:"apps",group:"変数・基本",name:"UpdateContext",syntax:"UpdateContext( { 変数名: 値 } )",
+ desc:"同一画面内だけで有効なコンテキスト変数を設定する。画面をまたぐと保持されない。",
+ code:'UpdateContext( { locShowPopup: true } );\n\nUpdateContext( { locMode: "編集", locTargetId: ThisItem.ID } );',
+ note:"画面ローカルなので、他画面に値を渡すときは Navigate の第3引数か Set（グローバル変数）を使う。",
+ tags:["変数","画面内","コンテキスト"],links:[lk("UpdateContext 関数",L+"power-platform/power-fx/reference/function-updatecontext")]},
+
+{id:"A-VAR-03",src:"pub",prod:"apps",group:"変数・基本",name:"With",syntax:"With( { 名前: 値 }, 式 )",
+ desc:"一時的な名前付きの値を作り、式の中で再利用する。変数を作らずに可読性を上げられる。",
+ code:'With(\n    { tax: 0.1, price: Value(txtPrice.Text) },\n    price + price * tax\n)',
+ note:"変数と違い状態を持たないため副作用がなく安全。長い数式の重複計算を1回にまとめられる。",
+ tags:["変数","可読性","最適化"],links:[lk("With 関数",L+"power-platform/power-fx/reference/function-with")]},
+
+{id:"A-VAR-04",src:"pub",prod:"apps",group:"変数・基本",name:"コレクション（Collect / ClearCollect / Clear）",syntax:"ClearCollect( コレクション, データソース )",
+ desc:"アプリ内のテーブル型変数。Collect は追加、ClearCollect はクリアしてから格納、Clear は全削除。",
+ code:'ClearCollect( colItems, Filter( 予備品マスタ, 有効 = true ) );\n\nCollect( colCart, { 品番: txtNo.Text, 数量: Value(txtQty.Text) } );\n\nClear( colCart );',
+ note:"コレクションはメモリ上のため行数が多いと重くなる。データ行数の上限（既定500・最大2000）に注意し、大量データは委任可能な Filter をデータソース側で効かせる。",
+ tags:["コレクション","テーブル","委任"],links:[lk("Collect / Clear / ClearCollect",L+"power-platform/power-fx/reference/function-clear-collect-clearcollect")]},
+
+/* ===================== Power Apps : テーブル/検索 ===================== */
+{id:"A-TBL-01",src:"pub",prod:"apps",group:"テーブル/検索",name:"Filter",syntax:"Filter( テーブル, 条件1 [, 条件2 ...] )",
+ desc:"条件に一致するレコードだけを返す。一覧の絞り込みの基本。",
+ code:'Filter(\n    {{リスト名}},\n    工場 = drpFactory.Selected.Value,\n    実施年月日 >= dtFrom.SelectedDate,\n    実施年月日 <= dtTo.SelectedDate\n)',
+ note:"複数条件はカンマ区切りで AND。OR は Or() か || を使う。SharePoint では一部関数が委任非対応のため、大量データでは結果が欠ける点に注意。",
+ tags:["検索","絞り込み","委任"],links:[lk("Filter / Search / LookUp",L+"power-platform/power-fx/reference/function-filter-lookup")]},
+
+{id:"A-TBL-02",src:"pub",prod:"apps",group:"テーブル/検索",name:"Search",syntax:"Search( テーブル, 検索文字列, 列1 [, 列2 ...] )",
+ desc:"指定した列に対する部分一致検索。検索ボックスと組み合わせて使う。",
+ code:'Search( {{リスト名}}, txtSearch.Text, "設備名", "設備No", "メーカー" )',
+ note:"列名は文字列（ダブルクォート）で指定。検索文字列が空のときは全件返る。大文字小文字は区別しない。",
+ tags:["検索","部分一致"],links:[lk("Filter / Search / LookUp",L+"power-platform/power-fx/reference/function-filter-lookup")]},
+
+{id:"A-TBL-03",src:"pub",prod:"apps",group:"テーブル/検索",name:"LookUp",syntax:"LookUp( テーブル, 条件 [, 取得列 ] )",
+ desc:"条件に一致する最初の1件（レコードまたは指定列の値）を返す。存在しなければ Blank。",
+ code:'Set( recUser, LookUp( 社員マスタ, 社員番号 = txtNo.Text ) );\n\nLookUp( 社員マスタ, 社員番号 = txtNo.Text, 所属部署 )',
+ note:"該当なしのとき Blank を返すので IsBlank() で存在チェックできる。マスタ参照の定番。",
+ tags:["検索","1件取得","マスタ"],links:[lk("Filter / Search / LookUp",L+"power-platform/power-fx/reference/function-filter-lookup")]},
+
+{id:"A-TBL-04",src:"pub",prod:"apps",group:"テーブル/検索",name:"Sort / SortByColumns",syntax:"Sort( テーブル, 式 [, Ascending | Descending ] )",
+ desc:"テーブルを並べ替える。SortByColumns は列名を文字列で指定でき、動的なソートに向く。",
+ code:'Sort( PMカード, 実施年月日, Descending )\n\nSortByColumns(\n    colItems,\n    varSortCol,\n    If( varSortAsc, Ascending, Descending )\n)',
+ note:"複数列でのソートは Sort をネストする（内側が第2キー）。",
+ tags:["並べ替え","ソート"],links:[lk("Sort / SortByColumns",L+"power-platform/power-fx/reference/function-sort")]},
+
+{id:"A-TBL-05",src:"pub",prod:"apps",group:"テーブル/検索",name:"ForAll",syntax:"ForAll( テーブル, 式 )",
+ desc:"テーブルの各行に対して式を評価する。一括更新やレコード加工に使う。",
+ code:'ForAll(\n    colCart,\n    Patch( 注文明細, Defaults(注文明細),\n        { 品番: 品番, 数量: 数量, 登録日: Now() } )\n);',
+ note:"ForAll は「ループ」ではなく各行の評価。処理順は保証されないため順序依存の処理には使わない。件数が多いと極端に遅くなるので、可能なら Patch のテーブル一括形式か Power Automate 側での処理を検討する。",
+ tags:["ループ","一括処理","性能"],links:[lk("ForAll 関数",L+"power-platform/power-fx/reference/function-forall")]},
+
+{id:"A-TBL-06",src:"pub",prod:"apps",group:"テーブル/検索",name:"Distinct / GroupBy",syntax:"Distinct( テーブル, 列 ) / GroupBy( テーブル, 列…, グループ列名 )",
+ desc:"Distinct は重複を除いた一意の値一覧、GroupBy は指定列でグループ化したテーブルを返す。",
+ code:'Sort( Distinct( 設備マスタ, ライン名 ).Value, Value )\n\nAddColumns(\n    GroupBy( PMカード, "工場", "GrpData" ),\n    "件数", CountRows( GrpData )\n)',
+ note:"Distinct の結果は Value 列を持つ単一列テーブル。Distinct は委任非対応のデータソースが多く、件数上限に注意。",
+ tags:["重複排除","集計","グループ化"],links:[lk("Distinct 関数",L+"power-platform/power-fx/reference/function-distinct"),lk("GroupBy / Ungroup",L+"power-platform/power-fx/reference/function-groupby")]},
+
+{id:"A-TBL-07",src:"pub",prod:"apps",group:"テーブル/検索",name:"CountRows / CountIf / Sum / Average",syntax:"CountRows( テーブル ) / CountIf( テーブル, 条件 )",
+ desc:"件数や合計などの集計を行う。",
+ code:'CountRows( Filter( PMカード, 承認状態 = "未承認" ) )\nCountIf( colItems, 数量 > 0 )\nSum( colCart, 数量 * 単価 )\nAverage( 稼働実績, 稼働率 )',
+ note:"集計系の多くは委任非対応。大量データでは Power Automate 側や SharePoint ビューで集計する方が安全。",
+ tags:["集計","件数","合計"],links:[lk("テーブルの集計関数",L+"power-platform/power-fx/reference/function-aggregates")]},
+
+/* ===================== Power Apps : データ更新(Patch系) ===================== */
+{id:"A-PAT-01",src:"pub",prod:"apps",group:"データ更新(Patch系)",name:"Patch（新規作成）",syntax:"Patch( データソース, Defaults( データソース ), { 列: 値, … } )",
+ desc:"データソースに新規レコードを1件作成する。Defaults() が「新規行」を意味する。",
+ code:'Patch(\n    {{リスト名}},\n    Defaults( {{リスト名}} ),\n    {\n        Title: txtTitle.Text,\n        申請者: User().FullName,\n        申請日: Today(),\n        ステータス: { Value: "申請中" }\n    }\n);',
+ note:"SharePoint の選択肢列は { Value: \"…\" }、人物列は { Claims:…, DisplayName:…, Email:… } のレコード形式で渡す必要がある。単純な文字列を渡すとエラーになる。",
+ tags:["登録","新規","SharePoint"],links:[lk("Patch 関数",L+"power-platform/power-fx/reference/function-patch")]},
+
+{id:"A-PAT-02",src:"pub",prod:"apps",group:"データ更新(Patch系)",name:"Patch（更新）",syntax:"Patch( データソース, 既存レコード, { 列: 値 } )",
+ desc:"既存レコードの一部の列だけを更新する。指定しなかった列は変更されない。",
+ code:'Patch(\n    {{リスト名}},\n    LookUp( {{リスト名}}, ID = varTargetId ),\n    { ステータス: { Value: "承認済" }, 承認者: User().FullName, 承認日: Now() }\n);',
+ note:"更新対象は必ず「データソースから取得したレコード」を渡す。コレクションにコピーしたレコードを渡すと新規作成になる場合があるので注意。",
+ tags:["更新","SharePoint"],links:[lk("Patch 関数",L+"power-platform/power-fx/reference/function-patch")]},
+
+{id:"A-PAT-03",src:"pub",prod:"apps",group:"データ更新(Patch系)",name:"Patch（一括更新）",syntax:"Patch( データソース, テーブル, 変更テーブル )",
+ desc:"複数レコードをまとめて更新・作成する。ForAll + Patch より高速になるケースが多い。",
+ code:'Patch(\n    在庫リスト,\n    ShowColumns( colUpdates, "ID" ),\n    ShowColumns( colUpdates, "在庫数" )\n);',
+ note:"2つのテーブルは行数・並び順を一致させる必要がある。動作は環境・コネクタ依存があるため、実環境での検証が必要。",
+ tags:["一括更新","性能"],links:[lk("Patch 関数",L+"power-platform/power-fx/reference/function-patch")]},
+
+{id:"A-PAT-04",src:"pub",prod:"apps",group:"データ更新(Patch系)",name:"UpdateIf / RemoveIf / Remove",syntax:"UpdateIf( データソース, 条件, { 列: 値 } )",
+ desc:"条件に合う行をまとめて更新（UpdateIf）、削除（RemoveIf）、レコード指定で削除（Remove）。",
+ code:'UpdateIf( 在庫リスト, 在庫数 < 0, { 在庫数: 0 } );\n\nRemoveIf( colTemp, 削除フラグ = true );\n\nRemove( 申請リスト, LookUp( 申請リスト, ID = varTargetId ) );',
+ note:"削除は取り消せない。実行前に必ず確認ダイアログを挟む設計にする。委任非対応の条件だと一部しか処理されない危険がある。",
+ tags:["更新","削除","一括"],links:[lk("Update / UpdateIf",L+"power-platform/power-fx/reference/function-update"),lk("Remove / RemoveIf",L+"power-platform/power-fx/reference/function-remove-removeif")]},
+
+{id:"A-PAT-05",src:"pub",prod:"apps",group:"データ更新(Patch系)",name:"SubmitForm / ResetForm / EditForm / NewForm",syntax:"SubmitForm( フォーム名 )",
+ desc:"フォームコントロールを使った登録・更新。Patch を書かずに済むが、細かい制御はしづらい。",
+ code:'NewForm( frmEdit ); Navigate( scrEdit );\n\nSubmitForm( frmEdit );\n\n// OnSuccess プロパティ\nNotify( "登録しました", NotificationType.Success ); Back();\n\n// OnFailure プロパティ\nNotify( frmEdit.Error, NotificationType.Error );',
+ note:"SubmitForm は非同期。保存完了後の処理は必ず OnSuccess に書く。直後の行に書くと保存前に実行される。",
+ tags:["フォーム","登録","更新"],links:[lk("Form 関数",L+"power-platform/power-fx/reference/function-form")]},
+
+/* ===================== Power Apps : 文字列 ===================== */
+{id:"A-STR-01",src:"pub",prod:"apps",group:"文字列",name:"Concat / Concatenate / &",syntax:'Concatenate( 文字列1, 文字列2, … ) / 文字列1 & 文字列2',
+ desc:"文字列を連結する。& 演算子のほうが簡潔。Concat はテーブルの列を区切り文字で連結する。",
+ code:'txtLast.Text & " " & txtFirst.Text\nConcatenate( "設備No：", ThisItem.設備No )\n\nConcat( colTags, タグ名, ", " )',
+ note:"Concat は「テーブルの列を結合」、Concatenate は「複数の文字列を結合」。用途が違うので混同しないこと。",
+ tags:["文字列","連結"],links:[lk("Concat / Concatenate",L+"power-platform/power-fx/reference/function-concatenate")]},
+
+{id:"A-STR-02",src:"pub",prod:"apps",group:"文字列",name:"Left / Mid / Right / Len",syntax:"Left( 文字列, 文字数 )",
+ desc:"文字列の切り出しと長さの取得。",
+ code:'Left( "ABC-12345", 3 )      // "ABC"\nMid( "ABC-12345", 5, 5 )   // "12345"\nRight( "ABC-12345", 5 )    // "12345"\nLen( txtInput.Text )        // 文字数',
+ note:"Len は全角・半角を区別せず「文字数」を返す。バイト数での桁チェックが必要な場合は別途計算が必要。",
+ tags:["文字列","切り出し","桁数"],links:[lk("Left / Mid / Right",L+"power-platform/power-fx/reference/function-left-mid-right"),lk("Len 関数",L+"power-platform/power-fx/reference/function-len")]},
+
+{id:"A-STR-03",src:"pub",prod:"apps",group:"文字列",name:"Substitute / Replace / Trim",syntax:"Substitute( 文字列, 検索文字列, 置換文字列 )",
+ desc:"文字の置換（Substitute＝文字列指定、Replace＝位置指定）と空白除去（Trim）。",
+ code:'Substitute( txt.Text, "-", "" )\nReplace( "ABCDE", 2, 2, "xx" )          // "AxxDE"\nTrim( txtInput.Text )                   // 前後＋連続空白を整理\nTrimEnds( txtInput.Text )               // 前後の空白のみ除去',
+ note:"Trim は文字列中の連続空白も1つに詰める。前後だけ落としたい場合は TrimEnds を使う。",
+ tags:["文字列","置換","整形"],links:[lk("Substitute / Replace",L+"power-platform/power-fx/reference/function-replace-substitute"),lk("Trim / TrimEnds",L+"power-platform/power-fx/reference/function-trim")]},
+
+{id:"A-STR-04",src:"pub",prod:"apps",group:"文字列",name:"Split / Match / IsMatch",syntax:"Split( 文字列, 区切り文字 ) / IsMatch( 文字列, パターン )",
+ desc:"文字列の分割と正規表現によるパターン判定。入力チェックに使える。",
+ code:'Split( "A,B,C", "," )   // Value列のテーブル\n\nIsMatch( txtNo.Text, "^[0-9A-Za-z]{10}$" )\n\nIsMatch( txtMail.Text, Match.Email )',
+ note:"IsMatch の組み込みパターン（Match.Email / Match.Digit など）を使うと簡潔。正規表現は .NET 準拠。",
+ tags:["文字列","分割","入力チェック","正規表現"],links:[lk("Split 関数",L+"power-platform/power-fx/reference/function-split"),lk("IsMatch / Match",L+"power-platform/power-fx/reference/function-ismatch")]},
+
+{id:"A-STR-05",src:"pub",prod:"apps",group:"文字列",name:"Text（書式設定）",syntax:'Text( 値, "書式" )',
+ desc:"数値や日付を指定した書式の文字列に変換する。",
+ code:'Text( Now(), "yyyy/mm/dd hh:mm" )\nText( 12345, "#,##0" )              // "12,345"\nText( 0.856, "0.0%" )               // "85.6%"\nText( ThisItem.金額, "¥#,##0" )',
+ note:"日付書式の「mm」は月、時刻文脈では分を表す。誤りやすいので実機で表示確認すること。",
+ tags:["書式","変換","日付","数値"],links:[lk("Text 関数",L+"power-platform/power-fx/reference/function-text")]},
+
+/* ===================== Power Apps : 日付/数値 ===================== */
+{id:"A-DAT-01",src:"pub",prod:"apps",group:"日付/数値",name:"Now / Today / DateAdd / DateDiff",syntax:"DateAdd( 日付, 数値, 単位 )",
+ desc:"現在日時の取得と日付の加減算・差分計算。",
+ code:'Today()\nNow()\nDateAdd( Today(), -7, Days )\nDateAdd( Today(), 1, Months )\nDateDiff( dtFrom.SelectedDate, dtTo.SelectedDate, Days )',
+ note:"単位は Days / Months / Quarters / Years / Hours / Minutes / Seconds。Now() は再評価されるため、値を固定したい場合は変数に格納する。",
+ tags:["日付","計算"],links:[lk("Now / Today / IsToday",L+"power-platform/power-fx/reference/function-now-today-istoday"),lk("DateAdd / DateDiff",L+"power-platform/power-fx/reference/function-dateadd-datediff")]},
+
+{id:"A-DAT-02",src:"pub",prod:"apps",group:"日付/数値",name:"Value / Round / RoundUp / RoundDown",syntax:"Value( 文字列 ) / Round( 数値, 桁 )",
+ desc:"文字列→数値変換と丸め処理。",
+ code:'Value( txtQty.Text )\nRound( 123.456, 1 )          // 123.5\nRoundUp( 123.401, 1 )        // 123.5\nRoundDown( 123.49, 1 )       // 123.4\nInt( 123.9 )                 // 123',
+ note:"テキスト入力の値は常に文字列。数値比較・計算の前に必ず Value() で変換する。空欄は Blank になるため Coalesce( Value(txt.Text), 0 ) のように既定値を用意すると安全。",
+ tags:["数値","変換","丸め"],links:[lk("Value 関数",L+"power-platform/power-fx/reference/function-value"),lk("Round 関数",L+"power-platform/power-fx/reference/function-round")]},
+
+/* ===================== Power Apps : 条件/ロジック ===================== */
+{id:"A-LOG-01",src:"pub",prod:"apps",group:"条件/ロジック",name:"If / Switch",syntax:"If( 条件, 真の値 [, 条件2, 値2 …] [, 既定値] )",
+ desc:"条件分岐。分岐先が値の一致で決まる場合は Switch のほうが読みやすい。",
+ code:'If( ThisItem.ステータス = "承認済", Green,\n    ThisItem.ステータス = "差戻し", Red,\n    Gray )\n\nSwitch( drpMode.Selected.Value,\n    "新規", NewForm( frmEdit ),\n    "編集", EditForm( frmEdit ),\n    "参照", ViewForm( frmEdit )\n)',
+ note:"If は条件式、Switch は1つの値との一致比較。条件が多い場合は Switch のほうが保守しやすい。",
+ tags:["条件分岐"],links:[lk("If / Switch",L+"power-platform/power-fx/reference/function-if")]},
+
+{id:"A-LOG-02",src:"pub",prod:"apps",group:"条件/ロジック",name:"IsBlank / IsEmpty / Coalesce",syntax:"IsBlank( 値 ) / IsEmpty( テーブル ) / Coalesce( 値1, 値2, … )",
+ desc:"空判定と既定値の設定。IsBlank は値、IsEmpty はテーブルの行数0を判定する。",
+ code:'If( IsBlank( txtName.Text ), Notify( "名称は必須です", NotificationType.Error ) );\n\nIsEmpty( Filter( 設備マスタ, ライン名 = drpLine.Selected.Value ) )\n\nCoalesce( ThisItem.備考, "（記載なし）" )',
+ note:"空文字 \"\" と Blank() は別物。テキスト入力の未入力は空文字になるため IsBlank でまとめて判定できるが、データソース側の Null とは挙動が異なる場合がある。",
+ tags:["空判定","入力チェック","既定値"],links:[lk("IsBlank / IsEmpty",L+"power-platform/power-fx/reference/function-isblank-isempty")]},
+
+{id:"A-LOG-03",src:"pub",prod:"apps",group:"条件/ロジック",name:"And / Or / Not（&& / || / !）",syntax:"And( 条件1, 条件2 ) / 条件1 && 条件2",
+ desc:"論理演算。記号表記でも関数表記でも同じ。",
+ code:'If(\n    !IsBlank( txtName.Text ) && Value( txtQty.Text ) > 0,\n    DisplayMode.Edit,\n    DisplayMode.Disabled\n)',
+ note:"条件が長くなる場合は With で名前を付けると可読性が上がる。",
+ tags:["論理","条件"],links:[lk("And / Or / Not",L+"power-platform/power-fx/reference/function-logicals")]},
+
+/* ===================== Power Apps : 画面/UI ===================== */
+{id:"A-UI-01",src:"pub",prod:"apps",group:"画面/UI",name:"Navigate / Back",syntax:"Navigate( 画面, 画面遷移効果 [, { 変数: 値 } ] )",
+ desc:"画面遷移。第3引数でコンテキスト変数を渡せる。Back は直前の画面へ戻る。",
+ code:'Navigate( scrDetail, ScreenTransition.Fade, { locItem: ThisItem } );\n\nBack();',
+ note:"Back() は遷移履歴に依存する。画面数が多いアプリでは意図しない画面に戻ることがあるため Navigate で明示するほうが安全。",
+ tags:["画面遷移","UI"],links:[lk("Back / Navigate",L+"power-platform/power-fx/reference/function-navigate")]},
+
+{id:"A-UI-02",src:"pub",prod:"apps",group:"画面/UI",name:"Notify",syntax:"Notify( メッセージ, 種類 [, 表示時間ms ] )",
+ desc:"画面上部に通知バナーを表示する。処理結果のフィードバックに使う。",
+ code:'Notify( "登録しました", NotificationType.Success, 3000 );\nNotify( "必須項目が未入力です", NotificationType.Error );\nNotify( "処理中です…", NotificationType.Information );\nNotify( "委任の上限を超えています", NotificationType.Warning );',
+ note:"Error は既定で消えない（ユーザー操作が必要）。処理完了通知は Success を使い分ける。",
+ tags:["通知","UI","フィードバック"],links:[lk("Notify 関数",L+"power-platform/power-fx/reference/function-showerror")]},
+
+{id:"A-UI-03",src:"pub",prod:"apps",group:"画面/UI",name:"Reset / ResetForm / SetFocus",syntax:"Reset( コントロール ) / SetFocus( コントロール )",
+ desc:"入力コントロールを初期値に戻す、フォーカスを移す。",
+ code:'Reset( txtSearch );\nResetForm( frmEdit );\nSetFocus( txtName );',
+ note:"Reset は「既定(Default)プロパティの値」に戻る。Default が変数なら変数を変えてから Reset する。",
+ tags:["UI","初期化","フォーカス"],links:[lk("Reset 関数",L+"power-platform/power-fx/reference/function-reset")]},
+
+{id:"A-UI-04",src:"pub",prod:"apps",group:"画面/UI",name:"レスポンシブ対応の基本",syntax:"Parent.Width / Parent.Height を使う",
+ desc:"固定値ではなく親コンテナ基準でサイズを決めると、画面サイズ変更に追従する。",
+ code:'// [設定] → [表示] で「画面のサイズに合わせてスケール」をオフ\n\nParent.Width * 0.5\n\nIf( Parent.Width < 768, 1, 3 )   // コンテナの列数',
+ note:"レスポンシブにするには「画面のサイズに合わせてスケール」をオフにする必要がある。オンのままだと拡大縮小されるだけで最適化されない。",
+ tags:["レスポンシブ","UI","設定"],links:[lk("レスポンシブ レイアウトの作成",L+"power-apps/maker/canvas-apps/create-responsive-layout")]},
+
+/* ===================== Power Apps : エラー/デバッグ ===================== */
+{id:"A-ERR-01",src:"pub",prod:"apps",group:"エラー/デバッグ",name:"IfError / IsError / Errors",syntax:"IfError( 値, エラー時の値 )",
+ desc:"エラー処理。Errors( データソース ) で直近のデータソースエラーを取得できる。",
+ code:'IfError(\n    Patch( 申請リスト, Defaults(申請リスト), { Title: txtTitle.Text } ),\n    Notify( "保存に失敗しました：" & FirstError.Message, NotificationType.Error )\n);\n\nErrors( 申請リスト )',
+ note:"IfError を使うには [設定] の「エラー処理の数式レベル」が有効である必要がある場合がある（環境依存・要確認）。",
+ tags:["エラー処理","例外"],links:[lk("IfError / IsError",L+"power-platform/power-fx/reference/function-iferror"),lk("Errors 関数",L+"power-platform/power-fx/reference/function-errors")]},
+
+{id:"A-ERR-02",src:"pub",prod:"apps",group:"エラー/デバッグ",name:"Trace / モニター",syntax:"Trace( メッセージ [, 重大度, カスタムレコード ] )",
+ desc:"Power Apps モニターにログを出力してデバッグする。",
+ code:'Trace( "検索開始", TraceSeverity.Information, { 条件: txtSearch.Text } );',
+ note:"モニターは [詳細設定] → [モニター] から起動。ネットワーク要求・処理時間も確認でき、委任警告や遅い処理の特定に有効。",
+ tags:["デバッグ","ログ","モニター"],links:[lk("Power Apps モニター",L+"power-apps/maker/monitor-overview")]},
+
+/* ===================== Power Apps : 委任/性能 ===================== */
+{id:"A-DEL-01",src:"pub",prod:"apps",group:"委任/性能",name:"委任（Delegation）の基本",syntax:"データソース側で処理させる＝委任",
+ desc:"委任とは、絞り込みや並べ替えをアプリ側ではなくデータソース側で実行させること。委任できないとデータ行数の上限（既定500件・最大2000件）までしか取得されず、結果が欠ける。",
+ code:'// ✕ 委任非対応になりやすい書き方（SharePoint）\nFilter( 大量リスト, Len( 設備名 ) > 5 )\n\n// ○ 委任可能な書き方\nFilter( 大量リスト, 工場 = "富士松", 有効 = true )\n\n// ○ どうしても無理な場合：一次絞り込みしてからローカル処理\nClearCollect( colWork, Filter( 大量リスト, 工場 = "富士松" ) );\nFilter( colWork, Len( 設備名 ) > 5 )',
+ note:"数式に青い下線の警告が出たら委任非対応のサイン。対応状況はコネクタごとに異なる（SharePoint / Dataverse / SQL で差がある）ため、必ず公式の委任可能関数一覧を確認すること。",
+ tags:["委任","性能","上限","重要"],links:[lk("委任について",L+"power-apps/maker/canvas-apps/delegation-overview")]},
+
+{id:"A-DEL-02",src:"pub",prod:"apps",group:"委任/性能",name:"パフォーマンス改善の定石",syntax:"—",
+ desc:"アプリが重いときに確認する代表的なポイント。",
+ code:'// 1. OnStart を軽くする（重い読み込みは OnVisible へ）\n// 2. 使っていないコントロール・画面を削除\n// 3. 画像は事前に圧縮してメディアに登録\n// 4. 同じ計算の繰り返しは With / 変数で1回に\n// 5. ギャラリーの Items に重い数式を書かない\n// 6. データ行数の上限（設定→全般）を必要最小限に\n// 7. コネクタ呼び出し回数を減らす（まとめて取得）',
+ note:"体感が改善しない場合は Power Apps モニターで実際の待ち時間を測ること。推測で直すより確実。",
+ tags:["性能","チューニング"],links:[lk("パフォーマンスに関するヒント",L+"power-apps/maker/canvas-apps/performance-tips")]},
+
+/* ===================== Power Automate : トリガー ===================== */
+{id:"F-TRG-01",src:"pub",prod:"automate",group:"トリガー",name:"クラウドフローの種類",syntax:"自動 / インスタント / スケジュール",
+ desc:"トリガーの種類でフローの起動方法が決まる。1つのフローにトリガーは1つだけ。",
+ code:'// 自動化したクラウドフロー\n  例）SharePoint「項目が作成または変更されたとき」\n\n// インスタントクラウドフロー\n  例）「PowerApps（V2）」「手動でフローをトリガーします」\n\n// スケジュール済みクラウドフロー\n  例）「繰り返し」…毎日 8:00 に実行',
+ note:"Power Apps から呼ぶ場合は「PowerApps（V2）」トリガーを使うと入力パラメータを型付きで定義できる（旧 PowerApps トリガーより推奨）。",
+ tags:["トリガー","基本"],links:[lk("クラウド フローの作成",L+"power-automate/get-started-logic-flow")]},
+
+{id:"F-TRG-02",src:"pub",prod:"automate",group:"トリガー",name:"トリガー条件（Trigger Conditions）",syntax:"@equals(triggerOutputs()?['body/ステータス/Value'],'申請中')",
+ desc:"フローを起動するかどうかを式で制御する。無駄な実行を減らし、無限ループも防げる。",
+ code:"// 設定：トリガーの […] → 設定 → トリガー条件\n\n@equals(triggerOutputs()?['body/ステータス/Value'],'申請中')\n\n// 複数条件（AND）\n@and(\n  equals(triggerOutputs()?['body/ステータス/Value'],'申請中'),\n  not(empty(triggerOutputs()?['body/承認者']))\n)",
+ note:"トリガー条件に合致しないと実行履歴自体が残らない。デバッグ時は条件を一時的に外して確認するとよい。フロー自身の更新で再帰起動するケースの抑止に有効。",
+ tags:["トリガー","条件","最適化"],links:[lk("トリガーの概要",L+"power-automate/triggers-introduction")]},
+
+{id:"F-TRG-03",src:"pub",prod:"automate",group:"トリガー",name:"Power Apps から呼び出す",syntax:"フロー名.Run( 引数1, 引数2 )",
+ desc:"Power Apps 側でフローを実行し、戻り値を受け取る。",
+ code:'// Power Apps 側\nSet( varResult, {{フロー名}}.Run( txtTitle.Text, User().Email ) );\nIf( varResult.result = "OK", Notify( "送信しました", NotificationType.Success ) );\n\n// Power Automate 側：最後に「Power Apps または Flow に応答する」で戻り値を返す',
+ note:"戻り値を返すには「Power Apps または Flow に応答する」アクションが必要。同期的に待つため、時間のかかる処理を返すとアプリが固まる。非同期にするか、結果はリスト経由で確認する設計にする。",
+ tags:["連携","PowerApps","戻り値"],links:[lk("Power Apps からフローを呼び出す",L+"power-automate/create-flow-solution")]},
+
+/* ===================== Power Automate : 式(関数) ===================== */
+{id:"F-EXP-01",src:"pub",prod:"automate",group:"式(関数)",name:"日付の書式（formatDateTime / convertTimeZone）",syntax:"formatDateTime( 日時, '書式' )",
+ desc:"日時の書式変換とタイムゾーン変換。Power Automate は既定 UTC のため JST 変換が必須。",
+ code:"formatDateTime(convertTimeZone(utcNow(),'UTC','Tokyo Standard Time'),'yyyy-MM-dd')\n\nformatDateTime(convertTimeZone(utcNow(),'UTC','Tokyo Standard Time'),'yyyy/MM/dd HH:mm')\n\nformatDateTime(items('Apply_to_each')?['{{列名}}'],'yyyy-MM-dd')",
+ note:"書式は .NET 準拠。MM＝月、mm＝分、HH＝24時間、hh＝12時間。大文字小文字を間違えやすいので必ずテスト実行で確認すること。ノートでは addHours(…,9) 方式も使用（→「■フォーマット」の項目を参照）。",
+ tags:["日付","タイムゾーン","書式"],links:[lk("ワークフロー定義言語の関数リファレンス",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+{id:"F-EXP-02",src:"pub",prod:"automate",group:"式(関数)",name:"日付の加減算（addDays / addHours / startOfMonth）",syntax:"addDays( 日時, 日数 [, 書式] )",
+ desc:"日付の加算・減算と、月初の取得。",
+ code:"addDays(utcNow(),7,'yyyy-MM-dd')\naddDays(utcNow(),-1,'yyyy-MM-dd')\n\n// Excelのシリアル値を日付へ変換\naddDays('1899-12-30', int(items('Apply_to_each')?['{{列名}}']), 'yyyy-MM-dd')\n\nstartOfMonth(utcNow(),'yyyy-MM-dd')",
+ note:"Excel から取得した日付が数値（シリアル値）になる場合、基準日 1899-12-30 に加算して変換する。取得形式はテスト実行の履歴で必ず確認すること。",
+ tags:["日付","計算","Excel"],links:[lk("ワークフロー定義言語の関数リファレンス",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+{id:"F-EXP-03",src:"pub",prod:"automate",group:"式(関数)",name:"文字列関数（concat / replace / split / substring）",syntax:"concat( 文字列1, 文字列2, … )",
+ desc:"文字列の連結・置換・分割・切り出し。",
+ code:"concat('設備No：', triggerOutputs()?['body/設備No'])\nreplace(variables('str'),'-','')\nsplit('A,B,C',',')                  // 配列を返す\nsubstring('ABC-12345',4,5)          // '12345'\ntoUpper('abc')  /  toLower('ABC')\ntrim(variables('str'))\nlength(variables('str'))",
+ note:"substring の開始位置は 0 始まり。範囲外を指定すると実行エラーになるため、length() で長さを確認してから使う。",
+ tags:["文字列","連結","置換"],links:[lk("文字列関数",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+{id:"F-EXP-04",src:"pub",prod:"automate",group:"式(関数)",name:"論理・比較関数（if / equals / and / or / not）",syntax:"if( 条件, 真の値, 偽の値 )",
+ desc:"式の中での条件分岐と比較。「条件」アクションを使わずに1行で書ける。",
+ code:"if(equals(triggerOutputs()?['body/区分'],'A'),'対象','対象外')\n\nand(\n  equals(items('Apply_to_each')?['通知済'],'No'),\n  greater(length(items('Apply_to_each')?['宛先']),0)\n)\n\nnot(empty(variables('list')))\ngreaterOrEquals(variables('count'),10)",
+ note:"equals は型も含めて比較する。数値と文字列を比べると常に false になるため、int() や string() で型を揃える。",
+ tags:["条件","比較","論理"],links:[lk("論理比較関数",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+{id:"F-EXP-05",src:"pub",prod:"automate",group:"式(関数)",name:"null 安全なアクセス（? 演算子 / coalesce / empty）",syntax:"outputs('アクション')?['body']?['列名']",
+ desc:"存在しないプロパティを参照しても実行エラーにならないようにする書き方。",
+ code:"triggerOutputs()?['body/担当者']?['DisplayName']\n\ncoalesce(triggerOutputs()?['body/備考'],'（記載なし）')\n\nempty(triggerOutputs()?['body/添付'])",
+ note:"フローが「プロパティが存在しません」で落ちる原因の大半はここ。列が空になり得る箇所には必ず ? を入れる。",
+ tags:["null","エラー回避","重要"],links:[lk("参照関数",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+/* ===================== Power Automate : 配列/ループ ===================== */
+{id:"F-ARR-01",src:"pub",prod:"automate",group:"配列/ループ",name:"Apply to each（各項目に適用する）",syntax:"items('Apply_to_each')?['列名']",
+ desc:"配列の各要素に対して処理を繰り返す。配列を返すアクションの後に自動挿入されることが多い。",
+ code:"items('Apply_to_each')?['Title']\n\n// ネストしたループの2つ目\nitems('Apply_to_each_2')?['明細番号']",
+ note:"アクション名にスペースがある場合、式では「_（アンダースコア）」に置き換える。既定は順次実行で遅いため、[…] → 設定 → 「同時実行制御」をオンにすると並列化できる（ただし変数への追加処理は競合するので注意）。",
+ tags:["ループ","配列","並列"],links:[lk("ループの使用",L+"power-automate/apply-to-each")]},
+
+{id:"F-ARR-02",src:"pub",prod:"automate",group:"配列/ループ",name:"アレイのフィルター処理 / 選択",syntax:"「アレイのフィルター処理」「選択」アクション",
+ desc:"ループを回さずに配列を絞り込み・整形する。件数が多いときに圧倒的に速い。",
+ code:"// 「アレイのフィルター処理」\n  差出人： value（元の配列）\n  条件 ： item()?['ステータス'] is equal to 未処理\n\n// 「選択」で必要な列だけに整形\n  開始 ： body('アレイのフィルター処理')\n  マップ： 氏名 → item()?['Title']\n          メール → item()?['Mail']",
+ note:"Apply to each + 条件 で書くより桁違いに速い。ループ内でリストに問い合わせる設計は避け、まとめて取得→配列操作に置き換えるのが定石。",
+ tags:["配列","フィルター","性能","重要"],links:[lk("データ操作",L+"power-automate/data-operations")]},
+
+{id:"F-ARR-03",src:"pub",prod:"automate",group:"配列/ループ",name:"配列関数（length / first / last / union / join）",syntax:"length( 配列 ) / join( 配列, 区切り )",
+ desc:"配列の件数取得・先頭末尾取得・結合。",
+ code:"length(body('アレイのフィルター処理'))\nfirst(body('選択'))?['Title']\nlast(outputs('取得'))\njoin(body('選択'),', ')            // 配列→文字列\nunion(variables('a'),variables('b'))  // 和集合（重複排除）\nintersection(variables('a'),variables('b'))",
+ note:"union は重複を除いた結合になるため、重複排除の用途にも使える。join の対象は文字列配列である必要がある。",
+ tags:["配列","集計","結合"],links:[lk("コレクション関数",L+"azure/logic-apps/workflow-definition-language-functions-reference")]},
+
+{id:"F-ARR-04",src:"pub",prod:"automate",group:"配列/ループ",name:"変数（初期化 / 追加 / インクリメント）",syntax:"「変数を初期化する」「配列変数に追加」「変数をインクリメントする」",
+ desc:"フロー内で値を保持する。型は初期化時に決まる。",
+ code:"// 変数を初期化する\n  名前：varCount　種類：整数　値：0\n  名前：varList 　種類：アレイ　値：[]\n\n// 配列変数に追加\n  名前：varList　値：item()?['Title']\n\n// 変数をインクリメントする\n  名前：varCount　値：1\n\n// 式で参照\nvariables('varCount')",
+ note:"「変数を初期化する」はフローの最上位にしか置けない。並列実行中の変数更新は競合するため、同時実行制御をオンにする場合は変数追加を避け、「選択」等の配列操作に置き換える。",
+ tags:["変数","ループ","競合"],links:[lk("変数の使用",L+"power-automate/create-variable-store-values")]},
+
+/* ===================== Power Automate : 条件/制御 ===================== */
+{id:"F-CTL-01",src:"pub",prod:"automate",group:"条件/制御",name:"条件 / スイッチ / スコープ",syntax:"「条件」「スイッチ」「スコープ」アクション",
+ desc:"分岐と処理のグループ化。スコープでまとめるとエラー処理がしやすくなる。",
+ code:"// 条件：はい／いいえ の2分岐\n// スイッチ：1つの値に対する多分岐\n// スコープ：複数アクションをまとめる箱\n\n// 例）スコープ「メイン処理」＋スコープ「エラー通知」\n//     エラー通知側の実行条件を「失敗したら」に設定",
+ note:"分岐が3つ以上ならスイッチのほうが見やすい。スコープでまとめると Try-Catch 相当の構成が作れる。",
+ tags:["分岐","制御","スコープ"],links:[lk("条件の追加",L+"power-automate/add-condition")]},
+
+{id:"F-CTL-02",src:"pub",prod:"automate",group:"条件/制御",name:"終了（Terminate）",syntax:"「終了」アクション：成功 / 失敗 / 取り消し",
+ desc:"フローを任意の状態で明示的に終了させる。",
+ code:"// 対象データがない場合は正常終了させる\n  条件：length(body('アレイのフィルター処理')) が 0 と等しい\n  → はい：終了（状態：成功）\n\n// 業務エラー時は失敗で終了し、履歴に残す\n  終了（状態：失敗／コード：BIZ_ERR／メッセージ：対象マスタが未登録です）",
+ note:"「失敗」で終了すると実行履歴が赤になり、所有者にエラー通知が届く。正常系の早期終了には「成功」を使い分けること。",
+ tags:["終了","制御","エラー"],links:[lk("エラー処理",L+"power-automate/error-handling")]},
+
+/* ===================== Power Automate : データ操作 ===================== */
+{id:"F-DAT-01",src:"pub",prod:"automate",group:"データ操作",name:"JSON の解析",syntax:"「JSON の解析」アクション",
+ desc:"JSON文字列を構造化し、後続で動的なコンテンツとして列を選べるようにする。",
+ code:'// コンテンツ：body(\'HTTP\')\n// スキーマ：「サンプルから生成」に実データを貼り付けて自動生成\n\n{\n  "type": "object",\n  "properties": {\n    "id":    { "type": "string" },\n    "name":  { "type": "string" },\n    "items": { "type": "array" }\n  }\n}',
+ note:"実データに null が入る列があると type が合わずエラーになる。その場合は \"type\": [\"string\",\"null\"] のように配列で許容する。",
+ tags:["JSON","解析","スキーマ"],links:[lk("データ操作",L+"power-automate/data-operations")]},
+
+{id:"F-DAT-02",src:"pub",prod:"automate",group:"データ操作",name:"作成（Compose）",syntax:"「作成」アクション",
+ desc:"値や式の結果を保持・確認する。デバッグ用途でも非常に有用。",
+ code:"// 途中結果を確認したいとき\n  作成：formatDateTime(convertTimeZone(utcNow(),'UTC','Tokyo Standard Time'),'yyyy-MM-dd')\n\n// 参照\noutputs('作成')",
+ note:"変数と違い並列実行でも競合しない。「式が正しいか分からない」ときは、まず作成アクションに入れてテスト実行で出力を確認するのが最短。",
+ tags:["デバッグ","式","Compose"],links:[lk("データ操作",L+"power-automate/data-operations")]},
+
+{id:"F-DAT-03",src:"pub",prod:"automate",group:"データ操作",name:"CSV テーブルの作成 / HTML テーブルの作成",syntax:"「CSV テーブルの作成」「HTML テーブルの作成」",
+ desc:"配列を CSV / HTML 表に変換する。メール本文や添付ファイル作成に使う。",
+ code:"// HTMLテーブル → メール本文に埋め込む\n  開始：body('選択')\n  列  ：カスタム（表示名と値を指定）\n\n// CSV → ファイル作成の中身に渡す\n  ファイル名：出力_@{formatDateTime(utcNow(),'yyyyMMdd')}.csv\n  ファイルコンテンツ：body('CSV_テーブルの作成')",
+ note:"CSV は既定 UTF-8（BOMなし）のため Excel で開くと日本語が文字化けすることがある。BOM を付与する加工が必要（→「■CSVインポート」「■バイトオーダーマーク」の項目を参照）。",
+ tags:["CSV","HTML","出力","文字化け"],links:[lk("データ操作",L+"power-automate/data-operations")]},
+
+{id:"F-DAT-04",src:"pub",prod:"automate",group:"データ操作",name:"SharePoint「複数の項目の取得」",syntax:"フィルター クエリ（ODATA）",
+ desc:"リストから条件に合う項目を取得する。ループで1件ずつ取るより高速。",
+ code:"// フィルター クエリ（ODATA）\nステータス eq '申請中' and 工場 eq '富士松'\n完了日 ge '2026-04-01' and 完了日 le '2026-09-30'\nTitle ne null\n\n// 並べ替え\n作成日時 desc\n\n// 上限：既定100件 → 「すべての項目の取得」をオン or 上限値を設定",
+ note:"既定の取得件数は100件。全件必要なら「すべての項目の取得」をオンにする。5,000件を超えるリストではインデックス未設定列での絞り込みがしきい値エラーになるため、対象列にインデックスを作成すること。",
+ tags:["SharePoint","ODATA","上限","しきい値"],links:[lk("SharePoint コネクタ",L+"connectors/sharepointonline/")]},
+
+/* ===================== Power Automate : エラー処理 ===================== */
+{id:"F-ERR-01",src:"pub",prod:"automate",group:"エラー処理",name:"実行条件の構成（Try-Catch 相当）",syntax:"アクション […] → 実行条件の構成",
+ desc:"前のアクションが成功／失敗／スキップ／タイムアウトのどれになったときに実行するかを指定する。",
+ code:"// 構成例\n  スコープ「メイン処理」\n  スコープ「エラー処理」… 実行条件：失敗した場合／タイムアウトした場合\n  スコープ「後処理」　　… 実行条件：成功／失敗（＝必ず実行）\n\n// エラー内容の取得\nresult('メイン処理')",
+ note:"result('スコープ名') でスコープ内の各アクションの結果（エラーメッセージ含む）が配列で取れる。これを Teams やメールに通知すると障害調査が楽になる。",
+ tags:["エラー処理","TryCatch","重要"],links:[lk("エラー処理",L+"power-automate/error-handling")]},
+
+{id:"F-ERR-02",src:"pub",prod:"automate",group:"エラー処理",name:"再試行ポリシー / タイムアウト",syntax:"アクション […] → 設定 → 再試行ポリシー",
+ desc:"一時的な通信エラーに対する自動リトライの設定。",
+ code:"// 既定：指数間隔\n// 変更可：なし／既定／固定間隔／指数間隔\n\n// 固定間隔の例\n  回数：3　間隔：PT30S（30秒）\n\n// タイムアウト（Duration）\n  PT1H … 1時間",
+ note:"べき等でない処理（登録・通知など）に再試行を効かせると二重登録・二重通知になる恐れがある。登録系は「再試行なし」＋自前のエラー処理が安全。",
+ tags:["再試行","タイムアウト","二重実行"],links:[lk("エラー処理",L+"power-automate/error-handling")]},
+
+{id:"F-ERR-03",src:"pub",prod:"automate",group:"エラー処理",name:"二重実行・無限ループの防止",syntax:"トリガー条件 ＋ 状態フラグ列",
+ desc:"「更新したら起動するフローが、自分の更新でまた起動する」事故を防ぐ。",
+ code:"// 対策1：処理済フラグ列を用意し、トリガー条件で除外\n@equals(triggerOutputs()?['body/処理済'],false)\n\n// 対策2：更新者で除外\n@not(equals(triggerOutputs()?['body/Editor/Email'],'svc-flow@example.com'))\n\n// 対策3：処理の最後に必ずフラグを true に更新",
+ note:"無限ループはフローが自動停止（オフ）される原因になる。更新トリガーを使う場合は必ず抑止策をセットで設計すること。",
+ tags:["ループ防止","トリガー条件","重要"],links:[lk("トリガーの概要",L+"power-automate/triggers-introduction")]},
+
+/* ===================== Power Automate : 運用/共有 ===================== */
+{id:"F-OPS-01",src:"pub",prod:"automate",group:"運用/共有",name:"フローの共有と所有者",syntax:"共同所有者 / 実行のみのユーザー",
+ desc:"フローの共有方法。編集させるか、実行だけさせるかで設定が異なる。",
+ code:"// 共同所有者：編集・削除が可能（複数人を設定して属人化を防ぐ）\n// 実行のみのユーザー：インスタントフローを実行できるだけ\n// 接続：実行時に「所有者の接続を使用」か「各自の接続」かを選べる",
+ note:"担当者1人だけを所有者にすると、異動・退職でフローが動かなくなる。共同所有者は必ず複数人（または部門共有メールボックス／サービスアカウント）に設定すること。ソリューション化すると環境間の移行が容易になる。",
+ tags:["運用","共有","属人化"],links:[lk("フローの共有",L+"power-automate/create-team-flows")]},
+
+{id:"F-OPS-02",src:"pub",prod:"automate",group:"運用/共有",name:"実行履歴の確認とリカバリ",syntax:"マイフロー → 該当フロー → 実行履歴",
+ desc:"失敗した実行の原因特定と再実行。",
+ code:"// 確認手順\n 1. マイ フロー → 対象フロー → 実行履歴\n 2. 失敗した実行を開く\n 3. 赤いアクションを展開し「入力」「出力」を確認\n 4. エラーメッセージとステータスコードを控える\n 5. 修正後、「再送信」で同じ入力のまま再実行",
+ note:"実行履歴の保持期間には上限がある（既定28日）。長期のエビデンスが必要な業務では、処理結果を SharePoint リストや Excel にログとして書き出す設計にすること。",
+ tags:["運用","履歴","再実行","ログ"],links:[lk("フローのトラブルシューティング",L+"power-automate/fix-flow-failures")]},
+
+/* ===================== 連携 ===================== */
+{id:"X-INT-01",src:"pub",prod:"apps",group:"連携(Apps⇔Automate)",name:"Apps ⇔ Automate の役割分担",syntax:"—",
+ desc:"どちらで処理すべきかの判断基準。",
+ code:"// Power Apps 側が向く処理\n  ・画面表示、入力チェック、その場で結果が要る軽い処理\n\n// Power Automate 側が向く処理\n  ・メール／Teams 通知、承認、定期実行\n  ・ファイル生成、外部システム連携\n  ・大量データの一括処理（アプリの委任上限を回避できる）",
+ note:"「アプリが遅い」原因の多くは、本来フロー側でやるべき一括処理をアプリ側の ForAll で回していること。処理の置き場所を見直すだけで改善する場合が多い。",
+ tags:["設計","連携","性能"],links:[lk("Power Apps と Power Automate の連携",L+"power-automate/create-flow-solution")]},
+
+{id:"X-INT-02",src:"pub",prod:"automate",group:"連携(Apps⇔Automate)",name:"承認アクション",syntax:"「承認を開始して待機」/「承認を作成」",
+ desc:"Teams・メール・Power Automate アプリ上で承認依頼を出す。",
+ code:"// 「承認を開始して待機」\n  承認の種類：承認/拒否 - 最初に応答\n  タイトル　：【承認依頼】@{triggerOutputs()?['body/Title']}\n  担当者　　：承認者のメールアドレス（; 区切りで複数可）\n\n// 結果の参照\nbody('承認を開始して待機')?['outcome']    // Approve / Reject\nbody('承認を開始して待機')?['responses'][0]?['comments']",
+ note:"「開始して待機」はフローが応答まで止まる。長期間待つ場合や複数段階承認では「承認を作成」＋「承認を待機」に分ける構成を検討する。社内ガイドラインで承認行為の自動化が制限されている場合があるため、事前確認が必要。",
+ tags:["承認","Teams","ワークフロー"],links:[lk("承認ワークフロー",L+"power-automate/get-started-approvals")]},
+
+/* ===================================================================
+   ノート由来（src:"note"）／社内資料由来（src:"doc"）
+   =================================================================== */
+
+{id:"N-FMT-01",src:"note",prod:"automate",group:"ノート:日付/フォーマット",name:"■フォーマット（日付への変換・+9時間）",
+ syntax:"formatDateTime( 日時, 'yyyy/MM/dd HH:mm' )",
+ desc:"ノート「■フォーマット」より。SharePointリストの日時列を整形する式。既定のままだと世界標準時（UTC）で出るため、+9時間して日本時間に直している。",
+ code:"// 日付への変換\nformatDateTime(items('Apply_to_each')?['before_rental_time'], 'yyyy/MM/dd HH:mm')\n\n// ↓ 基本設定が世界基準のため、＋9時間する必要がある。\nformatDateTime(addHours(items('Apply_to_each')?['after_rental_time'],9), 'yyyy/MM/dd HH:mm')",
+ note:"ノート原文の方式は addHours(…,9)。固定+9時間のため夏時間の概念がない日本では問題ないが、他国対応やタイムゾーン設定を厳密にしたい場合は convertTimeZone(…, 'UTC','Tokyo Standard Time') が公式推奨の書き方（一般論・ノートには記載なし）。どちらを標準にするかはチームで統一しておくと保守が楽。",
+ tags:["日付","タイムゾーン","JST","SharePoint"],links:[nbF()]},
+
+{id:"N-NTF-01",src:"note",prod:"automate",group:"ノート:通知/リマインド",name:"■通知（ODATAフィルター条件式の組み立て）",
+ syntax:"after_rental_time lt '@{utcNow(...)}' and real_after_rental_time eq null",
+ desc:"ノート「■通知」より。貸出物の返却督促を想定した条件式。『返却予定を過ぎている』かつ『実際の返却日時が空欄』のアイテムだけを抽出する。",
+ code:"// フィルター クエリ（ODATA）\nafter_rental_time lt '@{utcNow('yyyy-MM-ddTHH:mm:ssZ')}'\nand\nreal_after_rental_time eq null",
+ note:"ノート原文の解説：after_rental_time＝返却予定日時の列、lt＝less than（より小さい）、@{utcNow('yyyy-MM-ddTHH:mm:ssZ')}＝現在のUTC日時。and は両方が真のときのみ成立。real_after_rental_time eq null＝実際の返却日時が空白。\nノートには「繰り返し(Recurrence)のタイムゾーン／開始時刻」の設定画面キャプチャも貼られている（本アプリには画像未収録）。",
+ tags:["ODATA","通知","リマインド","SharePoint"],
+ table:{head:["比較演算子","読み","意味"],rows:[["eq","イコール","等しい"],["ne","ノット イコール","等しくない"],["gt","グレイター ザン","より大きい"],["lt","レス ザン","より小さい"],["ge","グレイターザン オア イコール","以上"],["le","レスザン オア イコール","以下"]]},
+ refs:["【Power Automate×SharePoint】期日〇日前に自動でリマインダーを送る｜もちぱんじゃぱん"],
+ links:[nbF()]},
+
+{id:"N-CSV-01",src:"note",prod:"automate",group:"ノート:CSV/文字コード",name:"■CSVインポート（BOM除去・文字コード変換・JSON化手順）",
+ syntax:"replace( 文字列, decodeUriComponent('%EF%BB%BF'), '' )",
+ desc:"ノート「■CSVインポート」より。CSVを取り込むときのBOM対策と文字コード変換、JSON配列化までの手順。",
+ code:"// ■基本\n// └BOM文字を取り除く（replace で BOM を空白に置き換える）\nreplace(outputs('ファイル_コンテンツの取得')?['body'], decodeUriComponent('%EF%BB%BF'), '')\n\n// └文字コードの変換\ndecodeUriComponent('%EF%BB%BF') & variables('CSVの内容')\nconcat(decodeUriComponent('%EF%BB%BF'), body('ファイル_コンテンツの取得'))   // ←これがよく使うかも\n\n// ■CSVをUTF-8に変換し、JSON解析する手順\n// 01.ファイルコンテンツの取得\n// 02.エンコーディングを変換\nbase64ToString(base64(outputs('ファイル_コンテンツの取得')?['body']))\n// 03.BOMを削除\nreplace(outputs('Compose'), decodeUriComponent('%EF%BB%BF'), '')\n// 04.JSON配列に変換する（しない場合もあるかもだが）\nsplit(outputs('Compose'), '\\n')",
+ note:"ノート原文どおりに収録。アクション名（ファイル_コンテンツの取得 / Compose）は実際のフローの名前に合わせて読み替えること。\n【注意】このページの冒頭には Power Apps の関数（UpdateContext / Form の DefaultMode まわり）の画像・崩れたテキストがあるが、正確に読み取れなかったため本アプリには収録していない。原文はノートで確認してください。\n改行の split は '\\n' 指定だが、CRLF のファイルでは末尾に \\r が残る。必要に応じて replace で除去する（一般論）。",
+ tags:["CSV","BOM","文字化け","エンコード","JSON","重要"],links:[nbF()]},
+
+{id:"N-BOM-01",src:"note",prod:"automate",group:"ノート:CSV/文字コード",name:"■バイトオーダーマーク",
+ syntax:"—",
+ desc:"ノート「■バイトオーダーマーク」より。ページには検索メモ（「バイトオーダーマークとは」の検索リンク）のみが記載されており、本文の記述はなし。",
+ code:"",
+ note:"内容は未記入のページ。実務上の対処は「■CSVインポート」の項目（decodeUriComponent('%EF%BB%BF') による付与・除去）にまとまっている。必要ならこのカードのメモ欄に自分用の整理を追記してください。",
+ tags:["BOM","未記入","文字コード"],links:[nbF()]},
+
+{id:"N-CMP-01",src:"note",prod:"automate",group:"ノート:CSV/文字コード",name:"■Compose",
+ syntax:"—",
+ desc:"ノート「■Compose」より。ページには検索メモ（「PowerAutomate composeアクション どれ」の検索リンク）のみが記載されており、本文の記述はなし。",
+ code:"",
+ note:"内容は未記入のページ。Compose（作成）アクションの一般的な使い方は「データ操作 → 作成（Compose）」の項目を参照。",
+ tags:["Compose","未記入"],links:[nbF()]},
+
+{id:"N-JSON-01",src:"note",prod:"automate",group:"ノート:リンク集",name:"■JSON",
+ syntax:"—",
+ desc:"ノート「■JSON」より。CSVデータのJSON化に関する参考記事のブックマーク。",
+ code:"",
+ note:"ノートには記事へのリンクが貼られているが、本アプリにはURLを転記していないためタイトルのみ掲載。原文リンクはノートで確認してください。",
+ tags:["JSON","CSV","参考リンク"],
+ refs:["#PowerAutomate でCSVデータをJSON化する #PowerAutomate - Qiita"],
+ links:[nbF()]},
+
+{id:"N-EXP-01",src:"note",prod:"automate",group:"ノート:リンク集",name:"■Export（Excel出力・Apps→Automate 値渡し）",
+ syntax:"—",
+ desc:"ノート「■Export」より。Power Apps から Power Automate へ値を渡してExcel出力する系の参考記事のブックマーク。",
+ code:"",
+ note:"「JSONの解析」は Power Apps から渡した値を Power Automate 側で列として扱うための定番手順（→「データ操作 → JSON の解析」の項目も参照）。下記のうちURLが記録されていたのは1件のみ。",
+ tags:["Export","Excel","JSON解析","参考リンク"],
+ refs:["★ Power AppsからPower Automateへ値を渡すときに活躍する「JSONの解析」 #PowerAutomate - Qiita",
+       "【PowerApps × PowerAutomate連携】PowerAppsのボタンをクリックして、ギャラリーのデータをエクスポートする方法｜業務効率化・データ活用ブログ",
+       "Office 365 ユーザーコネクタを利用したExcel出力 #Microsoft - Qiita",
+       "Power Automate 「表に行を追加(Excel Online (Business))」アクション｜誰でもできる業務改善講座"],
+ links:[nbF(),lk("Power Automate で Excel にデータを出力する - Qiita","https://qiita.com/Takashi_Masumori/items/c50396c152f2f71e4e1b")]},
+
+{id:"N-NTF-02",src:"note",prod:"automate",group:"ノート:リンク集",name:"■Notification（SharePoint権限・ニュース投稿・HTTP要求）",
+ syntax:"—",
+ desc:"ノート「■Notification」より。SharePointの権限操作・ニュース投稿・REST API／HTTP要求まわりの参考記事のブックマーク。メール送信・サイト自動化の記事も含む。",
+ code:"",
+ note:"『SharePointへのHTTP要求』アクションは標準コネクタでは実現できない操作（権限変更・ニュース投稿など）を行うための手段。実行アカウントの権限で動くため、サービスアカウント運用や権限昇格の扱いに注意が必要（一般論・ノートには記載なし）。URLはノート原文で確認してください。",
+ tags:["SharePoint","権限","REST API","HTTP要求","メール","参考リンク"],
+ refs:["SharePointグループへのアクセス権をPowerAutomateのフローで変更する｜M365.TIPS",
+       "Power AutomateでSharePointのニュース投稿の自動化を試みたけど『d=』とは一体何なのか？ #PowerAutomate - Qiita",
+       "Power AppsとPower AutomateでSharePoint Onlineにニュースを投稿する（SharePoint REST API利用）#PowerAutomate - Qiita",
+       "『SharePointへのHTTP要求』アクション活用術（基本・裏技）- MoreBeerMorePower",
+       "■メール：【PowerAutomate】SharePointから取得したリストを列挙してメールで送信する #PowerPlatform - Qiita",
+       "■サイト自動化：【SharePoint】リストからページを作成する自動化（Power Automate）テンプレート - 越後屋ブログ店"],
+ links:[nbF()]},
+
+{id:"N-TMS-01",src:"note",prod:"automate",group:"ノート:通知/リマインド",name:"┗Teamへの通知",
+ syntax:"—",
+ desc:"ノート「┗Teamへの通知」より。Teams自動投稿時に投稿者が個人名になってしまう問題の回避と、フローボット（Workflows）に関する参考記事。",
+ code:"",
+ note:"Teamsへの自動投稿は、既定だとフロー所有者の個人名で投稿される。部署運用では「フローボット」や Workflows アプリ経由の投稿に切り替えるのが定番。ただし利用可否はテナント設定に依存するため、社内環境での確認が必要。URLはノート原文で確認してください。",
+ tags:["Teams","通知","フローボット","参考リンク"],
+ refs:["Power AutomateでTeamsに自動投稿するときに個人名表示を回避する方法 #PowerAutomate - Qiita",
+       "Power Automate で フローボット(Workflows) を使って躓く前に #PowerAutomate - Qiita"],
+ links:[nbF()]},
+
+{id:"N-IMG-01",src:"note",prod:"automate",group:"ノート:画像/添付",name:"■画像処理（SharePointリストのImage列・Base64）",
+ syntax:"—",
+ desc:"ノート「■画像処理」より。検索ワードは『sharepointリスト 画像 powerautomate』。SharePointリストのImage列への登録、Teamsへの画像投稿、アダプティブカードのBase64化に関する参考記事。",
+ code:"",
+ note:"SharePointリストのImage（画像）列は内部的にJSON形式で値を持つため、Patch や フローから直接書き込むには仕様に合わせた指定が必要。Teamsアダプティブカードに画像を載せる場合は Base64 化が必要になるケースがある。URLはノート原文で確認してください。",
+ tags:["画像","Base64","SharePoint","Teams","アダプティブカード","参考リンク"],
+ refs:["Power Automateで仕様が変わったSharePointリストのImage列に画像を登録する - コルネの進捗や備忘録が記されたなにか",
+       "SharePointリストからTeamsに画像投稿する自動化（Power Automateクラウド）｜越後 龍之介",
+       "Power AutomateでTeamsに投稿するアダプティブカードの画像を、Base64とやらにしてみたハナシ｜まる",
+       "■画像：【Power Apps 入門】画像データの取り扱い方法"],
+ links:[nbF()]},
+
+{id:"N-XLS-01",src:"note",prod:"automate",group:"ノート:通知/リマインド",name:"とりま（Excelテーブル高速更新／通知コメント テンプレ）",
+ syntax:"—",
+ desc:"ノート「とりま」より。Excelテーブルをなるべく高速に更新する参考記事と、設備通知コメントのテンプレート。",
+ code:"// ■通知コメント　テンプレ\n設備名：通知テスト\nShop：デジタル推進G\n設備ステータス：\n投稿者：\n部署(役職)：()\n投稿日：\n備考：",
+ note:"「表に行を追加」を Apply to each で1行ずつ回すと極端に遅くなるため、Office Scripts（スクリプトの実行）で一括更新する手法が参考記事の主旨。Office Scripts の利用可否はライセンス・テナント設定に依存するため社内環境での確認が必要。\nノートにはメール送信アクションのUIキャプチャ・文字列関数一覧の画像も貼られている（本アプリには画像未収録）。",
+ tags:["Excel","OfficeScripts","性能","テンプレ","参考リンク"],
+ refs:["PowerAutomateでなるべく高速にExcelテーブルを更新する #OfficeScripts - Qiita"],
+ links:[nbF()]},
+
+{id:"N-APP-01",src:"note",prod:"apps",group:"ノート:画像/添付",name:"■とまっちの参考（画像データ／セルフオーダー／可変承認）",
+ syntax:"—",
+ desc:"ノート「■とまっちの参考」より。Power Apps の画像データの扱いと、応用アプリの参考記事のブックマーク。",
+ code:"",
+ note:"ノート原文のメモ：「画像データをBase64（URI）でSharePointリストに表示。これをTextで表現している。」\n画像をテキスト（Base64文字列）として列に保持する方式は、列サイズの上限・リスト全体の肥大化・表示速度に影響する。件数が増える運用では、画像はドキュメントライブラリや添付ファイルに置き、リストにはパスだけ持たせる設計も検討したい（一般論・ノートには記載なし）。URLはノート原文で確認してください。",
+ tags:["画像","Base64","PowerApps","承認","参考リンク"],
+ refs:["【Power Apps 入門】画像データの取り扱い方法（動画）",
+       "飲食店のセルフオーダー画面を応用したPower Appsでのデータコントロール #PowerApps - Qiita",
+       "セルフオーダー機能「スマレジ・テーブルオーダー」｜クラウドPOSレジならスマレジ",
+       "Power Apps・Power Automate・Teamsによる承認者数を自在に設定できるワークフローを作成する #PowerAutomate - Qiita"],
+ links:[nbA()]},
+
+/* --------- 社内資料 --------- */
+{id:"D-DAT-01",src:"doc",prod:"automate",group:"実装パターン(社内実例)",name:"リマインド日の比較式（Eラーニング手順書）",
+ syntax:"formatDateTime( 値, 'yyyy-MM-dd' ) で揃えて比較",
+ desc:"社内資料『Eラーニング_PowerAutomate手順書.docx』5章「条件式の考え方」より。Excelの日付がPower Automate側で文字列になるかシリアル値になるかで式を使い分ける。",
+ code:"// 今日の日付（日本時間）\nformatDateTime(convertTimeZone(utcNow(),'UTC','Tokyo Standard Time'),'yyyy-MM-dd')\n\n// リマインド日比較：文字列日付の場合\nformatDateTime(items('Apply_to_each')?['リマインド日'],'yyyy-MM-dd')\n\n// リマインド日比較：Excelシリアル値の場合\nformatDateTime(addDays('1899-12-30', int(items('Apply_to_each')?['リマインド日'])), 'yyyy-MM-dd')\n\n// 通知済判定\nequals(items('Apply_to_each')?['リマインド通知済'], 'No')",
+ note:"資料の指示：「まずはテスト実行でPower Automateの実行履歴を確認し、日付の取得形式に合わせて式を選ぶ」。どちらの形式で来るかは環境・接続方法で変わるため、決め打ちにしないこと。",
+ tags:["日付","Excel","シリアル値","リマインド","社内資料"],links:[]},
+
+{id:"D-TMS-01",src:"doc",prod:"automate",group:"実装パターン(社内実例)",name:"Teams投稿文ひな型（Eラーニング手順書）",
+ syntax:"—",
+ desc:"社内資料『Eラーニング_PowerAutomate手順書.docx』6章「Teams投稿文ひな型」より。リマインド／締切当日／期限超過の3パターン。",
+ code:"// リマインド投稿\n🟨【Eラーニング受講リマインド】\n対象のEラーニング期限が近づいています。\n名称：＜Eラーニング名＞\n期限：＜最終期限＞\n対象：＜通知対象＞\nリンク：＜URL＞\n\n// 締切当日投稿\n🟥【本日締切】Eラーニング受講依頼\n本日が受講最終日です。未受講の方は本日中に完了してください。\n名称：＜Eラーニング名＞\n期限：＜最終期限＞\nリンク：＜URL＞\n\n// 期限超過投稿\n⚠️【期限超過】Eラーニング受講フォロー\n期限を過ぎています。未受講の方は速やかに受講してください。\n名称：＜Eラーニング名＞\n期限：＜最終期限＞\nリンク：＜URL＞",
+ note:"資料のテスト観点に「URLが空欄の行でもフローが失敗しないよう、投稿文で空欄許容にする」との記載あり。＜＞部分は動的なコンテンツに置き換えて使用する。",
+ tags:["Teams","通知","テンプレ","社内資料"],links:[]},
+
+{id:"D-TST-01",src:"doc",prod:"automate",group:"実装パターン(社内実例)",name:"通知フローのテスト観点（Eラーニング手順書）",
+ syntax:"—",
+ desc:"社内資料『Eラーニング_PowerAutomate手順書.docx』7章「テスト観点」より。リマインド通知フローを作ったときに確認すべき項目。",
+ code:"1. テスト用に最終期限を今日、リマインド日を今日にした行を作る。\n2. 通知済列が No のときだけ投稿されることを確認する。\n3. 投稿後、該当する通知済列が Yes に更新されることを確認する。\n4. 同じフローを再実行しても重複投稿されないことを確認する。\n5. URLが空欄の行でもフローが失敗しないよう、投稿文で空欄許容にする。",
+ note:"「再実行しても重複投稿されない」は、通知系フローの事故で最も多いパターンの確認項目。他の通知フローを作るときにもそのまま流用できるチェックリスト。",
+ tags:["テスト","チェックリスト","通知","社内資料"],links:[]},
+
+{id:"D-PFX-01",src:"doc",prod:"apps",group:"実装パターン(社内実例)",name:"チェックイン／退勤の Patch ロジック（配席表アプリ 基本設計書）",
+ syntax:"Patch( T_CheckIn, 対象レコード, { 列: 値 } )",
+ desc:"社内資料『配席表アプリ_基本設計書』⑫主要ロジック より。フリーアドレス座席のチェックイン／退勤／ステータス変更の Power Fx。",
+ code:"// F-02 座席タップ→チェックイン　OnSelect(座席Button)\n// ①既存の未退勤レコードを CheckOutTime=Now() で締める\n// ②T_CheckIn へ新規 Patch\nPatch( T_CheckIn, Defaults(T_CheckIn),\n    { MemberID: User().Email,\n      SeatID:   ThisItem.Title,\n      StatusID: \"在席\",\n      CheckInTime: Now(),\n      Device:   \"PC\" } )\n\n// F-04 退勤　OnSelect(btnExit)\nPatch( T_CheckIn,\n    LookUp( T_CheckIn, MemberID = User().Email && IsBlank(CheckOutTime) ),\n    { CheckOutTime: Now(), StatusID: \"退勤\" } )\n\n// F-07 ステータス変更（在宅等）　OnChange(Dropdown)\nPatch( T_CheckIn, 現在レコード,\n    { StatusID: Dropdown.Selected.Value, SeatID: Blank() } )",
+ note:"「未退勤レコード＝CheckOutTime が空」で特定する設計。IsBlank() を使った LookUp は委任非対応になりやすいため、レコード数が増えると取りこぼす可能性がある。設計書の疑似コードをそのまま実装する前に、実データ件数での動作確認が必要。",
+ tags:["Patch","SharePoint","チェックイン","社内実例","委任"],links:[]},
+
+{id:"D-PFX-02",src:"doc",prod:"apps",group:"実装パターン(社内実例)",name:"QRスキャンで画面遷移（配席表アプリ 基本設計書）",
+ syntax:"Set(…, LookUp(…, QRCode = BarcodeReader1.Value)); If(!IsBlank(…), Navigate(…), Notify(…))",
+ desc:"社内資料『配席表アプリ_基本設計書』F-03 より。バーコードリーダーで読んだQRから座席マスタを引き、該当があれば詳細画面へ遷移する。",
+ code:"// F-03 QRスキャンチェックイン　OnScan(BarcodeReader)\nSet( scannedSeat, LookUp( M_Seat, QRCode = BarcodeReader1.Value ) );\nIf( !IsBlank( scannedSeat ),\n    Navigate( SCR-06, , { SeatID: scannedSeat.Title } ),\n    Notify( \"該当座席なし\", Error )\n)",
+ note:"「読み取り→マスタ照合→存在チェック→遷移 or エラー通知」はQR運用アプリの定番パターン。設備QR・予備品QRなど他用途にもそのまま流用できる。画面名 SCR-06 は設計書上の画面IDなので、実装時は実際の画面名に置き換えること。",
+ tags:["QRコード","バーコード","LookUp","Navigate","社内実例"],links:[]},
+
+/* --------- 汎用テンプレート --------- */
+{id:"T-TPL-01",src:"pub",prod:"apps",group:"テンプレート",name:"[雛形] 一覧画面の検索＋並べ替え Items",
+ syntax:"Sort( Search( Filter( … ) ), … )",
+ desc:"ギャラリーの Items にそのまま貼れる雛形。{{ }} 部分は「⚙ 差替コピー」でリスト名・列名を入れてからコピーできる。",
+ code:'Sort(\n    Search(\n        Filter(\n            {{リスト名}},\n            {{絞込列}} = drpFilter.Selected.Value\n        ),\n        txtSearch.Text, "{{検索列1}}", "{{検索列2}}"\n    ),\n    {{並替列}}, Descending\n)',
+ note:"Search は委任非対応のデータソースが多い。大量リストでは Filter 側（委任可能な等価条件）でできるだけ絞ってから Search を掛ける。",
+ tags:["雛形","一覧","検索","テンプレート"],links:[]},
+
+{id:"T-TPL-02",src:"pub",prod:"apps",group:"テンプレート",name:"[雛形] 保存ボタン（入力チェック→Patch→通知→戻る）",
+ syntax:"If( 入力チェック, Patch(…); Notify(…); Back(), Notify(…) )",
+ desc:"登録ボタンの OnSelect にそのまま貼れる雛形。必須チェック→登録→成功通知→前画面へ戻る。",
+ code:'If(\n    IsBlank( txtTitle.Text ),\n    Notify( "件名は必須です", NotificationType.Error ); SetFocus( txtTitle ),\n\n    IfError(\n        Patch(\n            {{リスト名}},\n            Defaults( {{リスト名}} ),\n            {\n                Title:   txtTitle.Text,\n                {{列名1}}: drpType.Selected.Value,\n                登録者:  User().FullName,\n                登録日時: Now()\n            }\n        );\n        Notify( "登録しました", NotificationType.Success );\n        Back(),\n\n        Notify( "保存に失敗しました：" & FirstError.Message, NotificationType.Error )\n    )\n)',
+ note:"IfError の利用可否は環境設定に依存する場合がある。使えない環境では Errors( リスト名 ) を確認する方式に置き換える。",
+ tags:["雛形","登録","Patch","エラー処理","テンプレート"],links:[]},
+
+{id:"T-TPL-03",src:"pub",prod:"automate",group:"テンプレート",name:"[雛形] 定期リマインド通知フローの骨組み",
+ syntax:"繰り返し → 複数の項目の取得 → アレイのフィルター → 選択 → 通知 → 更新",
+ desc:"日次リマインドフローの構成テンプレート。ループ内でリストに問い合わせない形にしてある。",
+ code:"// 1. トリガー：繰り返し（毎日 8:00 / タイムゾーン：大阪、札幌、東京）\n\n// 2. SharePoint「複数の項目の取得」\n//    フィルター クエリ：\n{{通知済列}} eq 'No' and {{期限列}} le '@{formatDateTime(convertTimeZone(utcNow(),'UTC','Tokyo Standard Time'),'yyyy-MM-dd')}'\n//    「すべての項目の取得」：オン\n\n// 3. 条件：対象0件なら終了（状態：成功）\nlength(body('複数の項目の取得')?['value'])\n\n// 4. 「選択」で投稿用に整形\n//    件名 → item()?['Title']\n//    期限 → formatDateTime(item()?['{{期限列}}'],'yyyy/MM/dd')\n\n// 5. Teams投稿 or メール送信\n\n// 6. Apply to each → SharePoint「項目の更新」で {{通知済列}} を 'Yes' に",
+ note:"手順6を入れないと毎日同じ通知が飛ぶ。逆に更新トリガーの別フローがある場合は無限ループの原因になるため、トリガー条件での除外も併せて設計すること（→「二重実行・無限ループの防止」の項目を参照）。",
+ tags:["雛形","リマインド","定期実行","テンプレート"],links:[]}
+];
+
+/* =========================================================
+   アプリロジック
+   ========================================================= */
+var KEY="pp_dict_v3", UIKEY="pp_dict_v3_ui";
+var state={ entries:[], memos:{}, favs:[], prod:"all", group:"all", q:"", tag:null,
+            src:"all", onlyFav:false, onlyMemo:false, onlyCode:false, sortBy:"default" };
+var ui={ view:"auto", dvfs:16 };
+var SRC_LABEL={note:"ノート",doc:"社内資料",user:"自作",pub:""};
+
+function load(){
+  var raw=null; try{ raw=localStorage.getItem(KEY); }catch(e){}
+  var s=null; if(raw){ try{ s=JSON.parse(raw); }catch(e){ s=null; } }
+  if(s && Array.isArray(s.entries) && s.entries.length){
+    state.entries=s.entries; state.memos=s.memos||{}; state.favs=s.favs||[];
+  }else{ state.entries=SEED.slice(); state.memos={}; state.favs=[]; }
+  var u=null; try{ u=localStorage.getItem(UIKEY); }catch(e){}
+  if(u){ try{ var o=JSON.parse(u); if(o.view) ui.view=o.view; if(o.dvfs) ui.dvfs=o.dvfs; }catch(e){} }
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify({entries:state.entries,memos:state.memos,favs:state.favs,ts:new Date().toISOString()})); }
+  catch(e){ toast("保存に失敗しました（保存容量またはプライベートモードの可能性）"); }
+}
+function saveUi(){ try{ localStorage.setItem(UIKEY, JSON.stringify(ui)); }catch(e){} }
+
+function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toast(msg){ var t=document.getElementById("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(function(){t.classList.remove("on");},2300); }
+function openOv(id){ document.getElementById(id).classList.add("on"); }
+function closeOv(id){ document.getElementById(id).classList.remove("on"); }
+function hl(text,q){
+  var s=esc(text); if(!q) return s;
+  var parts=q.trim().split(/\s+/).filter(Boolean);
+  for(var i=0;i<parts.length;i++){
+    var p=parts[i].replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+    if(!p) continue;
+    s=s.replace(new RegExp("("+p+")","gi"),"<mark>$1</mark>");
+  }
+  return s;
+}
+function prodLabel(p){ return p==="apps"?"Apps":"Automate"; }
+function srcOf(e){ return e.src || (e.custom?"user":"pub"); }
+function phList(code){
+  var out=[],re=/\{\{([^}]+)\}\}/g,m;
+  while((m=re.exec(code||""))!==null){ if(out.indexOf(m[1])<0) out.push(m[1]); }
+  return out;
+}
+function badges(e){
+  var sc=srcOf(e);
+  var h='<span class="badge '+(e.prod==="automate"?"g":"")+'">'+prodLabel(e.prod)+'</span>';
+  if(sc!=="pub") h+='<span class="badge '+(sc==="user"?"u":sc)+'">'+SRC_LABEL[sc]+'</span>';
+  return h;
+}
+
+/* ---------- 絞り込み ---------- */
+function matches(e){
+  if(state.prod!=="all" && e.prod!==state.prod) return false;
+  if(state.group!=="all" && e.group!==state.group) return false;
+  if(state.src!=="all" && srcOf(e)!==state.src) return false;
+  if(state.onlyFav && state.favs.indexOf(e.id)<0) return false;
+  if(state.onlyMemo && !(state.memos[e.id]&&state.memos[e.id].trim())) return false;
+  if(state.onlyCode && !(e.code&&e.code.trim())) return false;
+  if(state.tag && (!e.tags || e.tags.indexOf(state.tag)<0)) return false;
+  var q=state.q.trim().toLowerCase();
+  if(q){
+    var hay=[e.name,e.syntax,e.desc,e.code,e.note,e.group,(e.tags||[]).join(" "),
+             (e.refs||[]).join(" "),(e.links||[]).map(function(l){return l.label;}).join(" "),
+             state.memos[e.id]||""].join(" ").toLowerCase();
+    var ws=q.split(/\s+/);
+    for(var i=0;i<ws.length;i++){ if(hay.indexOf(ws[i])<0) return false; }
+  }
+  return true;
+}
+function currentList(){
+  var arr=state.entries.filter(matches);
+  if(state.sortBy==="title")  arr.sort(function(a,b){return a.name.localeCompare(b.name,"ja");});
+  if(state.sortBy==="titleD") arr.sort(function(a,b){return b.name.localeCompare(a.name,"ja");});
+  if(state.sortBy==="fav")    arr.sort(function(a,b){return (state.favs.indexOf(b.id)>=0?1:0)-(state.favs.indexOf(a.id)>=0?1:0);});
+  return arr;
+}
+function find(id){ for(var i=0;i<state.entries.length;i++) if(state.entries[i].id===id) return state.entries[i]; return null; }
+
+/* ---------- 一覧描画 ---------- */
+function renderProd(){
+  var el=document.getElementById("prodRow");
+  var all=state.entries.length;
+  var a=state.entries.filter(function(e){return e.prod==="apps";}).length;
+  var f=state.entries.filter(function(e){return e.prod==="automate";}).length;
+  var defs=[["all","▦ すべて",all,""],["apps","▲ Power Apps",a,""],["automate","⟳ Power Automate",f,"g"]];
+  el.innerHTML=defs.map(function(d){
+    return '<button class="prod '+(state.prod===d[0]?"on "+d[3]:"")+'" data-p="'+d[0]+'">'+d[1]+' <span class="cnt">'+d[2]+'</span></button>';
+  }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll(".prod"),function(b){
+    b.onclick=function(){ state.prod=b.dataset.p; state.group="all"; state.tag=null; render(); };
+  });
+}
+function renderTabs(){
+  var el=document.getElementById("tabs");
+  var pool=state.entries.filter(function(e){return state.prod==="all"||e.prod===state.prod;});
+  var groups=[],cnt={};
+  pool.forEach(function(e){ if(groups.indexOf(e.group)<0) groups.push(e.group); cnt[e.group]=(cnt[e.group]||0)+1; });
+  var html='<button class="tab '+(state.group==="all"?"on":"")+'" data-g="all">すべて<span class="n">'+pool.length+'</span></button>';
+  html+=groups.map(function(g){
+    return '<button class="tab '+(state.group===g?"on":"")+'" data-g="'+esc(g)+'">'+esc(g)+'<span class="n">'+cnt[g]+'</span></button>';
+  }).join("");
+  el.innerHTML=html;
+  Array.prototype.forEach.call(el.querySelectorAll(".tab"),function(b){
+    b.onclick=function(){ state.group=b.dataset.g; state.tag=null; render(); };
+  });
+  var dl=document.getElementById("groupList"),allG=[];
+  state.entries.forEach(function(e){ if(allG.indexOf(e.group)<0) allG.push(e.group); });
+  dl.innerHTML=allG.map(function(g){return '<option value="'+esc(g)+'">';}).join("");
+}
+function renderTags(){
+  var el=document.getElementById("tagbar");
+  var pool=state.entries.filter(function(e){
+    return (state.prod==="all"||e.prod===state.prod)&&(state.group==="all"||e.group===state.group);
+  });
+  var tags=[]; pool.forEach(function(e){ (e.tags||[]).forEach(function(t){ if(tags.indexOf(t)<0) tags.push(t); }); });
+  tags.sort(function(a,b){return a.localeCompare(b,"ja");});
+  if(!tags.length){ el.innerHTML=""; return; }
+  el.innerHTML='<span style="font-size:11.5px;color:#5b6b7c;align-self:center;margin-right:2px">タグ：</span>'
+    + tags.map(function(t){ return '<button class="tagchip '+(state.tag===t?"on":"")+'" data-t="'+esc(t)+'">#'+esc(t)+'</button>'; }).join("");
+  Array.prototype.forEach.call(el.querySelectorAll(".tagchip"),function(b){
+    b.onclick=function(){ state.tag=(state.tag===b.dataset.t?null:b.dataset.t); render(); };
+  });
+}
+function renderView(){
+  var w=document.getElementById("vswitch");
+  Array.prototype.forEach.call(w.querySelectorAll("button"),function(b){
+    b.className = (ui.view===b.dataset.v)?"on":"";
+    b.onclick=function(){ ui.view=b.dataset.v; saveUi(); render(); };
+  });
+  var g=document.getElementById("grid");
+  g.className="grid"+(ui.view==="one"?" one":"");
+  document.documentElement.style.setProperty("--cols", ui.view==="wide" ? "640px" : "430px");
+}
+function card(e){
+  var fav=state.favs.indexOf(e.id)>=0, memo=state.memos[e.id]||"";
+  var h='<div class="card '+(fav?"fav":"")+'" id="card-'+esc(e.id)+'">';
+  h+='<div class="c-head"><div class="t"><div class="c-title" data-open="'+esc(e.id)+'" title="クリックで1画面表示">';
+  h+=badges(e)+hl(e.name,state.q)+'</div>';
+  if(e.syntax) h+='<div class="c-syntax mono">'+hl(e.syntax,state.q)+'</div>';
+  h+='<div class="c-grp">▸ '+esc(e.group)+'</div></div>';
+  h+='<button class="icobtn zoom" data-open="'+esc(e.id)+'" title="1画面で大きく表示">⤢</button>';
+  h+='<button class="icobtn star '+(fav?"on":"")+'" data-fav="'+esc(e.id)+'" title="お気に入り">'+(fav?"★":"☆")+'</button>';
+  h+='<button class="icobtn" data-edit="'+esc(e.id)+'" title="編集">✎</button>';
+  h+='</div><div class="c-body">';
+  if(e.desc) h+='<div class="c-desc">'+hl(e.desc,state.q)+'</div>';
+  if(e.code&&e.code.trim()){
+    var phs=phList(e.code);
+    h+='<div class="codebox"><div class="cb-btns">';
+    if(phs.length) h+='<button class="copy" data-ph="'+esc(e.id)+'" title="値を差し替えてコピー">⚙ 差替コピー</button>';
+    h+='<button class="copy" data-copy="'+esc(e.id)+'">⧉ コピー</button>';
+    h+='</div><pre>'+hl(e.code,state.q)+'</pre></div>';
+  }
+  if(e.table&&e.table.rows){
+    h+='<table class="ptbl"><thead><tr>'+e.table.head.map(function(c){return '<th>'+esc(c)+'</th>';}).join("")+'</tr></thead><tbody>';
+    h+=e.table.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+hl(c,state.q)+'</td>';}).join("")+'</tr>';}).join("");
+    h+='</tbody></table>';
+  }
+  if(e.note) h+='<div class="c-note">⚠ '+hl(e.note,state.q)+'</div>';
+  if(e.refs&&e.refs.length){
+    h+='<div class="c-refs"><div class="h">📎 参考記事（ノートに記載／URL未記録のためタイトルのみ）</div><ul>';
+    h+=e.refs.map(function(r){return '<li>'+hl(r,state.q)+'</li>';}).join("")+'</ul></div>';
+  }
+  if(e.tags&&e.tags.length) h+='<div class="c-tags">'+e.tags.map(function(t){return '<span>#'+esc(t)+'</span>';}).join("")+'</div>';
+  if(e.links&&e.links.length) h+='<div class="c-links">'+e.links.map(function(l){
+      return '<a href="'+esc(l.url)+'" target="_blank" rel="noopener">🔗 '+esc(l.label)+'</a>';}).join("")+'</div>';
+  h+='</div>';
+  h+='<div class="memo"><div class="lbl">📝 メモ'+(memo.trim()?' <span class="saved">（保存済）</span>':'')+'</div>';
+  h+='<textarea data-memo="'+esc(e.id)+'" placeholder="気づいた点・社内ルール・詰まったところなどを記入">'+esc(memo)+'</textarea>';
+  h+='<div class="row"><button class="sbtn" data-msave="'+esc(e.id)+'">保存</button>';
+  h+='<button class="sbtn" data-mclr="'+esc(e.id)+'">消去</button></div></div>';
+  h+='</div>';
+  return h;
+}
+function render(){
+  renderProd(); renderTabs(); renderTags(); renderView();
+  var list=currentList(), g=document.getElementById("grid");
+  document.getElementById("count").textContent="表示 "+list.length+" 件 / 全 "+state.entries.length+" 件";
+  if(!list.length){
+    g.innerHTML='<div class="empty" style="grid-column:1/-1">該当する項目がないよ。<br>検索語・タブ・タグ・出典の条件を見直してみて。</div>';
+    return;
+  }
+  g.innerHTML=list.map(card).join("");
+  bindCards();
+}
+function bindCards(){
+  var g=document.getElementById("grid");
+  Array.prototype.forEach.call(g.querySelectorAll("[data-open]"),function(b){
+    b.onclick=function(){ openDetail(b.dataset.open); };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-copy]"),function(b){
+    b.onclick=function(){ var e=find(b.dataset.copy); if(e) copyText(e.code,b); };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-ph]"),function(b){
+    b.onclick=function(){ openPh(b.dataset.ph); };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-fav]"),function(b){
+    b.onclick=function(){ toggleFav(b.dataset.fav); };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-edit]"),function(b){
+    b.onclick=function(){ openEdit(b.dataset.edit); };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-msave]"),function(b){
+    b.onclick=function(){
+      var id=b.dataset.msave, ta=g.querySelector('[data-memo="'+id+'"]');
+      state.memos[id]=ta.value; save(); toast("メモを保存したよ"); render();
+    };
+  });
+  Array.prototype.forEach.call(g.querySelectorAll("[data-mclr]"),function(b){
+    b.onclick=function(){
+      var id=b.dataset.mclr;
+      if(!confirm("このメモを消去する？（元に戻せません）")) return;
+      delete state.memos[id]; save(); render();
+    };
+  });
+}
+function toggleFav(id){
+  var i=state.favs.indexOf(id);
+  if(i<0) state.favs.push(id); else state.favs.splice(i,1);
+  save(); render(); if(dvId===id) renderDetail();
+}
+
+/* =========================================================
+   詳細ビュー（1画面表示）
+   ========================================================= */
+var dvId=null, dvList=[];
+
+function openDetail(id){
+  var e=find(id); if(!e) return;
+  dvList=currentList();
+  if(!dvList.some(function(x){return x.id===id;})) dvList=[e];
+  dvId=id;
+  document.getElementById("dv").classList.add("on");
+  document.body.classList.add("noscroll"); document.body.classList.add("dvopen");
+  applyFs(); renderDetail();
+  document.getElementById("dvBody").scrollTop=0;
+}
+function closeDetail(){
+  document.getElementById("dv").classList.remove("on");
+  document.body.classList.remove("noscroll"); document.body.classList.remove("dvopen");
+  var cur=dvId; dvId=null;
+  if(cur){
+    var el=document.getElementById("card-"+cur);
+    if(el && el.scrollIntoView) el.scrollIntoView({block:"center"});
+  }
+}
+function dvIndex(){ for(var i=0;i<dvList.length;i++) if(dvList[i].id===dvId) return i; return -1; }
+function dvGo(step){
+  var i=dvIndex(); if(i<0) return;
+  var n=i+step; if(n<0||n>=dvList.length) return;
+  dvId=dvList[n].id; renderDetail();
+  document.getElementById("dvBody").scrollTop=0;
+}
+function applyFs(){
+  document.getElementById("dv").style.setProperty("--dvfs", ui.dvfs+"px");
+  Array.prototype.forEach.call(document.querySelectorAll("#dvFsw button"),function(b){
+    b.className=(parseInt(b.dataset.fs,10)===ui.dvfs)?"on":"";
+  });
+}
+function sec(title,inner){ return '<div class="dv-sec"><h4>'+title+'</h4>'+inner+'</div>'; }
+
+function renderDetail(){
+  var e=find(dvId); if(!e){ closeDetail(); return; }
+  var i=dvIndex(), fav=state.favs.indexOf(e.id)>=0, memo=state.memos[e.id]||"";
+
+  document.getElementById("dvHeadTitle").textContent=e.name;
+  document.getElementById("dvPos").textContent=(i>=0?(i+1)+" / "+dvList.length:"");
+  document.getElementById("dvPrev").disabled=(i<=0);
+  document.getElementById("dvNext").disabled=(i<0||i>=dvList.length-1);
+  document.getElementById("dvStar").textContent=fav?"★ お気に入り":"☆ お気に入り";
+
+  var h='<div class="dv-inner">';
+  h+='<div class="dv-meta">'+badges(e)+'<span style="font-size:12px;color:#5b6b7c">▸ '+esc(e.group)+'</span>';
+  h+='<span style="font-size:11px;color:#9aa8b6;margin-left:auto">ID: '+esc(e.id)+'</span></div>';
+  h+='<h1 class="dv-title">'+hl(e.name,state.q)+'</h1>';
+  if(e.syntax) h+='<div class="dv-syntax mono">'+hl(e.syntax,state.q)+'</div>';
+
+  if(e.desc) h+=sec("説明",'<div class="dv-desc">'+hl(e.desc,state.q)+'</div>');
+
+  if(e.code&&e.code.trim()){
+    var phs=phList(e.code);
+    var inner='<div class="codebox" style="margin-top:0"><div class="cb-btns">';
+    if(phs.length) inner+='<button class="copy" id="dvPh">⚙ 差替コピー</button>';
+    inner+='<button class="copy" id="dvCopy">⧉ コピー</button></div><pre>'+hl(e.code,state.q)+'</pre></div>';
+    if(phs.length) inner+='<div style="font-size:12px;color:#5b6b7c;margin-top:8px">※ '+phs.map(function(p){return "<code>{{"+esc(p)+"}}</code>";}).join("、")+' は環境に合わせて置き換えてください。「⚙ 差替コピー」で入力しながらコピーできます。</div>';
+    h+=sec("コード例",inner);
+  }
+
+  if(e.table&&e.table.rows){
+    var t='<table class="ptbl" style="margin-top:0"><thead><tr>'+e.table.head.map(function(c){return '<th>'+esc(c)+'</th>';}).join("")+'</tr></thead><tbody>';
+    t+=e.table.rows.map(function(r){return '<tr>'+r.map(function(c){return '<td>'+hl(c,state.q)+'</td>';}).join("")+'</tr>';}).join("");
+    t+='</tbody></table>';
+    h+=sec("早見表",t);
+  }
+
+  if(e.note) h+=sec("注意点・Tips",'<div class="dv-note">'+hl(e.note,state.q)+'</div>');
+
+  if(e.refs&&e.refs.length){
+    h+=sec("参考記事（ノートに記載／URL未記録のためタイトルのみ）",
+      '<ul class="dv-refs">'+e.refs.map(function(r){return '<li>'+hl(r,state.q)+'</li>';}).join("")+'</ul>');
+  }
+
+  if(e.links&&e.links.length){
+    h+=sec("参照リンク",'<div class="dv-links">'+e.links.map(function(l){
+      return '<a href="'+esc(l.url)+'" target="_blank" rel="noopener">🔗 '+esc(l.label)+'</a>';}).join("")+'</div>'
+      +'<div style="font-size:11.5px;color:#5b6b7c;margin-top:8px">※ リンクの有効性は未検証です。</div>');
+  }
+
+  if(e.tags&&e.tags.length){
+    h+=sec("タグ",'<div class="dv-tags">'+e.tags.map(function(t){
+      return '<button data-dvtag="'+esc(t)+'">#'+esc(t)+'</button>';}).join("")+'</div>');
+  }
+
+  h+=sec("メモ（このブラウザに保存）",
+    '<div class="dv-memo"><textarea id="dvMemo" placeholder="気づいた点・社内ルール・詰まったところなどを記入">'+esc(memo)+'</textarea>'
+    +'<div class="row"><button class="btn pri" id="dvMemoSave">保存</button>'
+    +'<button class="btn" id="dvMemoClr">消去</button>'
+    +'<span style="font-size:11.5px;color:#5b6b7c">PC・ブラウザが変わると引き継がれません。共有はエクスポートを使ってください。</span></div></div>');
+
+  var rel=state.entries.filter(function(x){
+    if(x.id===e.id) return false;
+    if(x.group===e.group) return true;
+    if(e.tags&&x.tags) for(var k=0;k<e.tags.length;k++) if(x.tags.indexOf(e.tags[k])>=0) return true;
+    return false;
+  }).slice(0,8);
+  if(rel.length){
+    h+=sec("関連項目",'<div class="dv-rel">'+rel.map(function(x){
+      return '<button data-dvrel="'+esc(x.id)+'">'+badges(x)+'<span>'+esc(x.name)+'</span><span class="g">'+esc(x.group)+'</span></button>';
+    }).join("")+'</div>');
+  }
+
+  h+='<div class="dv-foot"><button class="btn" id="dvPrev2">◀ 前の項目</button>'
+    +'<button class="btn pri" id="dvClose2">一覧に戻る</button>'
+    +'<button class="btn" id="dvNext2">次の項目 ▶</button></div>';
+  h+='</div>';
+
+  var body=document.getElementById("dvBody");
+  body.innerHTML=h;
+
+  var c=document.getElementById("dvCopy");
+  if(c) c.onclick=function(){ copyText(e.code,c); };
+  var p=document.getElementById("dvPh");
+  if(p) p.onclick=function(){ openPh(e.id); };
+  Array.prototype.forEach.call(body.querySelectorAll("[data-dvtag]"),function(b){
+    b.onclick=function(){ state.tag=b.dataset.dvtag; state.group="all"; render(); closeDetail(); toast("タグ #"+b.dataset.dvtag+" で絞り込んだよ"); };
+  });
+  Array.prototype.forEach.call(body.querySelectorAll("[data-dvrel]"),function(b){
+    b.onclick=function(){
+      var id=b.dataset.dvrel;
+      if(!dvList.some(function(x){return x.id===id;})) dvList=dvList.concat([find(id)]);
+      dvId=id; renderDetail(); document.getElementById("dvBody").scrollTop=0;
+    };
+  });
+  document.getElementById("dvMemoSave").onclick=function(){
+    state.memos[e.id]=document.getElementById("dvMemo").value; save(); render(); toast("メモを保存したよ");
+  };
+  document.getElementById("dvMemoClr").onclick=function(){
+    if(!confirm("このメモを消去する？（元に戻せません）")) return;
+    delete state.memos[e.id]; save(); render(); renderDetail();
+  };
+  var p2=document.getElementById("dvPrev2"), n2=document.getElementById("dvNext2");
+  p2.disabled=(i<=0); n2.disabled=(i<0||i>=dvList.length-1);
+  p2.onclick=function(){ dvGo(-1); };
+  n2.onclick=function(){ dvGo(1); };
+  document.getElementById("dvClose2").onclick=closeDetail;
+}
+
+document.getElementById("dvPrev").onclick=function(){ dvGo(-1); };
+document.getElementById("dvNext").onclick=function(){ dvGo(1); };
+document.getElementById("dvClose").onclick=closeDetail;
+document.getElementById("dvStar").onclick=function(){ if(dvId) toggleFav(dvId); };
+document.getElementById("dvEdit").onclick=function(){ if(dvId) openEdit(dvId); };
+document.getElementById("dvPrint").onclick=function(){ window.print(); };
+Array.prototype.forEach.call(document.querySelectorAll("#dvFsw button"),function(b){
+  b.onclick=function(){ ui.dvfs=parseInt(b.dataset.fs,10); saveUi(); applyFs(); };
+});
+document.getElementById("btnFirst").onclick=function(){
+  var l=currentList();
+  if(!l.length){ toast("表示できる項目がないよ"); return; }
+  openDetail(l[0].id);
+};
+
+/* ---------- クリップボード ---------- */
+function copyText(text,btn){
+  var done=function(){
+    if(btn){ var o=btn.textContent; btn.textContent="✓ コピー済"; btn.classList.add("done");
+      setTimeout(function(){btn.textContent=o;btn.classList.remove("done");},1400); }
+    toast("クリップボードにコピーしたよ");
+  };
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(text).then(done).catch(function(){ fallback(text,done); });
+  }else{ fallback(text,done); }
+}
+function fallback(text,done){
+  var ta=document.createElement("textarea");
+  ta.value=text; ta.style.position="fixed"; ta.style.opacity="0";
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try{ document.execCommand("copy"); done(); }catch(e){ toast("コピーに失敗しました。手動で選択してください"); }
+  document.body.removeChild(ta);
+}
+
+/* ---------- 差替コピー ---------- */
+var phTarget=null;
+function openPh(id){
+  var e=find(id); if(!e) return;
+  phTarget=e;
+  document.getElementById("phFields").innerHTML=phList(e.code).map(function(p){
+    return '<div class="fld"><label>'+esc(p)+'</label><input class="mono" data-phk="'+esc(p)+'" placeholder="'+esc(p)+' に入れる値"></div>';
+  }).join("");
+  Array.prototype.forEach.call(document.querySelectorAll("[data-phk]"),function(inp){ inp.oninput=phPreview; });
+  phPreview(); openOv("ovPh");
+  var first=document.querySelector("[data-phk]"); if(first) setTimeout(function(){first.focus();},50);
+}
+function phValue(){
+  var code=phTarget.code;
+  Array.prototype.forEach.call(document.querySelectorAll("[data-phk]"),function(inp){
+    if(inp.value) code=code.split("{{"+inp.dataset.phk+"}}").join(inp.value);
+  });
+  return code;
+}
+function phPreview(){ document.getElementById("phPrev").textContent=phValue(); }
+document.getElementById("phCopy").onclick=function(){ copyText(phValue(),null); closeOv("ovPh"); };
+
+/* ---------- 追加・編集 ---------- */
+var editingId=null;
+function openEdit(id){
+  editingId=id||null;
+  var e=id?find(id):null;
+  document.getElementById("edTitle").textContent = e? "項目を編集" : "項目を追加";
+  document.getElementById("edProd").value   = e? e.prod : (state.prod==="automate"?"automate":"apps");
+  document.getElementById("edGroup").value  = e? e.group : (state.group!=="all"?state.group:"");
+  document.getElementById("edName").value   = e? e.name : "";
+  document.getElementById("edSyntax").value = e? (e.syntax||"") : "";
+  document.getElementById("edDesc").value   = e? (e.desc||"") : "";
+  document.getElementById("edCode").value   = e? (e.code||"") : "";
+  document.getElementById("edNote").value   = e? (e.note||"") : "";
+  document.getElementById("edTags").value   = e? (e.tags||[]).join(", ") : "";
+  document.getElementById("edLinks").value  = e? (e.links||[]).map(function(l){return l.label+" | "+l.url;}).join("\n") : "";
+  document.getElementById("edRefs").value   = e? (e.refs||[]).join("\n") : "";
+  document.getElementById("edDelete").style.display = e? "inline-block":"none";
+  openOv("ovEdit");
+  setTimeout(function(){document.getElementById("edName").focus();},50);
+}
+document.getElementById("btnAdd").onclick=function(){ openEdit(null); };
+document.getElementById("edSave").onclick=function(){
+  var name=document.getElementById("edName").value.trim();
+  var group=document.getElementById("edGroup").value.trim();
+  if(!name){ alert("名称は必須だよ"); return; }
+  if(!group){ alert("分類（タブ）は必須だよ"); return; }
+  var links=document.getElementById("edLinks").value.split("\n").map(function(l){
+    l=l.trim(); if(!l) return null;
+    var p=l.split("|");
+    if(p.length>=2) return {label:p[0].trim(),url:p.slice(1).join("|").trim()};
+    return {label:l,url:l};
+  }).filter(Boolean);
+  var old = editingId? find(editingId) : null;
+  var obj={
+    id: editingId || ("U-"+Date.now()),
+    src: old? srcOf(old) : "user",
+    prod: document.getElementById("edProd").value,
+    group: group, name: name,
+    syntax: document.getElementById("edSyntax").value,
+    desc: document.getElementById("edDesc").value,
+    code: document.getElementById("edCode").value,
+    note: document.getElementById("edNote").value,
+    tags: document.getElementById("edTags").value.split(",").map(function(t){return t.trim();}).filter(Boolean),
+    links: links,
+    refs: document.getElementById("edRefs").value.split("\n").map(function(t){return t.trim();}).filter(Boolean),
+    table: old? old.table : undefined
+  };
+  if(editingId){
+    for(var i=0;i<state.entries.length;i++) if(state.entries[i].id===editingId) state.entries[i]=obj;
+    toast("更新したよ");
+  }else{ state.entries.push(obj); toast("追加したよ"); }
+  save(); closeOv("ovEdit"); render();
+  if(dvId===obj.id) renderDetail();
+};
+document.getElementById("edDelete").onclick=function(){
+  if(!editingId) return;
+  if(!confirm("この項目を削除する？（元に戻せません。事前にエクスポートを推奨）")) return;
+  var del=editingId;
+  state.entries=state.entries.filter(function(e){return e.id!==del;});
+  delete state.memos[del];
+  state.favs=state.favs.filter(function(i){return i!==del;});
+  save(); closeOv("ovEdit");
+  if(dvId===del) closeDetail();
+  render(); toast("削除したよ");
+};
+
+/* ---------- エクスポート ---------- */
+document.getElementById("btnExport").onclick=function(){ openOv("ovExp"); };
+document.getElementById("expRun").onclick=function(){
+  var mode=document.getElementById("expMode").value;
+  var stamp=new Date().toISOString().slice(0,10).replace(/-/g,"");
+  if(mode==="all"||mode==="mine"){
+    var ents = mode==="all" ? state.entries : state.entries.filter(function(e){return srcOf(e)==="user";});
+    var memos={};
+    if(mode==="all"){ memos=state.memos; }
+    else{ Object.keys(state.memos).forEach(function(k){ if(state.memos[k]&&state.memos[k].trim()) memos[k]=state.memos[k]; }); }
+    var data={app:"PowerPlatformDictionary",version:3,exportedAt:new Date().toISOString(),
+              entries:ents,memos:memos,favs:state.favs};
+    dl(JSON.stringify(data,null,2),"PowerPlatform_Dictionary_"+mode+"_"+stamp+".json","application/json");
+  }else if(mode==="csv"){
+    var head=["ID","出典","製品","分類","名称","構文","説明","コード例","注意点","タグ","参照リンク","参考記事(URL未記録)","メモ","お気に入り"];
+    var rows=[head];
+    state.entries.forEach(function(e){
+      rows.push([e.id, SRC_LABEL[srcOf(e)]||"一般", prodLabel(e.prod), e.group, e.name, e.syntax||"", e.desc||"", e.code||"", e.note||"",
+        (e.tags||[]).join(" / "),
+        (e.links||[]).map(function(l){return l.label+" "+l.url;}).join(" / "),
+        (e.refs||[]).join(" / "),
+        state.memos[e.id]||"", state.favs.indexOf(e.id)>=0?"★":""]);
+    });
+    var csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
+    dl("\uFEFF"+csv,"PowerPlatform_Dictionary_"+stamp+".csv","text/csv;charset=utf-8");
+  }else{
+    var md="# Power Platform ノート辞書\n\n出力日："+new Date().toLocaleString("ja-JP")+"\n\n";
+    var gs={}; state.entries.forEach(function(e){ var k=prodLabel(e.prod)+" / "+e.group; (gs[k]=gs[k]||[]).push(e); });
+    Object.keys(gs).forEach(function(k){
+      md+="## "+k+"\n\n";
+      gs[k].forEach(function(e){
+        md+="### "+e.name+(SRC_LABEL[srcOf(e)]?"（"+SRC_LABEL[srcOf(e)]+"）":"")+"\n\n";
+        if(e.syntax) md+="`"+e.syntax+"`\n\n";
+        if(e.desc) md+=e.desc+"\n\n";
+        if(e.code&&e.code.trim()) md+="```\n"+e.code+"\n```\n\n";
+        if(e.table&&e.table.rows){
+          md+="| "+e.table.head.join(" | ")+" |\n|"+e.table.head.map(function(){return "---";}).join("|")+"|\n";
+          e.table.rows.forEach(function(r){ md+="| "+r.join(" | ")+" |\n"; });
+          md+="\n";
+        }
+        if(e.note) md+="> ⚠ "+e.note.replace(/\n/g,"\n> ")+"\n\n";
+        if(e.tags&&e.tags.length) md+="タグ："+e.tags.map(function(t){return "`"+t+"`";}).join(" ")+"\n\n";
+        if(e.refs&&e.refs.length){ md+="参考記事（URL未記録）：\n"; e.refs.forEach(function(r){ md+="- "+r+"\n"; }); md+="\n"; }
+        if(e.links&&e.links.length) e.links.forEach(function(l){ md+="- ["+l.label+"]("+l.url+")\n"; });
+        if(state.memos[e.id]) md+="\n**メモ：** "+state.memos[e.id]+"\n";
+        md+="\n";
+      });
+    });
+    dl(md,"PowerPlatform_Dictionary_"+stamp+".md","text/markdown;charset=utf-8");
+  }
+  closeOv("ovExp"); toast("ダウンロードを開始したよ");
+};
+function dl(content,filename,type){
+  var blob=new Blob([content],{type:type}), url=URL.createObjectURL(blob);
+  var a=document.createElement("a"); a.href=url; a.download=filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1500);
+}
+
+/* ---------- インポート ---------- */
+document.getElementById("btnImport").onclick=function(){
+  document.getElementById("impText").value=""; document.getElementById("impFile").value="";
+  openOv("ovImp");
+};
+document.getElementById("impFile").onchange=function(){
+  var f=this.files&&this.files[0]; if(!f) return;
+  var r=new FileReader();
+  r.onload=function(){ document.getElementById("impText").value=r.result; };
+  r.readAsText(f,"utf-8");
+};
+document.getElementById("impRun").onclick=function(){
+  var txt=document.getElementById("impText").value.trim();
+  if(!txt){ alert("JSONを選択するか貼り付けてね"); return; }
+  var d; try{ d=JSON.parse(txt); }catch(e){ alert("JSONの形式が正しくないみたい。\n\n"+e.message); return; }
+  var ents = Array.isArray(d)? d : (d.entries||[]);
+  if(!Array.isArray(ents)||!ents.length){ alert("entries が見つからないよ。エクスポートしたJSON形式か確認してね。"); return; }
+  var mode=document.getElementById("impMode").value;
+  if(mode==="replace"){
+    if(!confirm("既存データをすべて破棄して置き換えるよ。元に戻せないけど大丈夫？")) return;
+    state.entries=ents; state.memos=d.memos||{}; state.favs=d.favs||[];
+    toast("置換したよ（"+ents.length+" 件）");
+  }else{
+    var added=0,upd=0;
+    ents.forEach(function(e){
+      if(!e.id) e.id="U-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+      var i=-1; for(var k=0;k<state.entries.length;k++) if(state.entries[k].id===e.id){i=k;break;}
+      if(i>=0){ state.entries[i]=e; upd++; } else { state.entries.push(e); added++; }
+    });
+    if(d.memos) Object.keys(d.memos).forEach(function(k){ state.memos[k]=d.memos[k]; });
+    if(d.favs) d.favs.forEach(function(f){ if(state.favs.indexOf(f)<0) state.favs.push(f); });
+    toast("追加 "+added+" 件 / 更新 "+upd+" 件");
+  }
+  save(); closeOv("ovImp"); if(dvId) closeDetail(); render();
+};
+
+/* ---------- その他操作 ---------- */
+document.getElementById("q").oninput=function(){ state.q=this.value; render(); };
+document.getElementById("q").onkeydown=function(ev){
+  if(ev.key==="Enter"){
+    var l=currentList();
+    if(l.length) openDetail(l[0].id); else toast("該当する項目がないよ");
+  }
+};
+document.getElementById("qclr").onclick=function(){ document.getElementById("q").value=""; state.q=""; render(); };
+document.getElementById("srcFilter").onchange=function(){ state.src=this.value; render(); };
+document.getElementById("onlyFav").onchange=function(){ state.onlyFav=this.checked; render(); };
+document.getElementById("onlyMemo").onchange=function(){ state.onlyMemo=this.checked; render(); };
+document.getElementById("onlyCode").onchange=function(){ state.onlyCode=this.checked; render(); };
+document.getElementById("sortBy").onchange=function(){ state.sortBy=this.value; render(); };
+document.getElementById("btnPrint").onclick=function(){ window.print(); };
+document.getElementById("btnHelp").onclick=function(){ openOv("ovHelp"); };
+document.getElementById("btnReset").onclick=function(){
+  if(!confirm("初期データに戻すよ。\n自作項目・メモ・お気に入りは全部消えるけど大丈夫？\n（先に「⭳ エクスポート」でバックアップ推奨）")) return;
+  state.entries=SEED.slice(); state.memos={}; state.favs=[];
+  save(); if(dvId) closeDetail(); render(); toast("初期化したよ");
+};
+Array.prototype.forEach.call(document.querySelectorAll(".ov"),function(o){
+  o.addEventListener("click",function(ev){ if(ev.target===o) o.classList.remove("on"); });
+});
+document.addEventListener("keydown",function(e){
+  var tag=document.activeElement?document.activeElement.tagName:"";
+  var typing=(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT");
+  var ovOpen=!!document.querySelector(".ov.on");
+  var dvOpen=document.getElementById("dv").classList.contains("on");
+
+  if(e.key==="/" && !typing){ e.preventDefault(); document.getElementById("q").focus(); }
+
+  if(dvOpen && !ovOpen && !typing){
+    if(e.key==="ArrowLeft"){ e.preventDefault(); dvGo(-1); }
+    if(e.key==="ArrowRight"){ e.preventDefault(); dvGo(1); }
+  }
+  if(e.key==="Escape"){
+    if(ovOpen){ document.querySelector(".ov.on").classList.remove("on"); }
+    else if(dvOpen){ closeDetail(); }
+    else if(document.activeElement.id==="q"){ document.getElementById("q").value=""; state.q=""; render(); }
+  }
+  if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==="s"){ e.preventDefault(); openOv("ovExp"); }
+});
+
+/* ---------- 起動 ---------- */
+load(); render(); applyFs();
+</script>
+</body>
+</html>
